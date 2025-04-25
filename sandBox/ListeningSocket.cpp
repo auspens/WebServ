@@ -3,21 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   ListeningSocket.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:44:56 by auspensk          #+#    #+#             */
-/*   Updated: 2025/04/23 16:59:31 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/04/25 14:48:23 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ListeningSocket.hpp"
 
-ListeningSocket::ListeningSocket(std::string const &port, std::string const &host){
+ListeningSocket::ListeningSocket(int const port, std::string const &host){
 //set address parameters
 	std::memset(&_hints, 0, sizeof(_hints));
 	_hints.ai_family = AF_UNSPEC;
 	_hints.ai_socktype = SOCK_STREAM;
-	int s = getaddrinfo(host.c_str(), port.c_str(), &_hints, &_servinfo);
+	int s = getaddrinfo(host.c_str(), WebServUtils::to_string<int>(port).c_str(), &_hints, &_servinfo);
 	if (s != 0){
 		std::cout << gai_strerror(s) <<std::endl;
 		std::exit(EXIT_FAILURE);

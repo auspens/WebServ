@@ -3,12 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 17:00:59 by wpepping          #+#    #+#             */
-/*   Updated: 2025/04/24 17:26:32 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/04/25 14:43:15 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#pragma once
 
 #include <exception>
 #include <string>
@@ -30,5 +32,5 @@ public:
 private:
 	std::string	_host;
 	int			_port;
-
+	std::string _root_folder;
 };

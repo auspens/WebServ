@@ -1,31 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ListeningSocket.hpp                                :+:      :+:    :+:   */
+/*   WebServUtils.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/23 16:42:21 by auspensk          #+#    #+#             */
-/*   Updated: 2025/04/25 14:47:01 by wouter           ###   ########.fr       */
+/*   Created: 2025/04/25 14:38:47 by wouter            #+#    #+#             */
+/*   Updated: 2025/04/25 14:48:18 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
-#include "Socket.hpp"
-#include "WebServUtils.hpp"
+#include <sstream>
+#include <string>
 
-#define BACKLOG 15
+class WebServUtils {
+public:
+	template <typename T>
+	static std::string to_string(T src) {
+		std::ostringstream result;
+		result << src;
+		return result.str();
+	}
 
-class ListeningSocket : public Socket{
-	public:
-		ListeningSocket(int const port, std::string const &host);
-		void bindSocket();
-		void startListening();
-		struct epoll_event *getEpollevent();
-		~ListeningSocket();
-
-	private:
-		struct addrinfo _hints;
-		struct epoll_event *_epollEvent;
-		ListeningSocket();
+private:
+	WebServUtils();
+	~WebServUtils();
 };
