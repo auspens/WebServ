@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 17:00:59 by wpepping          #+#    #+#             */
-/*   Updated: 2025/04/25 14:43:15 by wouter           ###   ########.fr       */
+/*   Updated: 2025/04/25 16:58:54 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,9 @@ public:
 		public:
 		virtual const char* what() const throw();
 	};
+
 	ServerConfig();
+	ServerConfig(std::string host, int port);
 	~ServerConfig();
 	ServerConfig(const ServerConfig& other);
 	ServerConfig& operator=(const ServerConfig& other);

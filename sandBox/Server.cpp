@@ -6,43 +6,21 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/04/25 15:03:56 by wouter           ###   ########.fr       */
+/*   Updated: 2025/04/25 17:02:11 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-void Server::runEpollLoop(){
-	//epoll wait parameters here: fd of epoll instance,
-	//pointer to an array of epoll events (first element of the vector),
-	//MAX_SIZE is set to the total amount of connections + 1(for listening socket)
-	//TIMEOUT is set to -1, so the wait blocks until one of monitored fds is ready
-	std::vector<struct epoll_event> events;
-	std::map<int, Connection>::iterator conn;
-
-	while (true){
-		int size = _socketConnections.size() + _sourceConnections.size() + 1;
-		events.reserve(size);
-		int readyFds = epoll_wait(_epollInstance,&events[0],size, INFINITE_TIMEOUT);
-		check_for_error(readyFds);
-		for(int i = 0; i < readyFds; ++i){
-			if (events[i].data.fd == _listeningSocket.getFd())
-				handleIncomingConnection();
-			else {
-				conn = _socketConnections.find(events[i].data.fd);
-				if (conn != _socketConnections.end())
-					readFromSocket(_socketConnections.find(events[i].data.fd)->second);
-				else {
-					conn = _sourceConnections.find(events[i].data.fd);
-					if (conn != _sourceConnections.end())
-						readFromSource(_sourceConnections.find(events[i].data.fd)->second);
-				}
-			}
-		}
-	}
+void Server::init() {
+	_listen();
+	_runEpollLoop();
 }
 
-void Server::openToConnections(){
+void Server::_listen() {
+	_listeningSocket = new ListeningSocket(_config.getHost(), config.getPort());
+	_epollInstance = epoll_create(1);
+	SystemCallsUtilities::check_for_error(_epollInstance);
 	_listeningSocket.bindSocket();
 	_listeningSocket.startListening();
 	//add to epoll instance to listen for new incoming connections
@@ -53,17 +31,50 @@ void Server::openToConnections(){
 		_listeningSocket.getFd(), _listeningSocket.getEpollevent());
 }
 
+void Server::_runEpollLoop(){
+	//epoll wait parameters here: fd of epoll instance,
+	//pointer to an array of epoll events (first element of the vector),
+	//MAX_SIZE is set to the total amount of connections + 1(for listening socket)
+	//TIMEOUT is set to -1, so the wait blocks until one of monitored fds is ready
+	std::vector<struct epoll_event> events;
+	std::map<int, Connection>::iterator conn;
 
-Server::Server( int const &port, std::string const &host)
-		:_listeningSocket(port, host), _epollInstance(0){
-			_epollInstance = epoll_create(1);
-			check_for_error(_epollInstance);
+	while (true){
+		int size = _socketConnections.size() + _sourceConnections.size() + 1;
+		events.reserve(size);
+		int readyFds = epoll_wait(_epollInstance, &events[0],size, INFINITE_TIMEOUT);
+		SystemCallsUtilities::check_for_error(readyFds);
+		for(int i = 0; i < readyFds; ++i){
+			if (events[i].data.fd == _listeningSocket.getFd())
+				_handleIncomingConnection();
+			else {
+				conn = _socketConnections.find(events[i].data.fd);
+				if (conn != _socketConnections.end()) {
+					if (events[i].events & EPOLLIN)
+						_readFromSocket(conn->second);
+					if (events[i].events & EPOLLOUT)
+						_writeToSocket(conn->second);
+				else {
+					conn = _sourceConnections.find(events[i].data.fd);
+					if (conn != _sourceConnections.end())
+						_readFromSource(conn->second);
+				}
+			}
+		}
+	}
 }
-Server::Server(): _listeningSocket("localhost", 3490){
-	_epollInstance = epoll_create(1);
-	check_for_error(_epollInstance);
+
+Server::Server() {
+	ServerConfig config("localhost", 80);
+	_config = config;
 }
+
+Server::Server(ServerConfig config)	: _config(config) _epollInstance(epoll_create(1)) {
+	SystemCallsUtilities::check_for_error(_epollInstance);
+}
+
 Server::~Server(){
 	close(_epollInstance);
 }
+
 Server &Server::operator=(Server const &other){return *this;}

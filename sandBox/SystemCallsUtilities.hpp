@@ -13,6 +13,10 @@
 
 
 class SystemCallsUtilities{
-	protected:
-		void check_for_error(int return_value);
+public:
+	static void check_for_error(int return_value);
+
+private:
+	SystemCallsUtilities();
+	~SystemCallsUtilities();
 };
