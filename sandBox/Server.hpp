@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/04/25 17:29:56 by wouter           ###   ########.fr       */
+/*   Updated: 2025/04/25 18:00:45 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 
 class Server {
 	private:
+		ServerConfig				_config;
 		ListeningSocket 			*_listeningSocket;
 		int							_epollInstance;
 		std::map<int, Connection>	_socketConnections;
@@ -32,11 +33,14 @@ class Server {
 
 		void _listen();
 		void _runEpollLoop();
-		void _handleIncomingConnection(Connection conn);
+		void _handleIncomingConnection(Connection &conn);
+		void _readFromSocket(Connection &conn);
+		void _writeToSocket(Connection &conn);
+		void _readFromSource(Connection &conn);
 
 	public:
 		Server();
-		Server(ServerConfig config);
+		Server(ServerConfig &config);
 		~Server();
 
 		void init();
