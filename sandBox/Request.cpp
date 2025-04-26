@@ -1,33 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Socket.hpp                                         :+:      :+:    :+:   */
+/*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/22 10:42:49 by auspensk          #+#    #+#             */
-/*   Updated: 2025/04/26 17:54:12 by wouter           ###   ########.fr       */
+/*   Created: 2025/04/25 14:09:57 by wouter            #+#    #+#             */
+/*   Updated: 2025/04/26 18:01:14 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
+#include "Request.hpp"
 
-#include "SystemCallsUtilities.hpp"
+Request::Request() : _requestType("GET"), _target("/index.html"), _isReady(true) {}
 
+Request::~Request() {}
 
-class Socket {
-	protected:
-		int _fd;
-		struct addrinfo *_addrinfo;
+bool Request::isReady() const {
+	return _isReady;
+}
 
-	public:
-		Socket();
-		Socket(int fd);
-		Socket(int fd, struct addrinfo *addrinfo);
-		Socket(const Socket &other);
-		~Socket();
-		Socket &operator=(const Socket &other);
-
-		int		getFd() const;
-		void	close_sock();
-};
+void Request::read(int fd, int buffer_size) {
+	(void)fd;
+	(void)buffer_size;
+	_isReady = true;
+}

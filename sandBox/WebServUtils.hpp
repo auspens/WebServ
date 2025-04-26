@@ -6,10 +6,12 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 14:38:47 by wouter            #+#    #+#             */
-/*   Updated: 2025/04/25 14:48:18 by wouter           ###   ########.fr       */
+/*   Updated: 2025/04/26 17:16:34 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <cstdlib>
+#include <iostream>
 #include <sstream>
 #include <string>
 
@@ -21,6 +23,8 @@ public:
 		result << src;
 		return result.str();
 	}
+
+	void printErrorAndExit(std::string message, int exit_status);
 
 private:
 	WebServUtils();

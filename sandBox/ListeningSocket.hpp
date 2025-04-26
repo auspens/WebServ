@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:42:21 by auspensk          #+#    #+#             */
-/*   Updated: 2025/04/25 14:47:01 by wouter           ###   ########.fr       */
+/*   Updated: 2025/04/26 17:39:06 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,14 +18,14 @@
 
 class ListeningSocket : public Socket{
 	public:
-		ListeningSocket(int const port, std::string const &host);
-		void bindSocket();
-		void startListening();
-		struct epoll_event *getEpollevent();
+		ListeningSocket(int port, std::string const &host);
 		~ListeningSocket();
+
+		void				bindSocket();
+		void				startListening();
+		//struct epoll_event	*getEpollevent();
 
 	private:
 		struct addrinfo _hints;
-		struct epoll_event *_epollEvent;
 		ListeningSocket();
 };

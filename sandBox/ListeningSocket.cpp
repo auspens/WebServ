@@ -6,39 +6,39 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:44:56 by auspensk          #+#    #+#             */
-/*   Updated: 2025/04/25 14:48:23 by wouter           ###   ########.fr       */
+/*   Updated: 2025/04/26 17:54:20 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ListeningSocket.hpp"
 
-ListeningSocket::ListeningSocket(int const port, std::string const &host){
-//set address parameters
+ListeningSocket::ListeningSocket(int port, std::string const &host){
+	//set address parameters
 	std::memset(&_hints, 0, sizeof(_hints));
 	_hints.ai_family = AF_UNSPEC;
 	_hints.ai_socktype = SOCK_STREAM;
-	int s = getaddrinfo(host.c_str(), WebServUtils::to_string<int>(port).c_str(), &_hints, &_servinfo);
+	int s = getaddrinfo(host.c_str(), WebServUtils::to_string<int>(port).c_str(), &_hints, &_addrinfo);
 	if (s != 0){
 		std::cout << gai_strerror(s) <<std::endl;
 		std::exit(EXIT_FAILURE);
 	}
-//create socket
-	_fd = socket(_servinfo->ai_family, _servinfo->ai_socktype, _servinfo->ai_protocol);
-	check_for_error(_fd);
-//memset epoll event struct
-	std::memset(_epollEvent, 0, sizeof(*_epollEvent));
+
+	//create socket
+	_fd = socket(_addrinfo->ai_family, _addrinfo->ai_socktype, _addrinfo->ai_protocol);
+	SystemCallsUtilities::check_for_error(_fd);
 }
 
 void ListeningSocket::bindSocket(){
-// lose the pesky "Address already in use" error message
+	// lose the "Address already in use" error message
 	int yes=1;
-	check_for_error(setsockopt(_fd,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(yes)));
-//bind
-	check_for_error(bind(_fd, _servinfo->ai_addr, _servinfo->ai_addrlen));
+	SystemCallsUtilities::check_for_error(setsockopt(_fd, SOL_SOCKET,SO_REUSEADDR, &yes, sizeof(yes)));
+
+	//bind
+	SystemCallsUtilities::check_for_error(bind(_fd, _addrinfo->ai_addr, _addrinfo->ai_addrlen));
 }
 
 void ListeningSocket::startListening(){
-	check_for_error(listen(_fd, BACKLOG));
+	SystemCallsUtilities::check_for_error(listen(_fd, BACKLOG));
 	std::cout <<"Listening on socket" << std::endl;
 }
 
@@ -50,14 +50,15 @@ ListeningSocket::ListeningSocket(){
 		_hints.ai_family = AF_UNSPEC;
 		_hints.ai_socktype = SOCK_STREAM;
 		_hints.ai_flags = AI_PASSIVE;
-		int s = getaddrinfo(NULL, "3490", &_hints, &_servinfo);
+		int s = getaddrinfo(NULL, "3490", &_hints, &_addrinfo);
 		if (s != 0){
 			std::cout << gai_strerror(s) <<std::endl;
 			std::exit(EXIT_FAILURE);
 		}
-	//create socket
-		_fd = socket(_servinfo->ai_family,
-			_servinfo->ai_socktype, _servinfo->ai_protocol);
-		check_for_error(_fd);
+
+		//create socket
+		_fd = socket(_addrinfo->ai_family,
+			_addrinfo->ai_socktype, _addrinfo->ai_protocol);
+			SystemCallsUtilities::check_for_error(_fd);
 }
 

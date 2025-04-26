@@ -6,14 +6,20 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 17:00:59 by wpepping          #+#    #+#             */
-/*   Updated: 2025/04/25 16:58:54 by wouter           ###   ########.fr       */
+/*   Updated: 2025/04/26 17:56:10 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
+#include <cstdlib>
 #include <exception>
+#include <limits>
 #include <string>
+
+#define DEFAULT_PORT 8080
+#define DEFAULT_HOST "localhost"
+#define READ_BUFFER 1024
 
 class ServerConfig {
 public:
@@ -25,11 +31,16 @@ public:
 	ServerConfig();
 	ServerConfig(std::string host, int port);
 	~ServerConfig();
-	ServerConfig(const ServerConfig& other);
-	ServerConfig& operator=(const ServerConfig& other);
+	ServerConfig(const ServerConfig& src);
+	ServerConfig& operator=(const ServerConfig& src);
 
-	void setPort(const int port) throw(InvalidConfigValueException);
-	const int getPort() const;
+	void setPort(int port) throw(InvalidConfigValueException);
+	void setPort(std::string &port) throw(InvalidConfigValueException);
+	void setHost(std::string &host) throw(InvalidConfigValueException);
+
+	int getPort() const;
+	const std::string &getHost() const;
+	int getBufferSize() const;
 
 private:
 	std::string	_host;

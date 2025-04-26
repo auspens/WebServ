@@ -1,4 +1,4 @@
-NAME = exec
+NAME = webserv
 
 CC = c++
 
@@ -6,12 +6,26 @@ CFLAGS = -Wall -Wextra -Werror -std=c++98 -g
 
 OBJ_DIR = obj
 
-SRC = 	Socket.cpp \
-		main.cpp
+SRC = 	Config.cpp \
+		Connection.cpp \
+		ListeningSocket.cpp \
+		main.cpp \
+		Request.cpp \
+		ServerConfig.cpp \
+		Server.cpp \
+		Socket.cpp \
+		SystemCallsUtilities.cpp
 
 OBJ = $(SRC:src/%.cpp=$(OBJ_DIR)/%.o)
 
-HDR = Socket.hpp
+HDR = 	Config.hpp \
+		Connection.hpp \
+		ListeningSocket.hpp \
+		Request.hpp \
+		ServerConfig.hpp \
+		Server.hpp \
+		Socket.hpp \
+		SystemCallsUtilities.hpp
 
 all: $(NAME)
 
