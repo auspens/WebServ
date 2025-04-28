@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/04/26 18:22:27 by wouter           ###   ########.fr       */
+/*   Updated: 2025/04/28 14:04:15 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,8 @@ void Server::_runEpollLoop() {
 	}
 }
 
+//create an interface that would contain a handleSocketEven method and inmplement it for different classes.
+//This would allow to avoid these if-else statements
 void Server::_handleSocketEvent(struct epoll_event &event) {
 	std::map<int, Connection *>::iterator conn;
 

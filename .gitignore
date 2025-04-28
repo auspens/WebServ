@@ -1,0 +1,5 @@
+#executable
+webserv
+
+#default config file
+.config
