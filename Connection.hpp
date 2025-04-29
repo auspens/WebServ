@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: eleonora <eleonora@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/04/26 16:49:54 by wouter           ###   ########.fr       */
+/*   Updated: 2025/04/29 22:08:19 by eleonora         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,10 @@
 #include "SystemCallsUtilities.hpp"
 #include "Socket.hpp"
 
+#include "RequestParser.hpp"
+#include "HttpResponse.hpp"
 
+#include <sstream>
 
 class Connection{
 	public:
@@ -25,10 +28,13 @@ class Connection{
 
 		int		getSourceFd() const;
 		int		getSocketFd() const;
-		bool	requestReady() const;
+		//bool	requestReady() const;
 		void	readFromSocket(int buffer_size);
 		void	writeToSocket(int buffer_size);
 		void	prepSource();
+
+		RequestParser _parser;
+
 
 	private:
 		Connection(const Connection &src);
@@ -36,5 +42,6 @@ class Connection{
 		Connection();
 
 		Socket	_socket;
-		Request	_request;
+		HttpRequest	_request;
+		HttpResponse _response; 
 };

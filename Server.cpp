@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: eleonora <eleonora@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/04/28 14:04:15 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/04/29 22:32:28 by eleonora         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,8 +111,9 @@ void Server::_handleIncomingConnection(ListeningSocket &listeningSocket) {
 
 void Server::_readFromSocket(Connection &conn) {
 	conn.readFromSocket(_config.getBufferSize());
-	if (conn.requestReady())
+	if (conn._parser.isDone())
 	{
+		conn._parser.reset();
 		// finished reading request, prepare for write
 		// source fd should be open, but if not we may still need to write an error
 		if (conn.getSourceFd() > -1) {

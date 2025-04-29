@@ -13,7 +13,7 @@ bool RequestParser::isDone() const {
     return state == DONE;
 }
 
-const HttpRequest& RequestParser::getRequest() const {
+const HttpRequest RequestParser::getRequest() const {
     return request;
 }
 
@@ -82,13 +82,13 @@ bool RequestParser::parseHeaders() {
 bool RequestParser::parseBody() {
     if (request.method != "POST") return true;
 
-    auto it = request.headers.find("Content-Length");
+    std::map<std::string, std::string>::iterator it = request.headers.find("Content-Length");
     if (it == request.headers.end()) {
         state = ERROR;
         return false;
     }
 
-    contentLength = std::stoi(it->second);
+    contentLength = atoi(it->second.c_str());
     if (buffer.size() < contentLength) return false;
 
     request.body = buffer.substr(0, contentLength);

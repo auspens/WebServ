@@ -10,7 +10,7 @@ SRC = 	Config.cpp \
 		Connection.cpp \
 		ListeningSocket.cpp \
 		main.cpp \
-		Request.cpp \
+		RequestParser.cpp \
 		ServerConfig.cpp \
 		Server.cpp \
 		Socket.cpp \
@@ -21,7 +21,9 @@ OBJ = $(SRC:src/%.cpp=$(OBJ_DIR)/%.o)
 HDR = 	Config.hpp \
 		Connection.hpp \
 		ListeningSocket.hpp \
-		Request.hpp \
+		RequestParser.hpp \
+		HttpRequest.hpp \
+		HttpResponse.hpp \
 		ServerConfig.hpp \
 		Server.hpp \
 		Socket.hpp \

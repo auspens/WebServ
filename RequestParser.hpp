@@ -4,6 +4,8 @@
 #include <string>
 #include <sstream>
 
+#include <stdlib.h>     /* atoi */
+
 class RequestParser {
     public:
         enum ParseState { 
@@ -21,7 +23,7 @@ class RequestParser {
         RequestParser();
         ParseResult parse(const char* data, size_t len);
         bool isDone() const;
-        const HttpRequest& getRequest() const;
+        const HttpRequest getRequest() const;
         void reset();
     
     private:
