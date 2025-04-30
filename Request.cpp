@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 14:09:57 by wouter            #+#    #+#             */
-/*   Updated: 2025/04/26 18:01:14 by wouter           ###   ########.fr       */
+/*   Updated: 2025/04/29 10:27:21 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,3 +25,5 @@ void Request::read(int fd, int buffer_size) {
 	(void)buffer_size;
 	_isReady = true;
 }
+
+const std::string &Request::getTarget()const { return _target;}

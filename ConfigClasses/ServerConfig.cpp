@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 12:55:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/04/26 16:57:10 by wouter           ###   ########.fr       */
+/*   Updated: 2025/04/30 13:48:28 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,11 @@
 
 ServerConfig::ServerConfig() { }
 
-ServerConfig::ServerConfig(std::string host, int port) : _host(host), _port(port) {}
+ServerConfig::ServerConfig(std::string host, int port) : _host(host), _port(port) {
+	//this is placeholder
+	std::string path("/");
+	_locations[0] = Location(path);
+}
 
 ServerConfig::~ServerConfig() { }
 
@@ -71,4 +75,17 @@ int ServerConfig::getBufferSize() const {
 
 const char* ServerConfig::InvalidConfigValueException::what() const throw() {
 	return "Invalid config value exception";
+}
+
+const std::string & ServerConfig::getRootFolder()const {
+	return _root_folder;
+}
+
+
+const std::map<int, std::string> &ServerConfig:: getErrorPages()const{
+	return _errorPages;
+}
+
+const std::vector<Location> &ServerConfig::getLocations()const{
+	return _locations;
 }
