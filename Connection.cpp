@@ -6,7 +6,7 @@
 /*   By: eleonora <eleonora@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/04/29 22:36:00 by eleonora         ###   ########.fr       */
+/*   Updated: 2025/05/03 22:38:51 by eleonora         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,9 +39,6 @@ int Connection::getSourceFd() const {
 	return -1;
 }
 
-// bool Connection::requestReady() const {
-// 	return _request.isReady();
-// }
 
 static std::string num_to_str(size_t num) {
 	std::ostringstream convert;   // stream used for the conversion
@@ -54,42 +51,15 @@ void Connection::readFromSocket(int buffer_size) {
   	int valread = read(_socket.getFd(), buffer, buffer_size);
 	if (_parser.parse(buffer, valread) != RequestParser::COMPLETE)
 		return ;
-    _request = _parser.getRequest();
-	//_parser.reset(); too eaely
+    _request = _parser.getRequest(); // maybe weird for it to sit here..
 	prepSource();
-
-	HttpResponse resp;
-	
-	resp.http_version = _request.http_version;
-
-  	if (_request.uri == "/") {
-    	resp.code = "200";
-    	resp.status = "OK";
-  	}
-	else if (_request.uri.substr(0,6) == "/echo/") {
-		resp.body = _request.uri.substr(6);
-		resp.code = "200";
-		resp.status = "OK";
-		resp.headers["Content-Type"] = "text/plain";
-		resp.headers["Content-Length"] = num_to_str(resp.body.length());
-	} 
-	else if (_request.uri.substr(0,11) == "/user-agent") {
-		resp.body = _request.headers["User-Agent"];
-		resp.code = "200";
-		resp.status = "OK";
-		resp.headers["Content-Type"] = "text/plain";
-		resp.headers["Content-Length"] = num_to_str(resp.body.length());
-	}
-	else {
-		resp.code = "404";
-		resp.status = "Not Found";
-	}
-	_response = resp;
+	generateResponse();
 }
 
 void Connection::writeToSocket(int buffer_size) {
 	
 	(void)buffer_size;
+	
 	std::string response;
 	response.append(_response.http_version + " " + _response.code + " " + _response.status + "\r\n");
 	for (std::map<std::string, std::string>::iterator it = _response.headers.begin(); it != _response.headers.end(); ++it)
@@ -102,7 +72,7 @@ void Connection::writeToSocket(int buffer_size) {
 	ssize_t bytes_sent = send(_socket.getFd(), response.c_str(), response.length(), 0);
 	if (bytes_sent != (ssize_t)response.length()) {
 		std::cerr << "Partial write! Only sent " << bytes_sent << " bytes out of " << response.length() << std::endl;
-		// You must handle it here (loop, or error)
+		//  must handle it here (loop, or error)
 	}
 	
 	// Tell the peer that we finished sending
@@ -112,4 +82,42 @@ void Connection::writeToSocket(int buffer_size) {
 }
 
 void Connection::prepSource() {
+}
+
+void Connection::generateResponse() {
+	
+	_response.headers.clear();
+	_response.body = "";
+	_response.http_version = _request.http_version;
+
+  	if (_request.uri == "/") {
+    	_response.code = "200";
+    	_response.status = "OK";
+  	}
+	else if (_request.uri.substr(0,6) == "/echo/") {
+		_response.body = _request.uri.substr(6);
+		_response.code = "200";
+		_response.status = "OK";
+		_response.headers["Content-Type"] = "text/plain";
+		_response.headers["Content-Length"] = num_to_str(_response.body.length());
+	} 
+	else if (_request.uri.substr(0,11) == "/user-agent") {
+		_response.body = _request.headers["User-Agent"];
+		_response.code = "200";
+		_response.status = "OK";
+		_response.headers["Content-Type"] = "text/plain";
+		_response.headers["Content-Length"] = num_to_str(_response.body.length());
+	}
+	else {
+		_response.code = "404";
+		_response.status = "Not Found";
+	}
+}
+
+bool Connection::requestReady() const {
+	return _parser.isDone();
+}
+
+void Connection::resetParser() {
+	_parser.reset();
 }

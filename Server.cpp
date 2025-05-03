@@ -6,7 +6,7 @@
 /*   By: eleonora <eleonora@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/04/29 22:32:28 by eleonora         ###   ########.fr       */
+/*   Updated: 2025/05/03 22:24:37 by eleonora         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,9 +111,9 @@ void Server::_handleIncomingConnection(ListeningSocket &listeningSocket) {
 
 void Server::_readFromSocket(Connection &conn) {
 	conn.readFromSocket(_config.getBufferSize());
-	if (conn._parser.isDone())
+	if (conn.requestReady())
 	{
-		conn._parser.reset();
+		conn.resetParser();
 		// finished reading request, prepare for write
 		// source fd should be open, but if not we may still need to write an error
 		if (conn.getSourceFd() > -1) {
