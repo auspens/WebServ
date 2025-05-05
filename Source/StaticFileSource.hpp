@@ -6,27 +6,25 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:08:43 by auspensk          #+#    #+#             */
-/*   Updated: 2025/04/30 16:50:32 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/05 15:00:23 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 #include "Source.hpp"
-#include "SystemCallsUtilities.hpp"
-#include "WebServUtils.hpp"
-#include "ServerConfig.hpp"
+#include "../SystemCallsUtilities.hpp"
+#include "../WebServUtils.hpp"
+#include "../ConfigClasses/ServerConfig.hpp"
+#include <dirent.h>
 
 class StaticFileSource : public Source {
 	public:
-		void *read();
+		void read();
 		bool checkForRedirections();
 		StaticFileSource(const std::string &target, const ServerConfig &serverConfig);
 		~StaticFileSource();
 
 	private:
-		StaticFileSource(const StaticFileSource &src);
-		StaticFileSource &operator=(const StaticFileSource &other);
-
 		void checkIfExists();
 		void checkIfDirectory();
 		std::string generateIndex()const;

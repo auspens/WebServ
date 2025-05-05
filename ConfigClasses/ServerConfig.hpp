@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 17:00:59 by wpepping          #+#    #+#             */
-/*   Updated: 2025/04/30 13:14:04 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/05 15:12:48 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ public:
 	void setPort(int port) throw(InvalidConfigValueException);
 	void setPort(std::string &port) throw(InvalidConfigValueException);
 	void setHost(std::string &host) throw(InvalidConfigValueException);
+	void setRootFolder(const std::string &rootFolder)throw(InvalidConfigValueException);
 
 	int getPort() const;
 	const std::string &getHost() const;
@@ -51,7 +52,7 @@ public:
 private:
 	std::string							_host;
 	int									_port;
-	std::string 						_root_folder;
+	std::string 						_rootFolder;
 	std::map<int, std::string>			_errorPages;
 	std::vector<Location>				_locations;
 };

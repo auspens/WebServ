@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/04/30 17:00:18 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/05 16:37:43 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,19 @@
 StaticFileSource::StaticFileSource(const std::string &target, const ServerConfig &serverConfig)
 		: Source(target, serverConfig){}
 
-void *StaticFileSource::read(){
+StaticFileSource::~StaticFileSource(){}
+
+void StaticFileSource::read(){
 	checkIfDirectory();
 	checkIfExists();
-	_fd = open(_target.c_str(), O_RDONLY, O_CLOEXEC);
+	std::ifstream file(_target.c_str(), std::ios::binary | std::ios::ate);
+	if (!file)
+		throw Source::SourceException("Could not open filestream");
+	_size = file.tellg();
+	file.seekg(0, std::ios::beg);
+	_bytesRead.resize(_size);
+	if(!file.read(_bytesRead.data(), _size).good())
+		throw Source::SourceException("Could not read from filestream");
 }
 
 bool StaticFileSource::checkForRedirections(){
@@ -46,8 +55,10 @@ void StaticFileSource::checkIfDirectory(){
 }
 
 void StaticFileSource::checkIfExists(){
-	if (access(_serverConfig.getRootFolder().c_str(), R_OK))
+	DIR *dir = opendir(_serverConfig.getRootFolder().c_str());
+	if (!dir)
 		throw (Source::SourceException("No root folder"));
+	closedir(dir);
 	if(access(_target.c_str(), R_OK))
 		_target = getErrorPage(404);
 	if(access(_target.c_str(), R_OK))

@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/04/30 16:40:34 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/05 11:30:08 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,6 +133,7 @@ void Server::_readFromSource(Connection &conn) {
 	if (source.checkForRedirections()){
 		//form a response for 301/302(code is saved at source._code, new location at source._target)
 	}
+	source.read();
 	(void)conn;
 }
 

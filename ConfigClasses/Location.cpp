@@ -6,16 +6,21 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 12:40:08 by auspensk          #+#    #+#             */
-/*   Updated: 2025/04/30 14:56:31 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/05 16:37:26 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Location.hpp"
 
-Location::Location(std::string &path)
+Location::Location()
+		: _path(""),
+		_autoindex(false),
+		_index("index.html"),
+		_redirect(0, ""){}
+Location::Location(const std::string &path)
 		: _path(path),
 		_autoindex(false),
-		_index(""),
+		_index("index.html"),
 		_redirect(0, ""){}
 Location::~Location(){}
 Location::Location(const Location &src)
@@ -47,7 +52,7 @@ const std::pair<int, std::string> &Location::getRedirect()const{
 const std::map<int, std::string> &Location::getErorrPagesLocal()const{
 	return _errorPagesLocal;
 }
-void Location::setIndex(std::string &index){
+void Location::setIndex(const std::string &index){
 	_index = index;
 }
 void Location::setAutoindex(bool autoindex){

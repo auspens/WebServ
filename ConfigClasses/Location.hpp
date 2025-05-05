@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 11:41:02 by auspensk          #+#    #+#             */
-/*   Updated: 2025/04/30 13:11:56 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/05 15:13:06 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,8 @@
 
 class Location{
 	public:
-		Location(std::string &path);
+		Location();
+		Location(const std::string &path);
 		~Location();
 		Location(const Location &src);
 		Location &operator =(const Location &other);
@@ -27,7 +28,7 @@ class Location{
 		const std::pair<int, std::string> &getRedirect()const;
 		const std::map<int, std::string> &getErorrPagesLocal()const;
 
-		void setIndex(std::string &index);
+		void setIndex(const std::string &index);
 		void setAutoindex(bool autoindex);
 		void setRedirect(std::pair<int, std::string> &redirect);
 		void setErrorPagesLocal(std::map<int, std::string> &errorPages);
