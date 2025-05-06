@@ -1,33 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   WebServUtils.hpp                                   :+:      :+:    :+:   */
+/*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/25 14:38:47 by wouter            #+#    #+#             */
-/*   Updated: 2025/05/05 11:47:09 by auspensk         ###   ########.fr       */
+/*   Created: 2025/04/25 14:09:57 by wouter            #+#    #+#             */
+/*   Updated: 2025/04/29 10:27:21 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
-#include <cstdlib>
-#include <iostream>
-#include <sstream>
-#include <string>
+#include "Request.hpp"
 
-class WebServUtils {
-public:
-	template <typename T>
-	static std::string to_string(T src) {
-		std::ostringstream result;
-		result << src;
-		return result.str();
-	}
+Request::Request() : _requestType("GET"), _target("/index.html"), _isReady(true) {}
 
-	void printErrorAndExit(std::string message, int exit_status);
+Request::~Request() {}
 
-private:
-	WebServUtils();
-	~WebServUtils();
-};
+bool Request::isReady() const {
+	return _isReady;
+}
+
+void Request::read(int fd, int buffer_size) {
+	(void)fd;
+	(void)buffer_size;
+	_isReady = true;
+}
+
+const std::string &Request::getTarget()const { return _target;}

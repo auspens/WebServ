@@ -2,11 +2,15 @@ NAME = webserv
 
 CC = c++
 
-CFLAGS = -Wall -Wextra -Werror -std=c++98 -g
+CFLAGS = -Wall -Wextra -Werror -std=c++98 -g -fsanitize=address
 
 OBJ_DIR = obj
 
-SRC = 	Config.cpp \
+SRC = 	ConfigClasses/Config.cpp \
+		ConfigClasses/Location.cpp \
+		ConfigClasses/ServerConfig.cpp \
+		Source/Source.cpp \
+		Source/StaticFileSource.cpp \
 		Connection.cpp \
 		ListeningSocket.cpp \
 		main.cpp \
@@ -14,11 +18,17 @@ SRC = 	Config.cpp \
 		ServerConfig.cpp \
 		Server.cpp \
 		Socket.cpp \
-		SystemCallsUtilities.cpp
+		SystemCallsUtilities.cpp \
+		WebServUtils.cpp \
+		Tests/TestSource.cpp
 
 OBJ = $(SRC:src/%.cpp=$(OBJ_DIR)/%.o)
 
-HDR = 	Config.hpp \
+HDR = 	ConfigClasses/Config.hpp \
+		ConfigClasses/Location.hpp \
+		ConfigClasses/ServerConfig.hpp \
+		Source/Source.hpp \
+		Source/StaticFileSource.hpp \
 		Connection.hpp \
 		ListeningSocket.hpp \
 		RequestParser.hpp \
@@ -27,7 +37,8 @@ HDR = 	Config.hpp \
 		ServerConfig.hpp \
 		Server.hpp \
 		Socket.hpp \
-		SystemCallsUtilities.hpp
+		SystemCallsUtilities.hpp \
+		WebServUtlis.hpp
 
 all: $(NAME)
 

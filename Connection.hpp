@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eleonora <eleonora@student.42.fr>          +#+  +:+       +#+        */
+/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/03 22:23:50 by eleonora         ###   ########.fr       */
+/*   Updated: 2025/05/06 10:07:23 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include "HttpResponse.hpp"
 
 #include <sstream>
+#include <vector>
 
 class Connection{
 	public:
@@ -33,6 +34,7 @@ class Connection{
 		void	prepSource();
 		void 	generateResponse();
 		void	resetParser();
+		const std::string& getTarget() const;
 
 
 	private:

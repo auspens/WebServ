@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eleonora <eleonora@student.42.fr>          +#+  +:+       +#+        */
+/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/03 22:38:51 by eleonora         ###   ########.fr       */
+/*   Updated: 2025/05/06 10:04:59 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,9 +47,11 @@ static std::string num_to_str(size_t num) {
 }
 
 void Connection::readFromSocket(int buffer_size) {
-	char buffer[buffer_size] = {0};
-  	int valread = read(_socket.getFd(), buffer, buffer_size);
-	if (_parser.parse(buffer, valread) != RequestParser::COMPLETE)
+	
+	std::vector<char> buffer;
+	buffer.reserve(buffer_size);
+  	int valread = read(_socket.getFd(), buffer.data(), buffer_size);
+	if (_parser.parse(buffer.data(), valread) != RequestParser::COMPLETE)
 		return ;
     _request = _parser.getRequest(); // maybe weird for it to sit here..
 	prepSource();
@@ -120,4 +122,8 @@ bool Connection::requestReady() const {
 
 void Connection::resetParser() {
 	_parser.reset();
+}
+
+const std::string& Connection::getTarget() const {
+	return (_request.uri);
 }
