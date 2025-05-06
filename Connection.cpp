@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/04/30 16:21:27 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/06 10:04:59 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,30 +39,91 @@ int Connection::getSourceFd() const {
 	return -1;
 }
 
-bool Connection::requestReady() const {
-	return _request.isReady();
+
+static std::string num_to_str(size_t num) {
+	std::ostringstream convert;   // stream used for the conversion
+	convert << num;      // insert the textual representation of 'Number' in the characters in the stream
+	return convert.str();
 }
 
 void Connection::readFromSocket(int buffer_size) {
-	_request.read(_socket.getFd(), buffer_size);
-
-	if (_request.isReady())
-		prepSource();
+	
+	std::vector<char> buffer;
+	buffer.reserve(buffer_size);
+  	int valread = read(_socket.getFd(), buffer.data(), buffer_size);
+	if (_parser.parse(buffer.data(), valread) != RequestParser::COMPLETE)
+		return ;
+    _request = _parser.getRequest(); // maybe weird for it to sit here..
+	prepSource();
+	generateResponse();
 }
 
 void Connection::writeToSocket(int buffer_size) {
-	const char	*str = "<html><body><header>Hello World!</header></body></html>\n";
-	int			bytes_sent;
-
+	
 	(void)buffer_size;
-	(void)bytes_sent;
-	bytes_sent = send(_socket.getFd(), str, strlen(str), 0);
+	
+	std::string response;
+	response.append(_response.http_version + " " + _response.code + " " + _response.status + "\r\n");
+	for (std::map<std::string, std::string>::iterator it = _response.headers.begin(); it != _response.headers.end(); ++it)
+		response += it->first + ": " + it->second + "\r\n";
+	response += "\r\n"; // END of headers: blank line
+	response += _response.body;
+	
+	std::cout << "response is: " << response << std::endl;
+	
+	ssize_t bytes_sent = send(_socket.getFd(), response.c_str(), response.length(), 0);
+	if (bytes_sent != (ssize_t)response.length()) {
+		std::cerr << "Partial write! Only sent " << bytes_sent << " bytes out of " << response.length() << std::endl;
+		//  must handle it here (loop, or error)
+	}
+	
+	// Tell the peer that we finished sending
+  	//shutdown(_socket.getFd(), SHUT_RDWR);
+	
 	_socket.close_sock();
 }
 
 void Connection::prepSource() {
 }
 
-const std::string &Connection::getRequestTarget()const{
-	return _request.getTarget();
+void Connection::generateResponse() {
+	
+	_response.headers.clear();
+	_response.body = "";
+	_response.http_version = _request.http_version;
+
+  	if (_request.uri == "/") {
+    	_response.code = "200";
+    	_response.status = "OK";
+  	}
+	else if (_request.uri.substr(0,6) == "/echo/") {
+		_response.body = _request.uri.substr(6);
+		_response.code = "200";
+		_response.status = "OK";
+		_response.headers["Content-Type"] = "text/plain";
+		_response.headers["Content-Length"] = num_to_str(_response.body.length());
+	} 
+	else if (_request.uri.substr(0,11) == "/user-agent") {
+		_response.body = _request.headers["User-Agent"];
+		_response.code = "200";
+		_response.status = "OK";
+		_response.headers["Content-Type"] = "text/plain";
+		_response.headers["Content-Length"] = num_to_str(_response.body.length());
+	}
+	else {
+		_response.code = "404";
+		_response.status = "Not Found";
+	}
+}
+
+bool Connection::requestReady() const {
+	return _parser.isDone();
+}
+
+void Connection::resetParser() {
+	_parser.reset();
+}
+
+const std::string& Connection::getTarget() const {
+	return (_request.uri);
 }

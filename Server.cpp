@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/05 11:30:08 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/06 10:07:32 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,6 +114,7 @@ void Server::_readFromSocket(Connection &conn) {
 	conn.readFromSocket(_config.getBufferSize());
 	if (conn.requestReady())
 	{
+		conn.resetParser();
 		// finished reading request, prepare for write
 		// source fd should be open, but if not we may still need to write an error
 		if (conn.getSourceFd() > -1) {
@@ -129,7 +130,7 @@ void Server::_writeToSocket(Connection &conn) {
 }
 
 void Server::_readFromSource(Connection &conn) {
-	StaticFileSource source(conn.getRequestTarget(), _config);
+	StaticFileSource source(conn.getTarget(), _config);
 	if (source.checkForRedirections()){
 		//form a response for 301/302(code is saved at source._code, new location at source._target)
 	}

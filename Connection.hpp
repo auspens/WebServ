@@ -3,17 +3,22 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/04/30 16:40:46 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/06 10:07:23 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-#include "Request.hpp"
 #include "SystemCallsUtilities.hpp"
 #include "Socket.hpp"
+
+#include "RequestParser.hpp"
+#include "HttpResponse.hpp"
+
+#include <sstream>
+#include <vector>
 
 class Connection{
 	public:
@@ -27,7 +32,10 @@ class Connection{
 		void	readFromSocket(int buffer_size);
 		void	writeToSocket(int buffer_size);
 		void	prepSource();
-		const	std::string &getRequestTarget()const;
+		void 	generateResponse();
+		void	resetParser();
+		const std::string& getTarget() const;
+
 
 	private:
 		Connection(const Connection &src);
@@ -35,5 +43,7 @@ class Connection{
 		Connection();
 
 		Socket	_socket;
-		Request	_request;
+		RequestParser _parser;
+		HttpRequest	_request;
+		HttpResponse _response; 
 };
