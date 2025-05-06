@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:11:08 by wouter            #+#    #+#             */
-/*   Updated: 2025/04/26 17:56:08 by wouter           ###   ########.fr       */
+/*   Updated: 2025/05/06 12:11:22 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,5 +55,6 @@ void Config::_parseConfigFile(std::string &configFile) {
 ServerConfig Config::_parseServerConfig(std::ifstream &configFile) {
 	(void)configFile;
 	ServerConfig config(DEFAULT_HOST, DEFAULT_PORT);
+	config.setRootFolder("www");
 	return config;
 }
