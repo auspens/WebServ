@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/06 13:12:06 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/06 18:00:40 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ void Server::_runEpollLoop() {
 	}
 }
 
-//create an interface that would contain a handleSocketEven method and inmplement it for different classes.
+//create an interface that would contain a handleSocketEven method and implement it for different classes.
 //This would allow to avoid these if-else statements
 void Server::_handleSocketEvent(struct epoll_event &event) {
 	std::map<int, Connection *>::iterator conn;
@@ -115,19 +115,19 @@ void Server::_readFromSocket(Connection &conn) {
 	if (conn.requestReady())
 	{
 		conn.resetParser();
+	// finished reading request, create the source
 		try {
-			_readFromSource(conn);
+			conn.setSource(Source::getNewSource(conn.getTarget(), _config));
 		}
 		catch (Source::SourceException &e){
 			std::cout << e.what() << std::endl;
 		}
 
-		// finished reading request, prepare for write
-		// source fd should be open, but if not we may still need to write an error
-		// if (conn.getSourceFd() > -1) {
-		// 	_sourceConnections.insert(std::make_pair(conn.getSourceFd(), &conn));
-		// 	_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn.getSourceFd());
-		// }
+	// add source fd to epoll
+		if (conn.getSourceFd() > -1) {
+			_sourceConnections.insert(std::make_pair(conn.getSourceFd(), &conn));
+			_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn.getSourceFd());
+		}
 		_updateEpoll(EPOLL_CTL_MOD, EPOLLOUT, conn.getSocketFd());
 	}
 }
@@ -137,10 +137,7 @@ void Server::_writeToSocket(Connection &conn) {
 }
 
 void Server::_readFromSource(Connection &conn) {
-	conn.setSource(new StaticFileSource(conn.getTarget(), _config));
-	if (conn.getSource()->checkForRedirections()){
-		//form a response for 301/302(code is saved at source._code, new location at source._target)
-	}
+
 	conn.getSource()->read();
 	conn.generateResponse();
 }

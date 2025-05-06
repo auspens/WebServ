@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/06 12:33:37 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/06 18:13:27 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,13 @@
 #include <string>
 #include "../ConfigClasses/ServerConfig.hpp"
 #include <fstream>
+#include "RedirectSource.hpp"
+#include "StaticFileSource.hpp"
+#include <unistd.h>
+
+class StaticFileSource;
+
+enum SourceType {STATIC, REDIRECT, CGI};
 
 class Source {
 	public:
@@ -25,23 +32,27 @@ class Source {
 				const char *what() const throw();
 				~SourceException()throw();
 		};
-		virtual void read() = 0;
-		virtual ~Source();
-		int getCode()const;
-		std::string getMime()const;
-		int getSize()const;
-		std::vector<char> const &getBytesRead()const;
-		bool checkForRedirections();
+		virtual 					~Source();
+		virtual void 				readSource() = 0;
+
+		int 						getCode()const;
+		std::string 				getMime()const;
+		std::vector<char> const &	getBytesRead()const;
+		int 						getFd()const;
+
+		static Source *				getNewSource(const std::string &target, const ServerConfig &serverConfig);
 
 	protected:
 		int					_code;
+		int					_fd;
+		SourceType			_type;
 		ServerConfig		_serverConfig;
 		Location			_location;
 		std::string			_target;
 		std::string			_mime;
-		int					_size;
 		std::vector<char>	_bytesRead;
 		Source(const std::string &target, const ServerConfig &serverConfig);
+
 	private:
-		const Location &defineLocation(const std::string &target, const ServerConfig &serverConfig);
+		static const Location &defineLocation(const std::string &target, const ServerConfig &serverConfig);
 };

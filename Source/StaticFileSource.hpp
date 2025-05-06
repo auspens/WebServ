@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:08:43 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/06 11:40:36 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/06 18:08:52 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,8 @@
 
 class StaticFileSource : public Source {
 	public:
-		void read();
-		StaticFileSource(const std::string &target, const ServerConfig &serverConfig);
+		void readSource();
+		StaticFileSource(const std::string &target, const ServerConfig &serverConfig, Location const &location);
 		~StaticFileSource();
 
 	private:

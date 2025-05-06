@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/06 12:20:46 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/06 17:59:17 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ int Connection::getSocketFd() const {
 }
 
 int Connection::getSourceFd() const {
-	return -1;
+	return _source->getFd();
 }
 
 Source *Connection::getSource()const{
