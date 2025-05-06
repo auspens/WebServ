@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/04/26 16:49:54 by wouter           ###   ########.fr       */
+/*   Updated: 2025/04/30 16:40:46 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ class Connection{
 		void	readFromSocket(int buffer_size);
 		void	writeToSocket(int buffer_size);
 		void	prepSource();
+		const	std::string &getRequestTarget()const;
 
 	private:
 		Connection(const Connection &src);

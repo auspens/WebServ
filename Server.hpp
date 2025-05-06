@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/04/26 17:31:52 by wouter           ###   ########.fr       */
+/*   Updated: 2025/05/05 11:45:58 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 #include "ListeningSocket.hpp"
 #include "Connection.hpp"
-#include "ServerConfig.hpp"
+#include "ConfigClasses/ServerConfig.hpp"
 #include <map>
 #include <vector>
 
