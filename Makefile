@@ -2,7 +2,7 @@ NAME = webserv
 
 CC = c++
 
-CFLAGS = -Wall -Wextra -Werror -std=c++98 -g -fsanitize=address
+CFLAGS = -Wall -Wextra -Werror -std=c++98 -g 
 
 OBJ_DIR = obj
 
@@ -15,7 +15,6 @@ SRC = 	ConfigClasses/Config.cpp \
 		ListeningSocket.cpp \
 		main.cpp \
 		RequestParser.cpp \
-		ServerConfig.cpp \
 		Server.cpp \
 		Socket.cpp \
 		SystemCallsUtilities.cpp \

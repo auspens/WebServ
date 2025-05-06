@@ -3,3 +3,7 @@ webserv
 
 #default config file
 .config
+
+#vscode
+.vscode/
+

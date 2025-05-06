@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/05 15:23:01 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/06 12:33:37 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ class Source {
 				std::string _error;
 			public:
 				SourceException(std::string error) throw();
+				const char *what() const throw();
 				~SourceException()throw();
 		};
 		virtual void read() = 0;
@@ -30,6 +31,7 @@ class Source {
 		std::string getMime()const;
 		int getSize()const;
 		std::vector<char> const &getBytesRead()const;
+		bool checkForRedirections();
 
 	protected:
 		int					_code;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/06 10:07:32 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/06 13:12:06 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,12 +115,19 @@ void Server::_readFromSocket(Connection &conn) {
 	if (conn.requestReady())
 	{
 		conn.resetParser();
+		try {
+			_readFromSource(conn);
+		}
+		catch (Source::SourceException &e){
+			std::cout << e.what() << std::endl;
+		}
+
 		// finished reading request, prepare for write
 		// source fd should be open, but if not we may still need to write an error
-		if (conn.getSourceFd() > -1) {
-			_sourceConnections.insert(std::make_pair(conn.getSourceFd(), &conn));
-			_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn.getSourceFd());
-		}
+		// if (conn.getSourceFd() > -1) {
+		// 	_sourceConnections.insert(std::make_pair(conn.getSourceFd(), &conn));
+		// 	_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn.getSourceFd());
+		// }
 		_updateEpoll(EPOLL_CTL_MOD, EPOLLOUT, conn.getSocketFd());
 	}
 }
@@ -130,12 +137,12 @@ void Server::_writeToSocket(Connection &conn) {
 }
 
 void Server::_readFromSource(Connection &conn) {
-	StaticFileSource source(conn.getTarget(), _config);
-	if (source.checkForRedirections()){
+	conn.setSource(new StaticFileSource(conn.getTarget(), _config));
+	if (conn.getSource()->checkForRedirections()){
 		//form a response for 301/302(code is saved at source._code, new location at source._target)
 	}
-	source.read();
-	(void)conn;
+	conn.getSource()->read();
+	conn.generateResponse();
 }
 
 void Server::_updateEpoll(int action, int events, int fd) {

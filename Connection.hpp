@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/06 10:07:23 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/06 11:43:04 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 #include "SystemCallsUtilities.hpp"
 #include "Socket.hpp"
+#include "Source/StaticFileSource.hpp"
 
 #include "RequestParser.hpp"
 #include "HttpResponse.hpp"
@@ -35,6 +36,8 @@ class Connection{
 		void 	generateResponse();
 		void	resetParser();
 		const std::string& getTarget() const;
+		Source	*getSource() const;
+		void	setSource(Source *source);
 
 
 	private:
@@ -42,8 +45,9 @@ class Connection{
 		Connection &operator=(const Connection &other);
 		Connection();
 
-		Socket	_socket;
-		RequestParser _parser;
-		HttpRequest	_request;
-		HttpResponse _response; 
+		Socket			_socket;
+		RequestParser	_parser;
+		HttpRequest		_request;
+		HttpResponse	_response;
+		Source			*_source;
 };

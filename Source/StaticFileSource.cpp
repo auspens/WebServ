@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/05 16:37:43 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/06 12:26:28 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,15 +28,6 @@ void StaticFileSource::read(){
 	_bytesRead.resize(_size);
 	if(!file.read(_bytesRead.data(), _size).good())
 		throw Source::SourceException("Could not read from filestream");
-}
-
-bool StaticFileSource::checkForRedirections(){
-	if (_location.getRedirect().first != 0){
-		_code = _location.getRedirect().first;
-		_target = _location.getRedirect().second;
-		return true;
-	}
-	return false;
 }
 
 void StaticFileSource::checkIfDirectory(){
