@@ -2,7 +2,7 @@ NAME = webserv
 
 CC = c++
 
-CFLAGS = -Wall -Wextra -Werror -std=c++98 -g 
+CFLAGS = -Wall -Wextra -Werror -std=c++98 -g
 
 OBJ_DIR = obj
 
@@ -11,6 +11,7 @@ SRC = 	ConfigClasses/Config.cpp \
 		ConfigClasses/ServerConfig.cpp \
 		Source/Source.cpp \
 		Source/StaticFileSource.cpp \
+		Source/RedirectSource.cpp \
 		Connection.cpp \
 		ListeningSocket.cpp \
 		main.cpp \
@@ -28,6 +29,7 @@ HDR = 	ConfigClasses/Config.hpp \
 		ConfigClasses/ServerConfig.hpp \
 		Source/Source.hpp \
 		Source/StaticFileSource.hpp \
+		Source/RedirectSource.hpp \
 		Connection.hpp \
 		ListeningSocket.hpp \
 		RequestParser.hpp \

@@ -6,28 +6,57 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/06 12:26:28 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/07 10:16:20 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "StaticFileSource.hpp"
 
-StaticFileSource::StaticFileSource(const std::string &target, const ServerConfig &serverConfig)
-		: Source(target, serverConfig){}
+StaticFileSource::StaticFileSource(const std::string &target, const ServerConfig &serverConfig, Location const &location)
+		: Source(target, serverConfig){
+			_location = location;
+			checkIfDirectory();
+			checkIfExists();
+			_fd = open(_target.c_str(), O_RDONLY);
+			if (_fd < 0)
+				throw Source::SourceException("Could not open static source file");
+			struct stat st;
+			stat(_target.c_str(), &st);
+			_size = st.st_size;
+		}
 
-StaticFileSource::~StaticFileSource(){}
+StaticFileSource::~StaticFileSource(){
+	std::cout << "FileSource destructor called";
+	// close(_fd);
+}
 
-void StaticFileSource::read(){
-	checkIfDirectory();
-	checkIfExists();
-	std::ifstream file(_target.c_str(), std::ios::binary | std::ios::ate);
-	if (!file)
-		throw Source::SourceException("Could not open filestream");
-	_size = file.tellg();
-	file.seekg(0, std::ios::beg);
-	_bytesRead.resize(_size);
-	if(!file.read(_bytesRead.data(), _size).good())
-		throw Source::SourceException("Could not read from filestream");
+// buffer = read(10); // buffer << "1234567890"
+// bytes_sent = send(fd, buffer, 10); // bytes_sent = 5
+// buffer = substr(buffer, 5, 5);
+
+// if (!dataLeftInBuffer())
+// {
+// 	bytesRead = read();
+// 	if (!bytesRead) {
+// 		close();
+// 		return;
+// 	}
+// }
+// bytes = socket.send();
+// bytesSent(bytes);
+
+
+// void StaticFileSource::bytesSent(int bytes) { }
+
+void StaticFileSource::readSource(){
+	if (_bytesToSend > 0)
+		return;
+	_body.clear();
+	_body.resize(_serverConfig.getBufferSize());
+	ssize_t readSize = read(_fd, _body.data(),_serverConfig.getBufferSize());
+	if (readSize < 0)
+		throw Source::SourceException("Could not read from static source file");
+	_bytesToSend = readSize;
 }
 
 void StaticFileSource::checkIfDirectory(){

@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/06 12:33:37 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/07 11:05:21 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,12 @@
 #include <string>
 #include "../ConfigClasses/ServerConfig.hpp"
 #include <fstream>
+#include <unistd.h>
+#include <sys/stat.h>
+
+class StaticFileSource;
+
+enum SourceType {STATIC, REDIRECT, CGI};
 
 class Source {
 	public:
@@ -25,23 +31,32 @@ class Source {
 				const char *what() const throw();
 				~SourceException()throw();
 		};
-		virtual void read() = 0;
-		virtual ~Source();
-		int getCode()const;
-		std::string getMime()const;
-		int getSize()const;
-		std::vector<char> const &getBytesRead()const;
-		bool checkForRedirections();
+		virtual 					~Source();
+		virtual void 				readSource() = 0;
+
+		int 						getCode()const;
+		std::string 				getMime()const;
+		std::vector<char> const &	getBytesRead()const;
+		int 						getFd()const;
+		int							getSize()const;
+		SourceType					getType()const;
+
+		static Source *				getNewSource(const std::string &target, const ServerConfig &serverConfig);
+
+		int							_bytesToSend;
 
 	protected:
 		int					_code;
+		int					_fd;
+		int					_size;
+		SourceType			_type;
 		ServerConfig		_serverConfig;
 		Location			_location;
 		std::string			_target;
 		std::string			_mime;
-		int					_size;
-		std::vector<char>	_bytesRead;
+		std::vector<char>	_body;
 		Source(const std::string &target, const ServerConfig &serverConfig);
+
 	private:
-		const Location &defineLocation(const std::string &target, const ServerConfig &serverConfig);
+		static const Location &defineLocation(const std::string &target, const ServerConfig &serverConfig);
 };

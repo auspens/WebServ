@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 11:48:50 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/05 16:34:20 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/07 09:37:41 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,10 +32,10 @@ void TestStaticFileSource(){
 
 //try to get /index.html by sending the request to root
 	target = "/";
-	StaticFileSource source1(target, serverConfig);
-	source1.read();
-	std::cout<< "Code: " << source1.getCode() << "\nSize: " << source1.getSize() << "\nBytes read:" <<std::endl;
-	std::vector<char> const&contents1 = source1.getBytesRead();
+	Source * source1 = Source::getNewSource(target, serverConfig);
+	source1->readSource();
+	std::cout<< "Code: " << source1->getCode() << "\nSize: " << source1->getSize() << "\nBytes read:" <<std::endl;
+	std::vector<char> const&contents1 = source1->getBytesRead();
 	for(std::vector<char>::const_iterator iter = contents1.begin();iter != contents1.end();++iter)
 		std::cout<<*iter;
 	std::cout <<std::endl;

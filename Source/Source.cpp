@@ -6,21 +6,25 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/06 12:33:44 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/07 11:05:46 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-
 #include "Source.hpp"
+#include "RedirectSource.hpp"
+#include "StaticFileSource.hpp"
 
 Source::~Source(){}
 Source::Source(const std::string &target, const ServerConfig &serverConfig)
-		:_code(200)
+		:_bytesToSend(0)
+		,_code(200)
+		,_fd(-1)
+		,_size(0)
+		,_type(STATIC)
 		,_serverConfig(serverConfig)
 		,_location(defineLocation(target, serverConfig))
 		,_target(_serverConfig.getRootFolder() + target)
-		,_mime("mime_type_to_be_defined")
-		,_size(0){}
+		,_mime("mime_type_to_be_defined"){}
 
 Source::SourceException::SourceException(std::string error)throw(): _error(error){}
 Source::SourceException::~SourceException()throw(){}
@@ -40,18 +44,24 @@ int Source::getCode()const{
 std::string Source::getMime()const{
 	return _mime;
 }
+
+std::vector<char> const &Source::getBytesRead()const{
+	return _body;
+}
+int Source::getFd()const{
+	return _fd;
+}
 int Source::getSize()const{
 	return _size;
 }
-std::vector<char> const &Source::getBytesRead()const{
-	return _bytesRead;
+SourceType Source::getType()const{
+	return _type;
 }
 
-bool Source::checkForRedirections(){
-	if (_location.getRedirect().first != 0){
-		_code = _location.getRedirect().first;
-		_target = _location.getRedirect().second;
-		return true;
-	}
-	return false;
+Source *Source::getNewSource(const std::string &target, const ServerConfig &serverConfig){
+	Location location = defineLocation(target, serverConfig);
+	if (location.getRedirect().first != 0)
+		return new RedirectSource(location.getRedirect().second, serverConfig, location.getRedirect().first);
+	//here will be some logic to define if request is for CGI
+	return new StaticFileSource(target, serverConfig, location);
 }

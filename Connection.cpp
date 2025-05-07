@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/06 12:20:46 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/07 11:00:13 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ int Connection::getSocketFd() const {
 }
 
 int Connection::getSourceFd() const {
-	return -1;
+	return _source->getFd();
 }
 
 Source *Connection::getSource()const{
@@ -114,6 +114,7 @@ void Connection::generateResponse() {
 		_response.status = "OK";
 		_response.headers["Content-Type"] = "text/plain";
 		_response.headers["Content-Length"] = num_to_str(_response.body.length());
+
 	}
 	else if (_request.uri.substr(0,11) == "/user-agent") {
 		_response.body = _request.headers["User-Agent"];
@@ -127,6 +128,7 @@ void Connection::generateResponse() {
 		_response.status = _response.code == "200"? "OK" : "BAD";
 		_response.body = std::string(_source->getBytesRead().begin(), _source->getBytesRead().end());
 		_response.headers["Content-Length"] = num_to_str(_source->getSize());
+		_source->_bytesToSend -= _source->getSize();//this should subtract the actual size of the chunk sent
 	}
 }
 
