@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/07 11:13:47 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/07 17:10:55 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,20 +115,21 @@ void Server::_handleIncomingConnection(ListeningSocket &listeningSocket) {
 
 void Server::_readFromSocket(Connection &conn) {
 	conn.readFromSocket(_config.getBufferSize());
-	if (conn.requestReady())
+	if (conn.requestReady()) // finished reading request, create the source
 	{
 		conn.resetParser();
-	// finished reading request, create the source
 		try {
 			conn.setSource(Source::getNewSource(conn.getTarget(), _config));
 			if (conn.getSource()->getType() == CGI) {
 				_sourceConnections.insert(std::make_pair(conn.getSourceFd(), &conn));
 				_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn.getSourceFd());
-		}
+			}
 		}
 		catch (Source::SourceException &e){
 			std::cout << e.what() << std::endl;
 		}
+		conn.generateResponse();
+		conn.generateResponseHeaders();
 		_updateEpoll(EPOLL_CTL_MOD, EPOLLOUT, conn.getSocketFd());
 	}
 }
@@ -141,7 +142,6 @@ void Server::_readFromSource(Connection &conn) {
 	if (!conn.getSource())
 		return;
 	conn.getSource()->readSource();
-	conn.generateResponse();
 }
 
 void Server::_updateEpoll(int action, int events, int fd) {

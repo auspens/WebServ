@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/06 11:43:04 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/07 17:00:06 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ class Connection{
 		void	writeToSocket(int buffer_size);
 		void	prepSource();
 		void 	generateResponse();
+		void	generateResponseHeaders();
 		void	resetParser();
 		const std::string& getTarget() const;
 		Source	*getSource() const;

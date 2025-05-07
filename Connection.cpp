@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/07 11:00:13 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/07 17:13:15 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,20 +73,23 @@ void Connection::readFromSocket(int buffer_size) {
 
 }
 
-void Connection::writeToSocket(int buffer_size) {
+void Connection::generateResponseHeaders() {
+	_response.responseHeaders += _response.http_version + " " + _response.code + " " + _response.status + "\r\n";
+	for (std::map<std::string, std::string>::iterator it = _response.headers.begin(); it != _response.headers.end(); ++it)
+		_response.responseHeaders += it->first + ": " + it->second + "\r\n";
+	_response.responseHeaders += "\r\n"; // END of headers: blank line
+}
 
+void Connection::writeToSocket(int buffer_size) {
 	(void)buffer_size;
 
-	std::string response;
-	response.append(_response.http_version + " " + _response.code + " " + _response.status + "\r\n");
-	for (std::map<std::string, std::string>::iterator it = _response.headers.begin(); it != _response.headers.end(); ++it)
-		response += it->first + ": " + it->second + "\r\n";
-	response += "\r\n"; // END of headers: blank line
-	response += _response.body;
-
-	std::cout << "response is: " << response << std::endl;
+	if (!headerSent())
+		sendHeader();
+	else
+		sendFromSource();
 
 	ssize_t bytes_sent = send(_socket.getFd(), response.c_str(), response.length(), 0);
+	std::cout << "Bytes sent in the responce: " << bytes_sent << std::endl;
 	if (bytes_sent != (ssize_t)response.length()) {
 		std::cerr << "Partial write! Only sent " << bytes_sent << " bytes out of " << response.length() << std::endl;
 		//  must handle it here (loop, or error)
@@ -107,7 +110,6 @@ void Connection::generateResponse() {
 	_response.body = "";
 	_response.http_version = _request.http_version;
 
-
 	if (_request.uri.substr(0,6) == "/echo/") {
 		_response.body = _request.uri.substr(6);
 		_response.code = "200";
@@ -123,10 +125,16 @@ void Connection::generateResponse() {
 		_response.headers["Content-Type"] = "text/plain";
 		_response.headers["Content-Length"] = num_to_str(_response.body.length());
 	}
+	else if (_request.uri.substr(0,11) == "/heavy.jpg") {
+		_response.code = "200";
+		_response.status = "OK";
+		_response.headers["Content-Type"] = "image/jpeg";
+		_response.headers["Transfer-Encoding"] = "chunked";
+	}
 	else {
 		_response.code = num_to_str(_source->getCode());
 		_response.status = _response.code == "200"? "OK" : "BAD";
-		_response.body = std::string(_source->getBytesRead().begin(), _source->getBytesRead().end());
+		//_response.body = std::string(_source->getBytesRead().begin(), _source->getBytesRead().end());
 		_response.headers["Content-Length"] = num_to_str(_source->getSize());
 		_source->_bytesToSend -= _source->getSize();//this should subtract the actual size of the chunk sent
 	}
