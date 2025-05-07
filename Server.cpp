@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/06 18:00:40 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/07 11:13:47 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,16 +82,19 @@ void Server::_handleSocketEvent(struct epoll_event &event) {
 	else {
 		// if source connection, read from source file or cgi
 		conn = _sourceConnections.find(event.data.fd);
-		if (conn != _sourceConnections.end())
+		if (conn != _sourceConnections.end()){
 			_readFromSource(*conn->second);
+		}
 		else {
 			// socket connection, read from or write to socket based on event type
 			conn = _socketConnections.find(event.data.fd);
 			if (conn != _socketConnections.end()) {
 				if (event.events & EPOLLIN)
 					_readFromSocket(*conn->second);
-				if (event.events & EPOLLOUT)
- 					_writeToSocket(*conn->second);
+				if (event.events & EPOLLOUT){
+					_readFromSource(*conn->second);
+					_writeToSocket(*conn->second);
+				}
 			}
 		}
 	}
@@ -118,15 +121,13 @@ void Server::_readFromSocket(Connection &conn) {
 	// finished reading request, create the source
 		try {
 			conn.setSource(Source::getNewSource(conn.getTarget(), _config));
+			if (conn.getSource()->getType() == CGI) {
+				_sourceConnections.insert(std::make_pair(conn.getSourceFd(), &conn));
+				_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn.getSourceFd());
+		}
 		}
 		catch (Source::SourceException &e){
 			std::cout << e.what() << std::endl;
-		}
-
-	// add source fd to epoll
-		if (conn.getSourceFd() > -1) {
-			_sourceConnections.insert(std::make_pair(conn.getSourceFd(), &conn));
-			_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn.getSourceFd());
 		}
 		_updateEpoll(EPOLL_CTL_MOD, EPOLLOUT, conn.getSocketFd());
 	}
@@ -137,8 +138,9 @@ void Server::_writeToSocket(Connection &conn) {
 }
 
 void Server::_readFromSource(Connection &conn) {
-
-	conn.getSource()->read();
+	if (!conn.getSource())
+		return;
+	conn.getSource()->readSource();
 	conn.generateResponse();
 }
 

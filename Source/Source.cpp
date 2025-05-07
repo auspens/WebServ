@@ -6,17 +6,20 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/06 18:12:43 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/07 11:05:46 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-
 #include "Source.hpp"
+#include "RedirectSource.hpp"
+#include "StaticFileSource.hpp"
 
 Source::~Source(){}
 Source::Source(const std::string &target, const ServerConfig &serverConfig)
-		:_code(200)
+		:_bytesToSend(0)
+		,_code(200)
 		,_fd(-1)
+		,_size(0)
 		,_type(STATIC)
 		,_serverConfig(serverConfig)
 		,_location(defineLocation(target, serverConfig))
@@ -43,10 +46,16 @@ std::string Source::getMime()const{
 }
 
 std::vector<char> const &Source::getBytesRead()const{
-	return _bytesRead;
+	return _body;
 }
 int Source::getFd()const{
 	return _fd;
+}
+int Source::getSize()const{
+	return _size;
+}
+SourceType Source::getType()const{
+	return _type;
 }
 
 Source *Source::getNewSource(const std::string &target, const ServerConfig &serverConfig){

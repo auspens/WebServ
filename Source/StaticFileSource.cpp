@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/06 18:12:12 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/07 10:16:20 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,15 @@ StaticFileSource::StaticFileSource(const std::string &target, const ServerConfig
 			_fd = open(_target.c_str(), O_RDONLY);
 			if (_fd < 0)
 				throw Source::SourceException("Could not open static source file");
+			struct stat st;
+			stat(_target.c_str(), &st);
+			_size = st.st_size;
 		}
 
-StaticFileSource::~StaticFileSource(){}
+StaticFileSource::~StaticFileSource(){
+	std::cout << "FileSource destructor called";
+	// close(_fd);
+}
 
 // buffer = read(10); // buffer << "1234567890"
 // bytes_sent = send(fd, buffer, 10); // bytes_sent = 5
@@ -43,12 +49,14 @@ StaticFileSource::~StaticFileSource(){}
 // void StaticFileSource::bytesSent(int bytes) { }
 
 void StaticFileSource::readSource(){
-	_bytesRead.resize(_serverConfig.getBufferSize());
-	ssize_t readSize = read(_fd, _bytesRead.data(),_serverConfig.getBufferSize());
+	if (_bytesToSend > 0)
+		return;
+	_body.clear();
+	_body.resize(_serverConfig.getBufferSize());
+	ssize_t readSize = read(_fd, _body.data(),_serverConfig.getBufferSize());
 	if (readSize < 0)
 		throw Source::SourceException("Could not read from static source file");
-	if (readSize < _serverConfig.getBufferSize())
-		close(_fd);
+	_bytesToSend = readSize;
 }
 
 void StaticFileSource::checkIfDirectory(){
