@@ -12,6 +12,7 @@ SRC = 	ConfigClasses/Config.cpp \
 		Source/Source.cpp \
 		Source/StaticFileSource.cpp \
 		Source/RedirectSource.cpp \
+		Source/CGISource.cpp \
 		Connection.cpp \
 		ListeningSocket.cpp \
 		main.cpp \
@@ -30,6 +31,7 @@ HDR = 	ConfigClasses/Config.hpp \
 		Source/Source.hpp \
 		Source/StaticFileSource.hpp \
 		Source/RedirectSource.hpp \
+		Source/CGISource.hpp \
 		Connection.hpp \
 		ListeningSocket.hpp \
 		RequestParser.hpp \
