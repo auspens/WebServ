@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Source.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/07 11:05:46 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/07 14:45:29 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Source.hpp"
 #include "RedirectSource.hpp"
 #include "StaticFileSource.hpp"
+#include "CGISource.hpp"
 
 Source::~Source(){}
 Source::Source(const std::string &target, const ServerConfig &serverConfig)
@@ -63,5 +64,7 @@ Source *Source::getNewSource(const std::string &target, const ServerConfig &serv
 	if (location.getRedirect().first != 0)
 		return new RedirectSource(location.getRedirect().second, serverConfig, location.getRedirect().first);
 	//here will be some logic to define if request is for CGI
+	if (target.find(".py") != std::string::npos)
+		return new CGISource(target, serverConfig, location);
 	return new StaticFileSource(target, serverConfig, location);
 }
