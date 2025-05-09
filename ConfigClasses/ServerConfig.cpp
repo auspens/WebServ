@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 12:55:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/05/05 15:30:45 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/09 20:12:53 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,88 +14,101 @@
 
 ServerConfig::ServerConfig() { }
 
-ServerConfig::ServerConfig(std::string host, int port) : _host(host), _port(port) {
-	//this is placeholder
-	std::string path("/");
-	_locations.push_back(Location(path));
+ServerConfig::~ServerConfig() {
+	// TODO
 }
-
-ServerConfig::~ServerConfig() { }
 
 ServerConfig::ServerConfig(const ServerConfig& src) {
-	_port = src._port;
-	_host = src._host;
-	_rootFolder = src._rootFolder;
-	_errorPages = src._errorPages;
-	_locations = src._locations;
+	// TODO
 }
 
-ServerConfig& ServerConfig::operator=(const ServerConfig& src) {
+ServerConfig &ServerConfig::operator=(const ServerConfig& src) {
 	if (this != &src) {
-		_port = src._port;
-		_host = src._host;
-		_rootFolder = src._rootFolder;
-		_errorPages = src._errorPages;
-		_locations = src._locations;
+		// TODO
 	}
 	return (*this);
 }
 
-void ServerConfig::setPort(int port) throw(InvalidConfigValueException) {
-	if (port < 0 || port > 65535)
-		throw InvalidConfigValueException();
-	_port = port;
+void ServerConfig::parse(std::ifstream &file) throw(ConfigParseException) {
+	std::string token;
+
+	token = ParseUtils::parseToken(file);
+	ParseUtils::expectWhitespace(file);
+	if (_configSettings.isConfigSetting(token))
+		_configSettings.parseConfigSetting(file, token);
+	else if (token == "location")
+		_locations.push_back(_parseLocation(file));
+	else if (token == "server_name")
+		_parseServerNames(file);
+	else if (token == "listen")
+		_parsePort(file);
+	else if (token == "root")
+		_parseRoot(file);
+	else
+		throw ConfigParseException("Unexpected token: " + token);
 }
 
-void ServerConfig::setPort(std::string &port) throw(InvalidConfigValueException) {
-	const char	*cStr;
-	char		*strEnd;
-	long		l;
+void ServerConfig::_parseServerNames(std::ifstream &file) throw(ConfigParseException) {
+	std::string	server_name;
 
-	cStr = port.c_str();
-	l = strtol(cStr, &strEnd, 10);
-	if (cStr == strEnd || l < 0 || l > 65535)
-		throw InvalidConfigValueException();
-	_port = l;
+	ParseUtils::skipWhitespace(file);
+	while (file.peek() != ';') {
+		if (file.fail())
+			throw ConfigParseException("Error reading from file");
+		if (file.eof())
+			throw ConfigParseException("Expected ';'");
+
+		file >> server_name;
+		if (server_name.length() > 255)
+			throw ConfigParseException("Invalid value for server name");
+		_serverNames.push_back(server_name);
+	}
 }
 
-void ServerConfig::setHost(std::string &host) throw(InvalidConfigValueException) {
-	if (host == "")
-		throw InvalidConfigValueException();
-	if (host.length() > 255)
-		throw InvalidConfigValueException();
-	_host = host;
+void ServerConfig::_parsePort(std::ifstream &file) throw(ConfigParseException) {
+	std::string port;
+
+	file >> port;
+	_port = ParseUtils::parseInt(port, 0, 65535);
+	ParseUtils::expectChar(file, ';');
 }
 
-void ServerConfig::setRootFolder(const std::string &rootFolder)throw(InvalidConfigValueException){
-	_rootFolder = rootFolder;
+Location ServerConfig::_parseLocation(std::ifstream &file) throw(ConfigParseException) {
+	Location *location;
+	std::string token;
+
+	if (!ParseUtils::expectChar(file, '{'))
+		throw ConfigParseException("Expected '{'");
+	if (!ParseUtils::expectChar(file, '\n'))
+		throw ConfigParseException("Expected end of line");
+
+	location = new Location();
+	location->parse(file);
+	return *location;
+}
+
+void Location::_parseRoot(std::ifstream &file) throw(ConfigParseException) {
 }
 
 int ServerConfig::getPort() const {
 	return _port;
 }
 
-const std::string &ServerConfig::getHost() const {
-	return _host;
+const std::vector<std::string> &ServerConfig::getServerNames() const {
+	return _serverNames;
+}
+
+const std::map<int, std::string> &ServerConfig::getErrorPages() const {
 }
 
 int ServerConfig::getBufferSize() const {
 	return READ_BUFFER;
 }
 
-const char* ServerConfig::InvalidConfigValueException::what() const throw() {
-	return "Invalid config value exception";
-}
-
-const std::string & ServerConfig::getRootFolder()const {
-	return _rootFolder;
-}
-
-
-const std::map<int, std::string> &ServerConfig:: getErrorPages()const{
-	return _errorPages;
-}
-
-const std::vector<Location> &ServerConfig::getLocations()const{
+const std::vector<Location> &ServerConfig::getLocations() const{
 	return _locations;
+}
+
+const std::string & ServerConfig::getRootFolder() const {
+	return _rootFolder;
 }

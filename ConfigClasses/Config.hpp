@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 16:57:51 by wpepping          #+#    #+#             */
-/*   Updated: 2025/04/26 17:30:26 by wouter           ###   ########.fr       */
+/*   Updated: 2025/05/09 14:48:54 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 
 #include <string>
 #include <vector>
+#include "ConfigSettings.hpp"
+#include "ParseUtils.hpp"
 #include "ServerConfig.hpp"
 
 class Config {
@@ -27,6 +29,7 @@ class Config {
 		const std::vector<ServerConfig> &getServersConfigs() const;
 
 	private:
+		ConfigSettings _configSettings;
 		std::vector<ServerConfig> _serverConfigs;
 
 		void 			_parseConfigFile(std::string &configFile);

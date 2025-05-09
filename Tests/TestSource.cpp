@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   TestSource.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 11:48:50 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/07 09:37:41 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/09 20:13:31 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,6 @@
 void TestStaticFileSource(){
 //set up the config
 	ServerConfig serverConfig(DEFAULT_HOST, DEFAULT_PORT);
-	std::string defaultRoot = "www";
-	serverConfig.setRootFolder(defaultRoot);
 
 //try to get /about.html
 	std::string target = "/about.html";

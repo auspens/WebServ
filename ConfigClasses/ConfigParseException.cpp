@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ConfigParseException.cpp                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/05/09 16:03:49 by wpepping          #+#    #+#             */
+/*   Updated: 2025/05/09 16:03:50 by wpepping         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "ConfigParseException.hpp"
 
-ConfigParseException::ConfigParseException(std::string &error) {
+ConfigParseException::ConfigParseException(const std::string &error) {
 	_error = error;
 }
 

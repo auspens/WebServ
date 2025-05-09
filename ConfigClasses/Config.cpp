@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:11:08 by wouter            #+#    #+#             */
-/*   Updated: 2025/05/06 12:11:22 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/09 17:23:21 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,23 +38,38 @@ const std::vector<ServerConfig> &Config::getServersConfigs() const {
 	return _serverConfigs;
 }
 
-void Config::_parseConfigFile(std::string &configFile) {
+void Config::_parseConfigFile(std::string &configFile) throw(ConfigParseException) {
+	std::string token;
 	std::ifstream file(configFile.c_str());
-	if (!file.is_open())
-	{
-		std::cerr << "Failed to open config file: " << configFile << std::endl;
-		exit(EXIT_FAILURE);
-	}
 
-	ServerConfig serverConfig = _parseServerConfig(file);
-	_serverConfigs.push_back(serverConfig);
+	if (!file.is_open())
+		throw ConfigParseException("Failed to open config file: " + configFile);
+
+	file.peek();
+	while (!file.eof()) {
+		token = ParseUtils::parseToken(file);
+		ParseUtils::expectWhitespace(file);
+		if (_configSettings.isConfigSetting(token))
+			_configSettings.parseConfigSetting(file, token);
+		else if (token == "server")
+			_serverConfigs.push_back(_parseServerConfig(file));
+		else
+			throw ConfigParseException("Unexpected keyword: " + token);
+	}
 
 	file.close();
 }
 
-ServerConfig Config::_parseServerConfig(std::ifstream &configFile) {
-	(void)configFile;
-	ServerConfig config(DEFAULT_HOST, DEFAULT_PORT);
-	config.setRootFolder("www");
-	return config;
+ServerConfig Config::_parseServerConfig(std::ifstream &configFile) throw(ConfigParseException) {
+	ServerConfig *config;
+	std::string token;
+
+	if (!ParseUtils::expectChar(configFile, '{'))
+		throw ConfigParseException("Expected '{'");
+	if (!ParseUtils::expectChar(configFile, '\n'))
+		throw ConfigParseException("Expected end of line");
+
+	config = new ServerConfig();
+	config->parse(configFile);
+	return *config;
 }

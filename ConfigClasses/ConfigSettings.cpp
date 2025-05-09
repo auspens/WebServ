@@ -1,36 +1,74 @@
+/* ************************************************************************** */
+/*																			*/
+/*														:::	  ::::::::   */
+/*   ConfigSettings.cpp								 :+:	  :+:	:+:   */
+/*													+:+ +:+		 +:+	 */
+/*   By: wpepping <wpepping@student.42berlin.de>	+#+  +:+	   +#+		*/
+/*												+#+#+#+#+#+   +#+		   */
+/*   Created: 2025/05/09 16:03:34 by wpepping		  #+#	#+#			 */
+/*   Updated: 2025/05/09 19:16:27 by wpepping		 ###   ########.fr	   */
+/*																			*/
+/* ************************************************************************** */
+
 #include "ConfigSettings.hpp"
 
-ConfigSettings::ConfigSettings() : _client_max_body_size(-1), _autoindex(false) {}
+ConfigSettings::ConfigSettings() : _clientMaxBodySize(-1), _autoIndex(false) {}
 
 ConfigSettings::~ConfigSettings() {}
 
 ConfigSettings::ConfigSettings(ConfigSettings &src) {
-	_client_max_body_size = src._client_max_body_size;
-	_error_page = src._error_page;
+	_clientMaxBodySize = src._clientMaxBodySize;
+	_errorPage = src._errorPage;
 	_index = src._index;
-	_accept_cgi = src._accept_cgi;
-	_accept_method = src._accept_method;
-	_autoindex = src._autoindex;
+	_acceptCgi = src._acceptCgi;
+	_acceptMethod = src._acceptMethod;
+	_autoIndex = src._autoIndex;
 }
 
 ConfigSettings& ConfigSettings::operator=(ConfigSettings &src) {
 	if (this != &src) {
-		_client_max_body_size = src._client_max_body_size;
-		_error_page = src._error_page;
+		_clientMaxBodySize = src._clientMaxBodySize;
+		_errorPage = src._errorPage;
 		_index = src._index;
-		_accept_cgi = src._accept_cgi;
-		_accept_method = src._accept_method;
-		_autoindex = src._autoindex;
+		_acceptCgi = src._acceptCgi;
+		_acceptMethod = src._acceptMethod;
+		_autoIndex = src._autoIndex;
 	}
 	return *this;
 }
 
+bool ConfigSettings::isConfigSetting(std::string token) const {
+	return token == "accept"
+		|| token == "accept_cgi"
+		|| token == "autoindex"
+		|| token == "client_max_body_size"
+		|| token == "error_page"
+		|| token == "index";
+}
+
+void ConfigSettings::parseConfigSetting(std::ifstream &infile, std::string token) throw(ConfigParseException) {
+	if (token == "client_max_body_size")
+		parseClientMaxBodySize(infile);
+	else if (token == "error_page")
+		parseErrorPage(infile);
+	else if (token == "index")
+		parseIndex(infile);
+	else if (token == "accept_cgi")
+		parseAcceptCgi(infile);
+	else if (token == "accept")
+		parseAcceptMethod(infile);
+	else if (token == "autoindex")
+		parseAutoIndex(infile);
+	else
+		throw ConfigParseException("Unexpected token: " + token);
+}
+
 size_t ConfigSettings::getClientMaxBodySize() const {
-	return _client_max_body_size;
+	return _clientMaxBodySize;
 }
 
 const std::map<int, std::string>& ConfigSettings::getErrorPage() const {
-	return _error_page;
+	return _errorPage;
 }
 
 const std::vector<std::string>& ConfigSettings::getIndex() const {
@@ -38,15 +76,15 @@ const std::vector<std::string>& ConfigSettings::getIndex() const {
 }
 
 const std::vector<std::string>& ConfigSettings::getAcceptCgi() const {
-	return _accept_cgi;
+	return _acceptCgi;
 }
 
 const std::vector<e_method>& ConfigSettings::getAcceptMethod() const {
-	return _accept_method;
+	return _acceptMethod;
 }
 
 bool ConfigSettings::getAutoIndex() const {
-	return _autoindex;
+	return _autoIndex;
 }
 
 void ConfigSettings::parseClientMaxBodySize(std::ifstream &infile) {

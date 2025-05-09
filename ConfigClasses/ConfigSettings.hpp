@@ -1,3 +1,17 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ConfigSettings.hpp                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/05/09 16:03:27 by wpepping          #+#    #+#             */
+/*   Updated: 2025/05/09 19:13:33 by wpepping         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#pragma once
+
 #include <map>
 #include <string>
 #include <vector>
@@ -16,12 +30,15 @@ public:
 	ConfigSettings(ConfigSettings &src);
 	ConfigSettings &operator=(ConfigSettings &src);
 
-	void parseClientMaxBodySize(std::ifstream &infile);
-	void parseErrorPage(std::ifstream &infile);
-	void parseIndex(std::ifstream &infile);
-	void parseAcceptCgi(std::ifstream &infile);
-	void parseAcceptMethod(std::ifstream &infile);
-	void parseAutoIndex(std::ifstream &infile);
+	bool isConfigSetting(std::string token) const;
+	void parseConfigSetting(std::ifstream &infile, std::string token) throw(ConfigParseException);
+
+	void parseClientMaxBodySize(std::ifstream &infile) throw(ConfigParseException);
+	void parseErrorPage(std::ifstream &infile) throw(ConfigParseException);
+	void parseIndex(std::ifstream &infile) throw(ConfigParseException);
+	void parseAcceptCgi(std::ifstream &infile) throw(ConfigParseException);
+	void parseAcceptMethod(std::ifstream &infile) throw(ConfigParseException);
+	void parseAutoIndex(std::ifstream &infile) throw(ConfigParseException);
 
 	size_t								getClientMaxBodySize()	const;
 	const std::map<int, std::string>	&getErrorPage()			const;
@@ -31,10 +48,10 @@ public:
 	bool								getAutoIndex()			const;
 
 private:
-	size_t						_client_max_body_size;
-	std::map<int, std::string>	_error_page;
+	size_t						_clientMaxBodySize;
+	std::map<int, std::string>	_errorPage;
 	std::vector<std::string>	_index;
-	std::vector<std::string>	_accept_cgi;
-	std::vector<e_method>		_accept_method;
-	bool						_autoindex;
+	std::vector<std::string>	_acceptCgi;
+	std::vector<e_method>		_acceptMethod;
+	bool						_autoIndex;
 };
