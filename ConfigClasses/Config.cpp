@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:11:08 by wouter            #+#    #+#             */
-/*   Updated: 2025/05/09 17:23:21 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/11 20:28:19 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,8 @@ void Config::_parseConfigFile(std::string &configFile) throw(ConfigParseExceptio
 	file.peek();
 	while (!file.eof()) {
 		token = ParseUtils::parseToken(file);
+		if (file.fail())
+			throw ConfigParseException("Setting name expected");
 		ParseUtils::expectWhitespace(file);
 		if (_configSettings.isConfigSetting(token))
 			_configSettings.parseConfigSetting(file, token);
@@ -55,6 +57,7 @@ void Config::_parseConfigFile(std::string &configFile) throw(ConfigParseExceptio
 			_serverConfigs.push_back(_parseServerConfig(file));
 		else
 			throw ConfigParseException("Unexpected keyword: " + token);
+		ParseUtils::skipWhitespace(file);
 	}
 
 	file.close();
@@ -62,14 +65,9 @@ void Config::_parseConfigFile(std::string &configFile) throw(ConfigParseExceptio
 
 ServerConfig Config::_parseServerConfig(std::ifstream &configFile) throw(ConfigParseException) {
 	ServerConfig *config;
-	std::string token;
-
-	if (!ParseUtils::expectChar(configFile, '{'))
-		throw ConfigParseException("Expected '{'");
-	if (!ParseUtils::expectChar(configFile, '\n'))
-		throw ConfigParseException("Expected end of line");
 
 	config = new ServerConfig();
 	config->parse(configFile);
+
 	return *config;
 }

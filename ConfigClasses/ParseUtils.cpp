@@ -3,14 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   ParseUtils.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 16:03:09 by wpepping          #+#    #+#             */
-/*   Updated: 2025/05/09 19:08:22 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/11 21:08:03 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ParseUtils.hpp"
+
+ParseUtils::ParseUtils() { }
+
+ParseUtils::~ParseUtils() { }
 
 void ParseUtils::expectWhitespace(std::ifstream &infile) throw(ConfigParseException) {
 	char c;
@@ -27,34 +31,41 @@ void ParseUtils::skipWhitespace(std::ifstream &infile) throw(ConfigParseExceptio
 	char c;
 
 	c = infile.peek();
-	while (std::isspace(c)) {
+	while (!infile.eof() && std::isspace(c)) {
 		infile.get();
+		if (infile.fail())
+			throw ConfigParseException("Error reading from file");
 		c = infile.peek();
 	}
 }
 
-bool ParseUtils::expectChar(std::ifstream &infile, char c) {
+bool ParseUtils::expectChar(std::ifstream &infile, char c) throw(ConfigParseException) {
 	char d;
 
 	infile >> d;
+	if (infile.fail())
+		throw ConfigParseException("Error reading from file");
 	if (infile.eof() || infile.fail() || d != c)
 		return false;
 	return true;
 }
 
-std::string ParseUtils::parseToken(std::ifstream &infile) {
+std::string ParseUtils::parseToken(std::ifstream &infile) throw(ConfigParseException) {
 	std::string result;
 
 	infile >> result;
+	if (infile.fail())
+		throw ConfigParseException("Error reading from file");
+
 	return result;
 }
 
-int ParseUtils::parseInt(std::string nbr) {
+int ParseUtils::parseInt(std::string nbr) throw(ConfigParseException) {
 	return parseInt(nbr, std::numeric_limits<int>::min(),
 		std::numeric_limits<int>::max());
 }
 
-int ParseUtils::parseInt(std::string nbr, int min, int max) {
+int ParseUtils::parseInt(std::string nbr, int min, int max) throw(ConfigParseException) {
 	const char				*c_str;
 	char					*str_end;
 	long					l;
@@ -64,4 +75,18 @@ int ParseUtils::parseInt(std::string nbr, int min, int max) {
 	if (c_str == str_end || l < std::numeric_limits<int>::min()
 		|| l > std::numeric_limits<int>::max())
 			throw ConfigParseException("Invalid number");
+}
+
+std::string ParseUtils::parseValue(std::ifstream &infile) throw(ConfigParseException) {
+	char c;
+	std::string result;
+
+	c = infile.peek();
+	while (!infile.fail() && !infile.eof() && !std::isspace(c) && c != ';')
+		result += infile.get();
+
+	if (infile.fail())
+		throw ConfigParseException("Error reading from file");
+
+	return result;
 }

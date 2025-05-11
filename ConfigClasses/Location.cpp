@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 12:40:08 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/09 19:25:26 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/11 20:59:09 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ Location::Location(const Location &src)
 			_redirect(src._redirect) { }
 
 Location &Location::operator =(const Location &other) {
-	if (this != &other){
+	if (this != &other) {
 		_path = other._path;
 		_autoindex = other._autoindex;
 		_index = other._index;
@@ -44,17 +44,21 @@ Location &Location::operator =(const Location &other) {
 	return *this;
 }
 
-void Location::parse(std::ifstream &file) throw(ConfigParseException) {
+void Location::parse(std::ifstream &infile) throw(ConfigParseException) {
 	std::string token;
 
-	token = ParseUtils::parseToken(file);
-	ParseUtils::expectWhitespace(file);
-	if (_configSettings.isConfigSetting(token))
-		_configSettings.parseConfigSetting(file, token);
-	else if (token == "root")
-		_parseRoot(file);
-	else
-		throw ConfigParseException("Unexpected token: " + token);
+	while (infile.peek() != '}' && !infile.eof()) {
+		token = ParseUtils::parseToken(infile);
+		ParseUtils::expectWhitespace(infile);
+		if (_configSettings.isConfigSetting(token))
+			_configSettings.parseConfigSetting(infile, token);
+		else if (token == "root")
+			_parseRoot(infile);
+		else
+			throw ConfigParseException("Unexpected token: " + token);
+		ParseUtils::skipWhitespace(infile);
+	}
+	ParseUtils::expectChar(infile, '}');
 }
 
 const std::string &Location::getPath() const {
@@ -77,5 +81,5 @@ const std::map<int, std::string> &Location::getErorrPagesLocal() const {
 	return _errorPagesLocal;
 }
 
-void Location::_parseRoot(std::ifstream &file) throw(ConfigParseException) {
+void Location::_parseRoot(std::ifstream &infile) throw(ConfigParseException) {
 }

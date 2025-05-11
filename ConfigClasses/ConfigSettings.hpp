@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigSettings.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 16:03:27 by wpepping          #+#    #+#             */
-/*   Updated: 2025/05/09 19:13:33 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/11 20:53:07 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,13 @@
 #include <string>
 #include <vector>
 #include "ConfigParseException.hpp"
+#include "ParseUtils.hpp"
 
-enum e_method {
-	GET,
-	POST,
-	DELETE
+enum eHttpMethod {
+		METHOD_NONE   = 0,
+		METHOD_GET    = 1 << 0, // 0001
+		METHOD_POST   = 1 << 1, // 0010
+		METHOD_DELETE = 1 << 2  // 0100
 };
 
 class ConfigSettings {
@@ -44,14 +46,16 @@ public:
 	const std::map<int, std::string>	&getErrorPage()			const;
 	const std::vector<std::string>		&getIndex()				const;
 	const std::vector<std::string>		&getAcceptCgi()			const;
-	const std::vector<e_method>			&getAcceptMethod()		const;
+	const int							getAcceptMethod()		const;
 	bool								getAutoIndex()			const;
+
+	bool								acceptsMethod(std::string method)	const;
 
 private:
 	size_t						_clientMaxBodySize;
 	std::map<int, std::string>	_errorPage;
 	std::vector<std::string>	_index;
 	std::vector<std::string>	_acceptCgi;
-	std::vector<e_method>		_acceptMethod;
+	int							_acceptMethod;
 	bool						_autoIndex;
 };

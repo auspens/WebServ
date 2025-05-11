@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 12:55:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/05/09 20:12:53 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/11 21:02:05 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,65 +29,67 @@ ServerConfig &ServerConfig::operator=(const ServerConfig& src) {
 	return (*this);
 }
 
-void ServerConfig::parse(std::ifstream &file) throw(ConfigParseException) {
+void ServerConfig::parse(std::ifstream &infile) throw(ConfigParseException) {
 	std::string token;
 
-	token = ParseUtils::parseToken(file);
-	ParseUtils::expectWhitespace(file);
-	if (_configSettings.isConfigSetting(token))
-		_configSettings.parseConfigSetting(file, token);
-	else if (token == "location")
-		_locations.push_back(_parseLocation(file));
-	else if (token == "server_name")
-		_parseServerNames(file);
-	else if (token == "listen")
-		_parsePort(file);
-	else if (token == "root")
-		_parseRoot(file);
-	else
-		throw ConfigParseException("Unexpected token: " + token);
+	while (infile.peek() != '}' && !infile.eof()) {
+		token = ParseUtils::parseToken(infile);
+		if (_configSettings.isConfigSetting(token))
+			_configSettings.parseConfigSetting(infile, token);
+		else if (token == "location")
+			_locations.push_back(_parseLocation(infile));
+		else if (token == "server_name")
+			_parseServerNames(infile);
+		else if (token == "listen")
+			_parsePort(infile);
+		else if (token == "root")
+			_parseRoot(infile);
+		else
+			throw ConfigParseException("Unexpected token: " + token);
+		ParseUtils::skipWhitespace(infile);
+	}
+	ParseUtils::expectChar(infile, '}');
 }
 
-void ServerConfig::_parseServerNames(std::ifstream &file) throw(ConfigParseException) {
+void ServerConfig::_parseServerNames(std::ifstream &infile) throw(ConfigParseException) {
 	std::string	server_name;
 
-	ParseUtils::skipWhitespace(file);
-	while (file.peek() != ';') {
-		if (file.fail())
+	ParseUtils::skipWhitespace(infile);
+	while (infile.peek() != ';') {
+		if (infile.fail())
 			throw ConfigParseException("Error reading from file");
-		if (file.eof())
+		if (infile.eof())
 			throw ConfigParseException("Expected ';'");
 
-		file >> server_name;
+		server_name = ParseUtils::parseValue(infile);
 		if (server_name.length() > 255)
 			throw ConfigParseException("Invalid value for server name");
 		_serverNames.push_back(server_name);
+
+		ParseUtils::skipWhitespace(infile);
 	}
+	ParseUtils::expectChar(infile, ';');
 }
 
-void ServerConfig::_parsePort(std::ifstream &file) throw(ConfigParseException) {
+void ServerConfig::_parsePort(std::ifstream &infile) throw(ConfigParseException) {
 	std::string port;
 
-	file >> port;
+	port = ParseUtils::parseValue(infile);
 	_port = ParseUtils::parseInt(port, 0, 65535);
-	ParseUtils::expectChar(file, ';');
+	ParseUtils::expectChar(infile, ';');
 }
 
-Location ServerConfig::_parseLocation(std::ifstream &file) throw(ConfigParseException) {
+Location ServerConfig::_parseLocation(std::ifstream &infile) throw(ConfigParseException) {
 	Location *location;
 	std::string token;
 
-	if (!ParseUtils::expectChar(file, '{'))
-		throw ConfigParseException("Expected '{'");
-	if (!ParseUtils::expectChar(file, '\n'))
-		throw ConfigParseException("Expected end of line");
-
 	location = new Location();
-	location->parse(file);
+	location->parse(infile);
+
 	return *location;
 }
 
-void Location::_parseRoot(std::ifstream &file) throw(ConfigParseException) {
+void Location::_parseRoot(std::ifstream &infile) throw(ConfigParseException) {
 }
 
 int ServerConfig::getPort() const {

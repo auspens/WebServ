@@ -12,7 +12,7 @@
 
 #include "ConfigSettings.hpp"
 
-ConfigSettings::ConfigSettings() : _clientMaxBodySize(-1), _autoIndex(false) {}
+ConfigSettings::ConfigSettings() : _clientMaxBodySize(-1), _acceptMethod(0), _autoIndex(false) {}
 
 ConfigSettings::~ConfigSettings() {}
 
@@ -79,12 +79,21 @@ const std::vector<std::string>& ConfigSettings::getAcceptCgi() const {
 	return _acceptCgi;
 }
 
-const std::vector<e_method>& ConfigSettings::getAcceptMethod() const {
+const int ConfigSettings::getAcceptMethod() const {
 	return _acceptMethod;
 }
 
 bool ConfigSettings::getAutoIndex() const {
 	return _autoIndex;
+}
+
+bool ConfigSettings::acceptsMethod(std::string method) const {
+	if (method == "GET")
+		return _acceptMethod & METHOD_GET;
+	if (method == "POST")
+		return _acceptMethod & METHOD_POST;
+	if (method == "DELETE")
+		return _acceptMethod & METHOD_DELETE;
 }
 
 void ConfigSettings::parseClientMaxBodySize(std::ifstream &infile) {
@@ -104,9 +113,40 @@ void ConfigSettings::parseAcceptCgi(std::ifstream &infile) {
 }
 
 void ConfigSettings::parseAcceptMethod(std::ifstream &infile) {
+	std::string	method;
 
+	ParseUtils::skipWhitespace(infile);
+	while (infile.peek() != ';') {
+		if (infile.fail())
+			throw ConfigParseException("Error reading from file");
+		if (infile.eof())
+			throw ConfigParseException("Expected ';'");
+
+		method = ParseUtils::parseValue(infile);
+
+		if (method == "GET")
+			_acceptMethod |= METHOD_GET;
+		else if (method != "POST")
+			_acceptMethod |= METHOD_POST;
+		else if (method != "DELETE")
+			_acceptMethod |= METHOD_DELETE;
+		else
+			throw ConfigParseException("Invalid value for accept method");
+
+		ParseUtils::skipWhitespace(infile);
+	}
+	ParseUtils::expectChar(infile, ';');
 }
 
 void ConfigSettings::parseAutoIndex(std::ifstream &infile) {
+	std::string value = ParseUtils::parseValue(infile);
 
+	if (value == "on")
+		_autoIndex = true;
+	else if (value == "off")
+		_autoIndex = false;
+	else
+		throw ConfigParseException("Invalid value for auto index");
+
+	ParseUtils::expectChar(infile, ';');
 }
