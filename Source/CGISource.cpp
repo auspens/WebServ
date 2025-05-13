@@ -37,11 +37,17 @@ void CGISource::readSource() {
     } else if (pid == 0) {
         //CHILD
 
+        
         close(_pipefd[0]);
-
         // Redirect stdout to pipe
         dup2(_pipefd[1], STDOUT_FILENO);
         close(_pipefd[1]);
+
+        //need to somehow close listening socket and client sockets in the child...
+        //not the best but temporary solution:
+        for (int fd = 3; fd < 1024; ++fd) { //need proper limit instead of 1024 
+            close(fd);
+        }
 
         _scriptPath = _serverConfig.getRootFolder() + _scriptPath;
 
@@ -66,19 +72,21 @@ void CGISource::readSource() {
         //execve("/usr/bin/python3", argv, envp.data());
         execve(_scriptPath.c_str(), argv, envp.data());
 
-        // If execve fails:  need to close all fds, also epoll, all sockets..
-        perror("execve failed");  
-        exit(1);
+        // If execve fails:  
+
+        std::cerr << "execve failed: " << strerror(errno) << std::endl;
+        std::exit(1);
 
     } else {
         // PARENT
         close(_pipefd[1]);  // Close write end
         _body.resize(1024);
-        //char buffer[1024] = {};
         size_t bytesread = read(_pipefd[0], _body.data(), 1024);
+        _body[bytesread] = '\0';
         close(_pipefd[0]);
         _size = bytesread;
         _bytesToSend = _size;
+        
         // std::cout << "_body is: "; 
         // for (std::vector<char>::iterator it = _body.begin(); it != _body.end(); ++it)
         //     std::cout << *it;

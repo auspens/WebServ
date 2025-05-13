@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/07 11:00:13 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/13 14:30:54 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,9 +68,7 @@ void Connection::readFromSocket(int buffer_size) {
   	int valread = read(_socket.getFd(), buffer.data(), buffer_size);
 	if (_parser.parse(buffer.data(), valread) != RequestParser::COMPLETE)
 		return ;
-    _request = _parser.getRequest(); // maybe weird for it to sit here..
-	prepSource();
-
+    _request = _parser.getRequest(); //Populate the _request field in connection
 }
 
 void Connection::writeToSocket(int buffer_size) {
@@ -84,7 +82,7 @@ void Connection::writeToSocket(int buffer_size) {
 	response += "\r\n"; // END of headers: blank line
 	response += _response.body;
 
-	std::cout << "response is: " << response << std::endl;
+	//std::cout << "response is: " << response << std::endl;
 
 	ssize_t bytes_sent = send(_socket.getFd(), response.c_str(), response.length(), 0);
 	if (bytes_sent != (ssize_t)response.length()) {
@@ -126,7 +124,7 @@ void Connection::generateResponse() {
 	else {
 		_response.code = num_to_str(_source->getCode());
 		_response.status = _response.code == "200"? "OK" : "BAD";
-		_response.body = std::string(_source->getBytesRead().begin(), _source->getBytesRead().end());
+		_response.body = std::string(_source->getBytesRead().begin(), _source->getBytesRead().begin() + _source->getSize());
 		_response.headers["Content-Length"] = num_to_str(_source->getSize());
 		_source->_bytesToSend -= _source->getSize();//this should subtract the actual size of the chunk sent
 	}

@@ -8,7 +8,6 @@
 
 class CGISource : public Source {
 	public:
-        void getContent();
 		void readSource();
 		CGISource(const std::string &target, const ServerConfig &serverConfig, Location const &location);
 		~CGISource();
