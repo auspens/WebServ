@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 17:00:59 by wpepping          #+#    #+#             */
-/*   Updated: 2025/05/07 11:51:50 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/13 17:09:45 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 #include <vector>
 #include "Location.hpp"
 
-#define DEFAULT_PORT 3492
+#define DEFAULT_PORT 3490
 #define DEFAULT_HOST "localhost"
 #define READ_BUFFER 1024
 
