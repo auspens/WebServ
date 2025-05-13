@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/07 10:16:20 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/07 16:25:16 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,27 +26,8 @@ StaticFileSource::StaticFileSource(const std::string &target, const ServerConfig
 		}
 
 StaticFileSource::~StaticFileSource(){
-	std::cout << "FileSource destructor called";
-	// close(_fd);
+	close(_fd);
 }
-
-// buffer = read(10); // buffer << "1234567890"
-// bytes_sent = send(fd, buffer, 10); // bytes_sent = 5
-// buffer = substr(buffer, 5, 5);
-
-// if (!dataLeftInBuffer())
-// {
-// 	bytesRead = read();
-// 	if (!bytesRead) {
-// 		close();
-// 		return;
-// 	}
-// }
-// bytes = socket.send();
-// bytesSent(bytes);
-
-
-// void StaticFileSource::bytesSent(int bytes) { }
 
 void StaticFileSource::readSource(){
 	if (_bytesToSend > 0)
@@ -57,6 +38,7 @@ void StaticFileSource::readSource(){
 	if (readSize < 0)
 		throw Source::SourceException("Could not read from static source file");
 	_bytesToSend = readSize;
+	_body.resize(readSize);
 }
 
 void StaticFileSource::checkIfDirectory(){
@@ -79,8 +61,10 @@ void StaticFileSource::checkIfExists(){
 	if (!dir)
 		throw (Source::SourceException("No root folder"));
 	closedir(dir);
-	if(access(_target.c_str(), R_OK))
+	if(access(_target.c_str(), R_OK)){
+		_code = 404;
 		_target = getErrorPage(404);
+	}
 	if(access(_target.c_str(), R_OK))
 		throw (Source::SourceException("No 404 page"));
 }
@@ -98,5 +82,7 @@ std::string StaticFileSource::getErrorPage(int code)const{
 		return (_serverConfig.getRootFolder() + _location.getPath() + _location.getErorrPagesLocal().find(code)->second);
 	if (_serverConfig.getErrorPages().find(code) != _serverConfig.getErrorPages().end())
 		return (_serverConfig.getRootFolder() + _serverConfig.getErrorPages().find(code)->second);
-	throw (Source::SourceException("No erorr page"));
+	std::string current_error = "/error/404.html";
+	return (_serverConfig.getRootFolder() + current_error);
+	throw (Source::SourceException("No error page"));
 }

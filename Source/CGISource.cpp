@@ -13,7 +13,7 @@ CGISource::CGISource(const std::string &target, const ServerConfig &serverConfig
         _queryString = "";
     }
 
-    size_t script_end = _scriptPath.find(".py") + 3; // include ".py" // 
+    size_t script_end = _scriptPath.find(".py") + 3; // include ".py" //
     if (script_end != std::string::npos) {
         _pathInfo = _scriptPath.substr(script_end);
         _scriptPath = _scriptPath.substr(0, script_end);
@@ -67,7 +67,7 @@ void CGISource::readSource() {
         execve(_scriptPath.c_str(), argv, envp.data());
 
         // If execve fails:  need to close all fds, also epoll, all sockets..
-        perror("execve failed");  
+        perror("execve failed");
         exit(1);
 
     } else {
@@ -79,14 +79,15 @@ void CGISource::readSource() {
         close(_pipefd[0]);
         _size = bytesread;
         _bytesToSend = _size;
-        // std::cout << "_body is: "; 
+		_body.resize(bytesread);
+        // std::cout << "_body is: ";
         // for (std::vector<char>::iterator it = _body.begin(); it != _body.end(); ++it)
         //     std::cout << *it;
         // std::cout << std::endl;
 
         int status;
         waitpid(pid, &status, 0);
-        
+
     }
 }
 

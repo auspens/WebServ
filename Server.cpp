@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/07 11:13:47 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/13 17:19:12 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ void Server::_runEpollLoop() {
 	}
 }
 
-//create an interface that would contain a handleSocketEven method and implement it for different classes.
+//create an interface that would contain a handleSocketEvent method and implement it for different classes.
 //This would allow to avoid these if-else statements
 void Server::_handleSocketEvent(struct epoll_event &event) {
 	std::map<int, Connection *>::iterator conn;
@@ -114,17 +114,17 @@ void Server::_handleIncomingConnection(ListeningSocket &listeningSocket) {
 }
 
 void Server::_readFromSocket(Connection &conn) {
-	conn.readFromSocket(_config.getBufferSize());
+	conn.readFromSocket();
 	if (conn.requestReady())
 	{
 		conn.resetParser();
-	// finished reading request, create the source
-		try {
+		try {					// finished reading request, create the source and the response
 			conn.setSource(Source::getNewSource(conn.getTarget(), _config));
 			if (conn.getSource()->getType() == CGI) {
 				_sourceConnections.insert(std::make_pair(conn.getSourceFd(), &conn));
 				_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn.getSourceFd());
-		}
+			}
+			conn.setResponse(conn.getSource());
 		}
 		catch (Source::SourceException &e){
 			std::cout << e.what() << std::endl;
@@ -134,14 +134,13 @@ void Server::_readFromSocket(Connection &conn) {
 }
 
 void Server::_writeToSocket(Connection &conn) {
-	conn.writeToSocket(_config.getBufferSize());
+	conn.writeToSocket();
 }
 
 void Server::_readFromSource(Connection &conn) {
 	if (!conn.getSource())
 		return;
 	conn.getSource()->readSource();
-	conn.generateResponse();
 }
 
 void Server::_updateEpoll(int action, int events, int fd) {

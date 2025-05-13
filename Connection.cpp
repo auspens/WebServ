@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/07 11:00:13 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/13 17:17:25 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,12 @@
 
 Connection::Connection() {
 	_source = NULL;
+	_response = NULL;
 }
 
 Connection::Connection(int fd) : _socket(fd) {
 	_source = NULL;
+	_response = NULL;
  }
 
 Connection::Connection(int fd, struct addrinfo *addrinfo)
@@ -29,6 +31,7 @@ Connection::Connection(const Connection &src) {
 
 Connection::~Connection() {
 	delete(_source);
+	delete(_response);
 }
 
 Connection &Connection::operator=(const Connection &other) {
@@ -54,82 +57,26 @@ void Connection::setSource(Source *source){
 	_source = source;
 }
 
-
-static std::string num_to_str(size_t num) {
-	std::ostringstream convert;   // stream used for the conversion
-	convert << num;      // insert the textual representation of 'Number' in the characters in the stream
-	return convert.str();
+void Connection::setResponse(const Source *source) {
+	if (_response)
+		delete(_response);
+	_response = new Response(source);
 }
 
-void Connection::readFromSocket(int buffer_size) {
-
+void Connection::readFromSocket() {
 	std::vector<char> buffer;
-	buffer.reserve(buffer_size);
-  	int valread = read(_socket.getFd(), buffer.data(), buffer_size);
+	buffer.reserve(READ_BUFFER);
+	int valread = read(_socket.getFd(), buffer.data(), READ_BUFFER);
 	if (_parser.parse(buffer.data(), valread) != RequestParser::COMPLETE)
 		return ;
-    _request = _parser.getRequest(); // maybe weird for it to sit here..
-	prepSource();
-
+	_request = _parser.getRequest(); // maybe weird for it to sit here..
 }
 
-void Connection::writeToSocket(int buffer_size) {
-
-	(void)buffer_size;
-
-	std::string response;
-	response.append(_response.http_version + " " + _response.code + " " + _response.status + "\r\n");
-	for (std::map<std::string, std::string>::iterator it = _response.headers.begin(); it != _response.headers.end(); ++it)
-		response += it->first + ": " + it->second + "\r\n";
-	response += "\r\n"; // END of headers: blank line
-	response += _response.body;
-
-	std::cout << "response is: " << response << std::endl;
-
-	ssize_t bytes_sent = send(_socket.getFd(), response.c_str(), response.length(), 0);
-	if (bytes_sent != (ssize_t)response.length()) {
-		std::cerr << "Partial write! Only sent " << bytes_sent << " bytes out of " << response.length() << std::endl;
-		//  must handle it here (loop, or error)
-	}
-
-	// Tell the peer that we finished sending
-  	//shutdown(_socket.getFd(), SHUT_RDWR);
-
-	_socket.close_sock();
-}
-
-void Connection::prepSource() {
-}
-
-void Connection::generateResponse() {
-
-	_response.headers.clear();
-	_response.body = "";
-	_response.http_version = _request.http_version;
-
-
-	if (_request.uri.substr(0,6) == "/echo/") {
-		_response.body = _request.uri.substr(6);
-		_response.code = "200";
-		_response.status = "OK";
-		_response.headers["Content-Type"] = "text/plain";
-		_response.headers["Content-Length"] = num_to_str(_response.body.length());
-
-	}
-	else if (_request.uri.substr(0,11) == "/user-agent") {
-		_response.body = _request.headers["User-Agent"];
-		_response.code = "200";
-		_response.status = "OK";
-		_response.headers["Content-Type"] = "text/plain";
-		_response.headers["Content-Length"] = num_to_str(_response.body.length());
-	}
-	else {
-		_response.code = num_to_str(_source->getCode());
-		_response.status = _response.code == "200"? "OK" : "BAD";
-		_response.body = std::string(_source->getBytesRead().begin(), _source->getBytesRead().end());
-		_response.headers["Content-Length"] = num_to_str(_source->getSize());
-		_source->_bytesToSend -= _source->getSize();//this should subtract the actual size of the chunk sent
-	}
+void Connection::writeToSocket() {
+	if (!_response->headerSent())
+		sendHeader();
+	else if (_source->getType() != REDIRECT)
+		sendFromSource();
 }
 
 bool Connection::requestReady() const {
@@ -142,4 +89,27 @@ void Connection::resetParser() {
 
 const std::string& Connection::getTarget() const {
 	return (_request.uri);
+}
+
+void Connection::sendHeader(){
+	const char *buf = _response->getHeader() + _response->getOffset();
+	ssize_t size = std::strlen(buf) > READ_BUFFER ? READ_BUFFER : std::strlen(buf);
+	ssize_t bytes_sent = send(_socket.getFd(), buf, size, 0);
+	if (bytes_sent == -1)
+		throw (std::runtime_error("Error sending header"));
+	if (bytes_sent >= (ssize_t)std::strlen(buf))
+		_response->setHeaderSent(true);
+	_response->setOffset(bytes_sent);
+}
+
+void Connection::sendFromSource(){
+	if (_source->_bytesToSend < 1)
+		return ;
+	const char *buf = _source->getBytesRead().data() + _source->_offset;
+	ssize_t size = _source->_bytesToSend > READ_BUFFER ? READ_BUFFER : _source->_bytesToSend;
+	ssize_t bytes_sent = send(_socket.getFd(), buf, size, 0);
+	if (bytes_sent == -1)
+		throw (std::runtime_error("Error sending body"));
+	_source->_bytesToSend -= bytes_sent;
+	_source->_offset += bytes_sent;
 }
