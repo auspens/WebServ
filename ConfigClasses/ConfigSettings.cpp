@@ -67,7 +67,7 @@ size_t ConfigSettings::getClientMaxBodySize() const {
 	return _clientMaxBodySize;
 }
 
-const std::map<int, std::string>& ConfigSettings::getErrorPage() const {
+const std::map<std::string, std::string>& ConfigSettings::getErrorPage() const {
 	return _errorPage;
 }
 
@@ -79,7 +79,7 @@ const std::vector<std::string>& ConfigSettings::getAcceptCgi() const {
 	return _acceptCgi;
 }
 
-const int ConfigSettings::getAcceptMethod() const {
+int ConfigSettings::getAcceptMethod() const {
 	return _acceptMethod;
 }
 
@@ -96,20 +96,82 @@ bool ConfigSettings::acceptsMethod(std::string method) const {
 		return _acceptMethod & METHOD_DELETE;
 }
 
-void ConfigSettings::parseClientMaxBodySize(std::ifstream &infile) {
+void ConfigSettings::parseClientMaxBodySize(std::ifstream &infile) throw(ConfigParseException) {
+	std::string token;
+	char		lastChar;
 
+	_clientMaxBodySize = 1;
+
+	token = ParseUtils::parseValue(infile);
+	lastChar = token[token.length() - 1];
+
+	if (lastChar == 'G')
+		_clientMaxBodySize *= 1024;
+	if (lastChar == 'G' || lastChar == 'M')
+		_clientMaxBodySize *= 1024 * 1024;
+	if (lastChar == 'G' || lastChar == 'M' || lastChar == 'K') {
+		_clientMaxBodySize *= 1024 * 1024 * 1024;
+		token = token.substr(0, token.length() - 1);
+	}
+	_clientMaxBodySize = ParseUtils::parseInt(token);
+
+	ParseUtils::expectChar(infile, ';');
 }
 
-void ConfigSettings::parseErrorPage(std::ifstream &infile) {
+void ConfigSettings::parseErrorPage(std::ifstream &infile) throw(ConfigParseException) {
+	std::string token;
+	std::vector<std::string> errorCodes;
 
+	token = ParseUtils::parseValue(infile);
+	while (_isErrorCode(token)) {
+		errorCodes.push_back(token);
+		token = ParseUtils::parseValue(infile);
+	}
+	ParseUtils::expectChar(infile, ';');
+
+	if (errorCodes.size() == 0)
+		throw ConfigParseException("Invalid value for error page");
+	if (!WebServUtils::fileExists(token))
+		throw ConfigParseException("Error page file does not exist");
+
+	for (int i = 0; i < errorCodes.size(); i++)
+		_errorPage.insert(std::pair<std::string, std::string>(errorCodes[i], token));
+
+	ParseUtils::expectChar(infile, ';');
 }
 
-void ConfigSettings::parseIndex(std::ifstream &infile) {
+void ConfigSettings::parseIndex(std::ifstream &infile) throw(ConfigParseException) {
+	std::string token;
 
+	token = ParseUtils::parseValue(infile);
+	if (token == "")
+		throw ConfigParseException("Invalid value for index");
+
+	while (token != "") {
+		if (!WebServUtils::fileExists(token))
+			throw ConfigParseException("Index file does not exist");
+		_index.push_back(token);
+		token = ParseUtils::parseValue(infile);
+	}
+
+	ParseUtils::expectChar(infile, ';');
 }
 
-void ConfigSettings::parseAcceptCgi(std::ifstream &infile) {
+void ConfigSettings::parseAcceptCgi(std::ifstream &infile) throw(ConfigParseException) {
+	std::string token;
 
+	token = ParseUtils::parseValue(infile);
+	if (token == "")
+		throw ConfigParseException("Invalid value for accept cgi");
+
+	while (token != "") {
+		if (!WebServUtils::isin(CGI_EXTENSIONS, token))
+			throw ConfigParseException("Invalid value for accept cgi");
+		_acceptCgi.push_back(token);
+		token = ParseUtils::parseValue(infile);
+	}
+
+	ParseUtils::expectChar(infile, ';');
 }
 
 void ConfigSettings::parseAcceptMethod(std::ifstream &infile) {
@@ -149,4 +211,8 @@ void ConfigSettings::parseAutoIndex(std::ifstream &infile) {
 		throw ConfigParseException("Invalid value for auto index");
 
 	ParseUtils::expectChar(infile, ';');
+}
+
+bool ConfigSettings::_isErrorCode(std::string const &str) const {
+	return str.length() == 3 && std::isdigit(str[0]) && std::isdigit(str[1]) && std::isdigit(str[2]);
 }

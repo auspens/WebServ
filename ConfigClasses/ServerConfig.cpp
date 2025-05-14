@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 12:55:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/05/11 21:02:05 by wouter           ###   ########.fr       */
+/*   Updated: 2025/05/14 17:02:15 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,20 +54,17 @@ void ServerConfig::parse(std::ifstream &infile) throw(ConfigParseException) {
 void ServerConfig::_parseServerNames(std::ifstream &infile) throw(ConfigParseException) {
 	std::string	server_name;
 
-	ParseUtils::skipWhitespace(infile);
-	while (infile.peek() != ';') {
-		if (infile.fail())
-			throw ConfigParseException("Error reading from file");
-		if (infile.eof())
-			throw ConfigParseException("Expected ';'");
+	server_name = ParseUtils::parseValue(infile);
+	if (server_name == "")
+		throw ConfigParseException("Invalid value for server name");
 
-		server_name = ParseUtils::parseValue(infile);
+	while (server_name != "") {
 		if (server_name.length() > 255)
 			throw ConfigParseException("Invalid value for server name");
 		_serverNames.push_back(server_name);
-
-		ParseUtils::skipWhitespace(infile);
+		server_name = ParseUtils::parseValue(infile);
 	}
+
 	ParseUtils::expectChar(infile, ';');
 }
 
@@ -76,6 +73,7 @@ void ServerConfig::_parsePort(std::ifstream &infile) throw(ConfigParseException)
 
 	port = ParseUtils::parseValue(infile);
 	_port = ParseUtils::parseInt(port, 0, 65535);
+
 	ParseUtils::expectChar(infile, ';');
 }
 

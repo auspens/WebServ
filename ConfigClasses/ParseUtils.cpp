@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 16:03:09 by wpepping          #+#    #+#             */
-/*   Updated: 2025/05/11 21:08:03 by wouter           ###   ########.fr       */
+/*   Updated: 2025/05/14 17:33:02 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ std::string ParseUtils::parseToken(std::ifstream &infile) throw(ConfigParseExcep
 	std::string result;
 
 	infile >> result;
-	if (infile.fail())
+	if (infile.fail() && !infile.eof())
 		throw ConfigParseException("Error reading from file");
 
 	return result;
@@ -79,13 +79,14 @@ int ParseUtils::parseInt(std::string nbr, int min, int max) throw(ConfigParseExc
 
 std::string ParseUtils::parseValue(std::ifstream &infile) throw(ConfigParseException) {
 	char c;
-	std::string result;
+	std::string result = "";
 
+	skipWhitespace(infile);
 	c = infile.peek();
 	while (!infile.fail() && !infile.eof() && !std::isspace(c) && c != ';')
 		result += infile.get();
 
-	if (infile.fail())
+	if (infile.fail() && !infile.eof())
 		throw ConfigParseException("Error reading from file");
 
 	return result;

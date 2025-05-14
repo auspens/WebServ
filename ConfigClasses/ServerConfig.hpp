@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 17:00:59 by wpepping          #+#    #+#             */
-/*   Updated: 2025/05/09 19:26:20 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/14 14:52:01 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,7 @@
 #include "Location.hpp"
 #include "ParseUtils.hpp"
 #include "WebServUtils.hpp"
-
-#define DEFAULT_PORT 3490
-#define DEFAULT_HOST "localhost"
-#define READ_BUFFER 1024
+#include "Constants.hpp"
 
 class ServerConfig {
 public:

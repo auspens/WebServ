@@ -1,23 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   WebServUtils.cpp                                   :+:      :+:    :+:   */
+/*   Constants.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/26 17:15:00 by wouter            #+#    #+#             */
-/*   Updated: 2025/05/14 15:52:30 by wouter           ###   ########.fr       */
+/*   Created: 2025/05/14 14:52:12 by wouter            #+#    #+#             */
+/*   Updated: 2025/05/14 15:36:17 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "WebServUtils.hpp"
+#pragma once
 
-void WebServUtils::printErrorAndExit(std::string message, int exit_status) {
-	std::cout << message << std::endl;
-	std::exit(exit_status);
-}
+#define DEFAULT_PORT 3490
+#define DEFAULT_HOST "localhost"
+#define READ_BUFFER 1024
 
-bool WebServUtils::fileExists(const std::string &filename) {
-	std::ifstream file(filename.c_str());
-	return file.is_open();
-}
+const std::string CGI_EXTENSIONS[] = {
+	".py",
+	".php"
+};

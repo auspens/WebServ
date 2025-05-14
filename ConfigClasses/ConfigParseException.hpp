@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParseException.hpp                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 16:03:39 by wpepping          #+#    #+#             */
-/*   Updated: 2025/05/09 16:03:43 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/14 17:50:27 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,10 @@
 
 #include <string>
 
-class ConfigParseException : std::exception {
+class ConfigParseException : public std::exception {
 public:
 	ConfigParseException(const std::string &error);
+	~ConfigParseException() throw();
 	virtual const char* what() const throw();
 
 private:

@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 16:03:27 by wpepping          #+#    #+#             */
-/*   Updated: 2025/05/11 20:53:07 by wouter           ###   ########.fr       */
+/*   Updated: 2025/05/14 17:38:53 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,12 @@
 
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 #include "ConfigParseException.hpp"
+#include "Constants.hpp"
 #include "ParseUtils.hpp"
+#include "WebServUtils.hpp"
 
 enum eHttpMethod {
 		METHOD_NONE   = 0,
@@ -42,20 +45,22 @@ public:
 	void parseAcceptMethod(std::ifstream &infile) throw(ConfigParseException);
 	void parseAutoIndex(std::ifstream &infile) throw(ConfigParseException);
 
-	size_t								getClientMaxBodySize()	const;
-	const std::map<int, std::string>	&getErrorPage()			const;
-	const std::vector<std::string>		&getIndex()				const;
-	const std::vector<std::string>		&getAcceptCgi()			const;
-	const int							getAcceptMethod()		const;
-	bool								getAutoIndex()			const;
+	size_t										getClientMaxBodySize()	const;
+	const std::map<std::string, std::string>	&getErrorPage()			const;
+	const std::vector<std::string>				&getIndex()				const;
+	const std::vector<std::string>				&getAcceptCgi()			const;
+	int											getAcceptMethod()		const;
+	bool										getAutoIndex()			const;
 
-	bool								acceptsMethod(std::string method)	const;
+	bool acceptsMethod(std::string method)	const;
 
 private:
-	size_t						_clientMaxBodySize;
-	std::map<int, std::string>	_errorPage;
-	std::vector<std::string>	_index;
-	std::vector<std::string>	_acceptCgi;
-	int							_acceptMethod;
-	bool						_autoIndex;
+	size_t								_clientMaxBodySize;
+	std::map<std::string, std::string>	_errorPage;
+	std::vector<std::string>			_index;
+	std::vector<std::string>			_acceptCgi;
+	int									_acceptMethod;
+	bool								_autoIndex;
+
+	bool _isErrorCode(std::string const &str) const;
 };

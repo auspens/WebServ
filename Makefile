@@ -9,6 +9,8 @@ OBJ_DIR = obj
 SRC = 	ConfigClasses/Config.cpp \
 		ConfigClasses/Location.cpp \
 		ConfigClasses/ServerConfig.cpp \
+		ConfigClasses/ParseUtils.cpp \
+		ConfigClasses/ConfigSettings.cpp \
 		Source/Source.cpp \
 		Source/StaticFileSource.cpp \
 		Source/RedirectSource.cpp \
@@ -27,6 +29,9 @@ OBJ = $(SRC:src/%.cpp=$(OBJ_DIR)/%.o)
 HDR = 	ConfigClasses/Config.hpp \
 		ConfigClasses/Location.hpp \
 		ConfigClasses/ServerConfig.hpp \
+		ConfigClasses/ParseUtils.hpp \
+		ConfigClasses/Constants.hpp \
+		ConfigClasses/ConfigSettings.hpp \
 		Source/Source.hpp \
 		Source/StaticFileSource.hpp \
 		Source/RedirectSource.hpp \
@@ -41,16 +46,18 @@ HDR = 	ConfigClasses/Config.hpp \
 		SystemCallsUtilities.hpp \
 		WebServUtlis.hpp
 
+INCLUDE = -I. -IConfigClasses
+
 all: $(NAME)
 
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
 $(NAME): $(OBJ)
-	$(CC) $(CFLAGS) $(OBJ) -o $(NAME)
+	$(CC) $(CFLAGS) $(INCLUDE) $(OBJ) -o $(NAME)
 
 $(OBJ_DIR)/%.o: src/%.cpp $(HDR) | $(OBJ_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
 
 clean:
 	rm -rf $(OBJ_DIR)
