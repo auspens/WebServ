@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 17:00:59 by wpepping          #+#    #+#             */
-/*   Updated: 2025/05/15 15:30:11 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/15 19:36:05 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ public:
 	void parse(std::ifstream &file) throw(ConfigParseException);
 
 	int getPort() const;
-	const std::string &getHost() const;
+	const std::string *getHost() const;
 	const std::vector<std::string> &getServerNames() const;
 	int getBufferSize() const;
 	const std::string &getRootFolder() const;
@@ -44,14 +44,16 @@ public:
 	const std::vector<Location> &getLocations() const;
 
 private:
-	int									_port;
-	std::string 						_rootFolder;
-	std::vector<Location>				_locations;
-	std::vector<std::string>			_serverNames;
-	ConfigSettings						_configSettings;
+	int							_port;
+	bool						_uploadPass;
+	std::string 				_rootFolder;
+	std::vector<Location>		_locations;
+	std::vector<std::string>	_serverNames;
+	ConfigSettings				_configSettings;
 
 	void _parseServerNames(std::ifstream &file) throw(ConfigParseException);
 	void _parsePort(std::ifstream &file) throw(ConfigParseException);
 	Location _parseLocation(std::ifstream &file) throw(ConfigParseException);
 	void _parseRoot(std::ifstream &file) throw(ConfigParseException);
+	void _parseUploadPass(std::ifstream &file) throw(ConfigParseException);
 };

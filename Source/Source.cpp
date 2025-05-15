@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/07 11:05:46 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/15 19:05:55 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,8 +60,8 @@ SourceType Source::getType()const{
 
 Source *Source::getNewSource(const std::string &target, const ServerConfig &serverConfig){
 	Location location = defineLocation(target, serverConfig);
-	if (location.getRedirect().first != 0)
-		return new RedirectSource(location.getRedirect().second, serverConfig, location.getRedirect().first);
+	if (location.isRedirect())
+		return new RedirectSource(location.getRedirectPath(), serverConfig, location.getRedirectCode());
 	//here will be some logic to define if request is for CGI
 	return new StaticFileSource(target, serverConfig, location);
 }

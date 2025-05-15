@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 12:55:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/05/15 15:30:19 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/15 19:35:47 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ ServerConfig &ServerConfig::operator=(const ServerConfig& src) {
 void ServerConfig::parse(std::ifstream &infile) throw(ConfigParseException) {
 	std::string token;
 
+	ParseUtils::expectChar(infile, '{');
 	while (infile.peek() != '}' && !infile.eof()) {
 		token = ParseUtils::parseToken(infile);
 		if (_configSettings.isConfigSetting(token))
@@ -104,15 +105,23 @@ void ServerConfig::_parseRoot(std::ifstream &infile) throw(ConfigParseException)
 	_rootFolder = token;
 }
 
+void ServerConfig::_parseUploadPass(std::ifstream &infile) throw(ConfigParseException) {
+	_uploadPass = 1;
+	_parseRoot(infile);
+}
+
 int ServerConfig::getPort() const {
 	return _port;
 }
 
-const std::string &ServerConfig::getHost() const { // Should be removed
+const std::string *ServerConfig::getHost() const { // Should be removed
 	#include <iostream>
 	std::cout << "getHost() should be removed, use getServerNames instead" << std::endl;
 
-	return _serverNames[0];
+	if (_serverNames.size() > 0)
+		return &_serverNames[0];
+	else
+		return NULL;
 }
 
 const std::vector<std::string> &ServerConfig::getServerNames() const {

@@ -124,19 +124,22 @@ void ConfigSettings::parseErrorPage(std::ifstream &infile) throw(ConfigParseExce
 	std::vector<int> errorCodes;
 
 	token = ParseUtils::parseValue(infile);
-	while (_isErrorCode(token)) {
+	while (ParseUtils::isErrorCode(token)) {
 		errorCodes.push_back(ParseUtils::parseInt(token));
 		token = ParseUtils::parseValue(infile);
 	}
-	ParseUtils::expectChar(infile, ';');
 
 	if (errorCodes.size() == 0)
 		throw ConfigParseException("Invalid value for error page");
 	if (!WebServUtils::fileExists(token))
 		throw ConfigParseException("Error page file does not exist");
 
-	for (unsigned int i = 0; i < errorCodes.size(); i++)
+	for (unsigned int i = 0; i < errorCodes.size(); i++) {
+		if (_errorPages.find(errorCodes[i]) != _errorPages.end())
+			throw ConfigParseException("Multiple error pages for error code "
+				+ WebServUtils::to_string(errorCodes[i]));
 		_errorPages.insert(std::pair<int, std::string>(errorCodes[i], token));
+	}
 
 	ParseUtils::expectChar(infile, ';');
 }
@@ -149,8 +152,6 @@ void ConfigSettings::parseIndex(std::ifstream &infile) throw(ConfigParseExceptio
 		throw ConfigParseException("Invalid value for index");
 
 	while (token != "") {
-		if (!WebServUtils::fileExists(token))
-			throw ConfigParseException("Index file does not exist");
 		_index.push_back(token);
 		token = ParseUtils::parseValue(infile);
 	}
@@ -214,6 +215,4 @@ void ConfigSettings::parseAutoIndex(std::ifstream &infile) throw(ConfigParseExce
 	ParseUtils::expectChar(infile, ';');
 }
 
-bool ConfigSettings::_isErrorCode(std::string const &str) const {
-	return str.length() == 3 && std::isdigit(str[0]) && std::isdigit(str[1]) && std::isdigit(str[2]);
-}
+

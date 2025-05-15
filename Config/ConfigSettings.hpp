@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 16:03:27 by wpepping          #+#    #+#             */
-/*   Updated: 2025/05/15 14:59:29 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/15 18:54:25 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,4 @@ private:
 	std::vector<std::string>	_acceptCgi;
 	int							_acceptMethod;
 	bool						_autoIndex;
-
-	bool _isErrorCode(std::string const &str) const;
 };

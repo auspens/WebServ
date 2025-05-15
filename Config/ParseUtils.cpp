@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 16:03:09 by wpepping          #+#    #+#             */
-/*   Updated: 2025/05/15 15:40:48 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/15 19:20:17 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ std::string ParseUtils::parseValue(std::ifstream &infile) throw(ConfigParseExcep
 
 	skipWhitespace(infile);
 	c = infile.peek();
-	while (!infile.fail() && !infile.eof() && !std::isspace(c) && c != ';') {
+	while (!infile.fail() && !infile.eof() && !std::isspace(c) && c != ';' && c != '{' && c != '}') {
 		result += infile.get();
 		c = infile.peek();
 	}
@@ -92,4 +92,8 @@ std::string ParseUtils::parseValue(std::ifstream &infile) throw(ConfigParseExcep
 		throw ConfigParseException("Error reading from file");
 
 	return result;
+}
+
+bool ParseUtils::isErrorCode(std::string const &str) {
+	return str.length() == 3 && std::isdigit(str[0]) && std::isdigit(str[1]) && std::isdigit(str[2]);
 }

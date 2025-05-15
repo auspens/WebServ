@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ListeningSocket.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:42:21 by auspensk          #+#    #+#             */
-/*   Updated: 2025/04/26 17:39:06 by wouter           ###   ########.fr       */
+/*   Updated: 2025/05/15 19:39:46 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 
 class ListeningSocket : public Socket{
 	public:
-		ListeningSocket(int port, std::string const &host);
+		ListeningSocket(int port, std::string const *host);
 		~ListeningSocket();
 
 		void				bindSocket();
