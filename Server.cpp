@@ -3,21 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/07 11:13:47 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/15 15:27:41 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
-#include "Source/StaticFileSource.hpp"
-
-Server::Server() {
-	ServerConfig config(DEFAULT_HOST, DEFAULT_PORT);
-	_config = config;
-	init();
-}
 
 Server::Server(const ServerConfig &config) : _config(config) {
 	init();

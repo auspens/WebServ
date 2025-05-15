@@ -3,18 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:08:43 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/06 18:08:52 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/15 15:10:55 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 #include "Source.hpp"
-#include "../SystemCallsUtilities.hpp"
-#include "../WebServUtils.hpp"
-#include "../ConfigClasses/ServerConfig.hpp"
+#include "SystemCallsUtilities.hpp"
+#include "WebServUtils.hpp"
+#include "ServerConfig.hpp"
 #include <dirent.h>
 
 class StaticFileSource : public Source {

@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 11:41:02 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/09 19:23:52 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/15 14:58:00 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,9 @@
 #include <string>
 #include <map>
 #include "ConfigParseException.hpp"
+#include "ConfigSettings.hpp"
 #include "ParseUtils.hpp"
+#include "WebServUtils.hpp"
 
 class Location{
 public:
@@ -31,14 +33,14 @@ public:
 	const std::string &getIndex() const;
 	bool autoindexOn() const;
 	const std::pair<int, std::string> &getRedirect() const;
-	const std::map<int, std::string> &getErorrPagesLocal() const;
+	const std::map<int, std::string> &getErorrPages() const;
 
 private:
-	std::string 				_path;
 	bool 						_autoindex;
+	std::string 				_path;
 	std::string 				_index;
+	std::string 				_rootFolder;
 	std::pair<int, std::string> _redirect;
-	std::map<int, std::string>	_errorPagesLocal;
 	ConfigSettings				_configSettings;
 
 	void _parseRoot(std::ifstream &file) throw(ConfigParseException);

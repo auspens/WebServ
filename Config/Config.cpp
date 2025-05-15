@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:11:08 by wouter            #+#    #+#             */
-/*   Updated: 2025/05/11 20:28:19 by wouter           ###   ########.fr       */
+/*   Updated: 2025/05/15 15:26:55 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,11 +34,15 @@ Config &Config::operator=(const Config &src) {
 	return *this;
 }
 
+void Config::parse(const std::string &configFile) throw(ConfigParseException) {
+	_parseConfigFile(configFile);
+}
+
 const std::vector<ServerConfig> &Config::getServersConfigs() const {
 	return _serverConfigs;
 }
 
-void Config::_parseConfigFile(std::string &configFile) throw(ConfigParseException) {
+void Config::_parseConfigFile(const std::string &configFile) throw(ConfigParseException) {
 	std::string token;
 	std::ifstream file(configFile.c_str());
 

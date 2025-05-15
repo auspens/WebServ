@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParseUtils.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 16:03:09 by wpepping          #+#    #+#             */
-/*   Updated: 2025/05/14 17:33:02 by wouter           ###   ########.fr       */
+/*   Updated: 2025/05/15 15:40:48 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,19 +72,21 @@ int ParseUtils::parseInt(std::string nbr, int min, int max) throw(ConfigParseExc
 
 	c_str = nbr.c_str();
 	l = strtol(c_str, &str_end, 10);
-	if (c_str == str_end || l < std::numeric_limits<int>::min()
-		|| l > std::numeric_limits<int>::max())
-			throw ConfigParseException("Invalid number");
+	if (c_str == str_end || l < min || l > max)
+		throw ConfigParseException("Invalid number");
+	return l;
 }
 
 std::string ParseUtils::parseValue(std::ifstream &infile) throw(ConfigParseException) {
-	char c;
+	int c;
 	std::string result = "";
 
 	skipWhitespace(infile);
 	c = infile.peek();
-	while (!infile.fail() && !infile.eof() && !std::isspace(c) && c != ';')
+	while (!infile.fail() && !infile.eof() && !std::isspace(c) && c != ';') {
 		result += infile.get();
+		c = infile.peek();
+	}
 
 	if (infile.fail() && !infile.eof())
 		throw ConfigParseException("Error reading from file");

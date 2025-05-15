@@ -6,11 +6,12 @@ CFLAGS = -Wall -Wextra -Werror -std=c++98 -g
 
 OBJ_DIR = obj
 
-SRC = 	ConfigClasses/Config.cpp \
-		ConfigClasses/Location.cpp \
-		ConfigClasses/ServerConfig.cpp \
-		ConfigClasses/ParseUtils.cpp \
-		ConfigClasses/ConfigSettings.cpp \
+SRC = 	Config/Config.cpp \
+		Config/Location.cpp \
+		Config/ServerConfig.cpp \
+		Config/ParseUtils.cpp \
+		Config/ConfigSettings.cpp \
+		Config/ConfigParseException.cpp \
 		Source/Source.cpp \
 		Source/StaticFileSource.cpp \
 		Source/RedirectSource.cpp \
@@ -26,12 +27,13 @@ SRC = 	ConfigClasses/Config.cpp \
 
 OBJ = $(SRC:src/%.cpp=$(OBJ_DIR)/%.o)
 
-HDR = 	ConfigClasses/Config.hpp \
-		ConfigClasses/Location.hpp \
-		ConfigClasses/ServerConfig.hpp \
-		ConfigClasses/ParseUtils.hpp \
-		ConfigClasses/Constants.hpp \
-		ConfigClasses/ConfigSettings.hpp \
+HDR = 	Config/Config.hpp \
+		Config/Location.hpp \
+		Config/ServerConfig.hpp \
+		Config/ParseUtils.hpp \
+		Config/Constants.hpp \
+		Config/ConfigSettings.hpp \
+		Config/ConfigParseException.hpp \
 		Source/Source.hpp \
 		Source/StaticFileSource.hpp \
 		Source/RedirectSource.hpp \
@@ -40,13 +42,13 @@ HDR = 	ConfigClasses/Config.hpp \
 		RequestParser.hpp \
 		HttpRequest.hpp \
 		HttpResponse.hpp \
-		ServerConfig.hpp \
 		Server.hpp \
 		Socket.hpp \
 		SystemCallsUtilities.hpp \
-		WebServUtlis.hpp
+		WebServUtlis.hpp \
+		Tests/TestSource.hpp
 
-INCLUDE = -I. -IConfigClasses
+INCLUDE = -I. -IConfig -ISource -ITests
 
 all: $(NAME)
 

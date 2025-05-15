@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 17:00:59 by wpepping          #+#    #+#             */
-/*   Updated: 2025/05/14 14:52:01 by wouter           ###   ########.fr       */
+/*   Updated: 2025/05/15 15:30:11 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,16 +28,15 @@
 class ServerConfig {
 public:
 	ServerConfig();
-	ServerConfig(std::string host, int port);
 	~ServerConfig();
+	ServerConfig(int port, std::string host);
 	ServerConfig(const ServerConfig& src);
 	ServerConfig& operator=(const ServerConfig& src);
 
 	void parse(std::ifstream &file) throw(ConfigParseException);
-	void setPort(int port) throw(ConfigParseException);
-	void setPort(std::string &port) throw(ConfigParseException);
 
 	int getPort() const;
+	const std::string &getHost() const;
 	const std::vector<std::string> &getServerNames() const;
 	int getBufferSize() const;
 	const std::string &getRootFolder() const;

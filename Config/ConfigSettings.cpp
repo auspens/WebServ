@@ -18,7 +18,7 @@ ConfigSettings::~ConfigSettings() {}
 
 ConfigSettings::ConfigSettings(ConfigSettings &src) {
 	_clientMaxBodySize = src._clientMaxBodySize;
-	_errorPage = src._errorPage;
+	_errorPages = src._errorPages;
 	_index = src._index;
 	_acceptCgi = src._acceptCgi;
 	_acceptMethod = src._acceptMethod;
@@ -28,7 +28,7 @@ ConfigSettings::ConfigSettings(ConfigSettings &src) {
 ConfigSettings& ConfigSettings::operator=(ConfigSettings &src) {
 	if (this != &src) {
 		_clientMaxBodySize = src._clientMaxBodySize;
-		_errorPage = src._errorPage;
+		_errorPages = src._errorPages;
 		_index = src._index;
 		_acceptCgi = src._acceptCgi;
 		_acceptMethod = src._acceptMethod;
@@ -67,8 +67,8 @@ size_t ConfigSettings::getClientMaxBodySize() const {
 	return _clientMaxBodySize;
 }
 
-const std::map<std::string, std::string>& ConfigSettings::getErrorPage() const {
-	return _errorPage;
+const std::map<int, std::string>& ConfigSettings::getErrorPages() const {
+	return _errorPages;
 }
 
 const std::vector<std::string>& ConfigSettings::getIndex() const {
@@ -94,6 +94,7 @@ bool ConfigSettings::acceptsMethod(std::string method) const {
 		return _acceptMethod & METHOD_POST;
 	if (method == "DELETE")
 		return _acceptMethod & METHOD_DELETE;
+	return false;
 }
 
 void ConfigSettings::parseClientMaxBodySize(std::ifstream &infile) throw(ConfigParseException) {
@@ -120,11 +121,11 @@ void ConfigSettings::parseClientMaxBodySize(std::ifstream &infile) throw(ConfigP
 
 void ConfigSettings::parseErrorPage(std::ifstream &infile) throw(ConfigParseException) {
 	std::string token;
-	std::vector<std::string> errorCodes;
+	std::vector<int> errorCodes;
 
 	token = ParseUtils::parseValue(infile);
 	while (_isErrorCode(token)) {
-		errorCodes.push_back(token);
+		errorCodes.push_back(ParseUtils::parseInt(token));
 		token = ParseUtils::parseValue(infile);
 	}
 	ParseUtils::expectChar(infile, ';');
@@ -134,8 +135,8 @@ void ConfigSettings::parseErrorPage(std::ifstream &infile) throw(ConfigParseExce
 	if (!WebServUtils::fileExists(token))
 		throw ConfigParseException("Error page file does not exist");
 
-	for (int i = 0; i < errorCodes.size(); i++)
-		_errorPage.insert(std::pair<std::string, std::string>(errorCodes[i], token));
+	for (unsigned int i = 0; i < errorCodes.size(); i++)
+		_errorPages.insert(std::pair<int, std::string>(errorCodes[i], token));
 
 	ParseUtils::expectChar(infile, ';');
 }
@@ -174,7 +175,7 @@ void ConfigSettings::parseAcceptCgi(std::ifstream &infile) throw(ConfigParseExce
 	ParseUtils::expectChar(infile, ';');
 }
 
-void ConfigSettings::parseAcceptMethod(std::ifstream &infile) {
+void ConfigSettings::parseAcceptMethod(std::ifstream &infile) throw(ConfigParseException) {
 	std::string	method;
 
 	ParseUtils::skipWhitespace(infile);
@@ -200,7 +201,7 @@ void ConfigSettings::parseAcceptMethod(std::ifstream &infile) {
 	ParseUtils::expectChar(infile, ';');
 }
 
-void ConfigSettings::parseAutoIndex(std::ifstream &infile) {
+void ConfigSettings::parseAutoIndex(std::ifstream &infile) throw(ConfigParseException) {
 	std::string value = ParseUtils::parseValue(infile);
 
 	if (value == "on")

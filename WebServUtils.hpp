@@ -3,19 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   WebServUtils.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 14:38:47 by wouter            #+#    #+#             */
-/*   Updated: 2025/05/14 15:52:47 by wouter           ###   ########.fr       */
+/*   Updated: 2025/05/15 14:35:58 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <dirent.h>
 
 class WebServUtils {
 public:
@@ -28,6 +30,7 @@ public:
 
 	void printErrorAndExit(std::string message, int exit_status);
 	static bool fileExists(const std::string &filename);
+	static bool folderExists(const std::string &dname);
 
 	template <typename T, size_t N>
 	static bool isin(const T (&array)[N], const T &value) 	{

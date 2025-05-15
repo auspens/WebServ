@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 12:55:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/05/14 17:02:15 by wouter           ###   ########.fr       */
+/*   Updated: 2025/05/15 15:30:19 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,17 @@
 
 ServerConfig::ServerConfig() { }
 
+ServerConfig::ServerConfig(int port, std::string host) : _port(port) {
+	_serverNames.push_back(host);
+}
+
 ServerConfig::~ServerConfig() {
 	// TODO
 }
 
 ServerConfig::ServerConfig(const ServerConfig& src) {
 	// TODO
+	(void)src;
 }
 
 ServerConfig &ServerConfig::operator=(const ServerConfig& src) {
@@ -87,11 +92,27 @@ Location ServerConfig::_parseLocation(std::ifstream &infile) throw(ConfigParseEx
 	return *location;
 }
 
-void Location::_parseRoot(std::ifstream &infile) throw(ConfigParseException) {
+void ServerConfig::_parseRoot(std::ifstream &infile) throw(ConfigParseException) {
+	std::string token;
+
+	token = ParseUtils::parseValue(infile);
+	ParseUtils::expectChar(infile, ';');
+
+	if (!WebServUtils::folderExists(token))
+		throw ConfigParseException("Root folder does not exist");
+
+	_rootFolder = token;
 }
 
 int ServerConfig::getPort() const {
 	return _port;
+}
+
+const std::string &ServerConfig::getHost() const { // Should be removed
+	#include <iostream>
+	std::cout << "getHost() should be removed, use getServerNames instead" << std::endl;
+
+	return _serverNames[0];
 }
 
 const std::vector<std::string> &ServerConfig::getServerNames() const {
@@ -99,6 +120,7 @@ const std::vector<std::string> &ServerConfig::getServerNames() const {
 }
 
 const std::map<int, std::string> &ServerConfig::getErrorPages() const {
+	return _configSettings.getErrorPages();
 }
 
 int ServerConfig::getBufferSize() const {

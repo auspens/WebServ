@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParseException.cpp                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 16:03:49 by wpepping          #+#    #+#             */
-/*   Updated: 2025/05/14 17:50:07 by wouter           ###   ########.fr       */
+/*   Updated: 2025/05/15 15:03:15 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ ConfigParseException::ConfigParseException(const std::string &error) {
 	_error = error;
 }
 
-ConfigParseException::~ConfigParseException() { }
+ConfigParseException::~ConfigParseException() throw() { }
 
 const char* ConfigParseException::what() const throw() {
 	return _error.c_str();
