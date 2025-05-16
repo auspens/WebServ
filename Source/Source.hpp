@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/15 15:10:46 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/16 14:22:47 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@
 class StaticFileSource;
 
 enum SourceType {STATIC, REDIRECT, CGI};
+
+#define MIME_TYPES_JSON "FileExtesionsToMime.json"
 
 class Source {
 	public:
@@ -40,10 +42,13 @@ class Source {
 		int 						getFd()const;
 		int							getSize()const;
 		SourceType					getType()const;
+		std::string					getLocation()const;
 
 		static Source *				getNewSource(const std::string &target, const ServerConfig &serverConfig);
 
 		int							_bytesToSend;
+		int							_offset;
+		static std::map<std::string, std::string> _mimeTypes;
 
 	protected:
 		int					_code;
@@ -55,6 +60,7 @@ class Source {
 		std::string			_target;
 		std::string			_mime;
 		std::vector<char>	_body;
+
 		Source(const std::string &target, const ServerConfig &serverConfig);
 
 	private:
