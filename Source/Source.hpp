@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/16 14:22:47 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/16 18:06:20 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ class Source {
 		};
 		virtual 					~Source();
 		virtual void 				readSource() = 0;
+		virtual char *				readFromSource() = 0;//returns a buffer that can be sent through socket
 
 		int 						getCode()const;
 		std::string 				getMime()const;
@@ -46,6 +47,7 @@ class Source {
 
 		static Source *				getNewSource(const std::string &target, const ServerConfig &serverConfig);
 
+
 		int							_bytesToSend;
 		int							_offset;
 		static std::map<std::string, std::string> _mimeTypes;
@@ -55,14 +57,16 @@ class Source {
 		int					_fd;
 		int					_size;
 		SourceType			_type;
-		ServerConfig		_serverConfig;
+		const ServerConfig	&_serverConfig;
 		Location			_location;
 		std::string			_target;
 		std::string			_mime;
 		std::vector<char>	_body;
 
 		Source(const std::string &target, const ServerConfig &serverConfig);
+		char *readFromBuffer();
 
 	private:
 		static const Location &defineLocation(const std::string &target, const ServerConfig &serverConfig);
+
 };

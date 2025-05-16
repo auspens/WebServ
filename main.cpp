@@ -24,6 +24,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	std::cout << "port in main: " << config.getServerConfigs()[0]->getPort() << std::endl;
+	std::cout << "Root folder for server: " << (*config.getServerConfigs()[0]).getRootFolder() << std::endl;
 	Server server(*config.getServerConfigs()[0]);
 	// TestStaticFileSource();
 }

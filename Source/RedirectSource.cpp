@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/06 16:39:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/06 18:08:47 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/16 16:27:13 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,3 +24,7 @@ RedirectSource::~RedirectSource()
 }
 
 void RedirectSource::readSource(){}
+char *RedirectSource::readFromSource(){
+	return NULL;
+}
+

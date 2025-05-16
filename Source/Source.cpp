@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/16 14:22:44 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/16 18:04:09 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,13 +36,11 @@ struct mimeTypesInitializer {
 		while (std::getline(file, line)) {
 			std::string::size_type colon = line.find(':');
 			if (colon == std::string::npos) continue;
-
 			std::string key = trim(line.substr(0, colon));
-			std::string val = trim(line.substr(colon + 1));
-
-			// Remove trailing comma if present
+			std::string val = line.substr(colon + 1);
 			if (!val.empty() && val[val.size() - 1] == ',')
-				val = val.substr(0, val.size() - 1);
+							val = val.substr(0, val.size() - 1);
+			val = trim(val);
 			Source::_mimeTypes[key] = val;
 		}
 	}
@@ -61,7 +59,7 @@ Source::Source(const std::string &target, const ServerConfig &serverConfig)
 		,_serverConfig(serverConfig)
 		,_location(defineLocation(target, serverConfig))
 		,_target(_serverConfig.getRootFolder() + target)
-		,_mime("mime_type_to_be_defined"){}
+		,_mime(""){}
 
 Source::SourceException::SourceException(std::string error)throw(): _error(error){}
 Source::SourceException::~SourceException()throw(){}
@@ -99,10 +97,15 @@ std::string Source::getLocation()const{
 }
 
 Source *Source::getNewSource(const std::string &target, const ServerConfig &serverConfig){
+	std::cout << "Root folder in getNewSource: " << (serverConfig).getRootFolder() << std::endl;
 	Location location = defineLocation(target, serverConfig);
 	if (location.isRedirect())
 		return new RedirectSource(location.getRedirectPath(), serverConfig, location.getRedirectCode());
 	if (target.find(".py") != std::string::npos)
 		return new CGISource(target, serverConfig, location);
 	return new StaticFileSource(target, serverConfig, location);
+}
+
+char *Source::readFromBuffer(){
+	return _body.data() + _offset;
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/16 17:17:38 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/16 18:00:11 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ void Server::_handleSocketEvent(struct epoll_event &event) {
 	Connection *conn = static_cast<Connection*>(event.data.ptr);
 
 	// if listening socket, handle incoming connection
-	if (event.data.fd == _listeningSockets[0]->getFd())
+	if (!conn)
 		_handleIncomingConnection(*_listeningSockets[0]);
 	else if (event.events & EPOLLIN) {
 		if (conn->requestReady())
@@ -100,9 +100,10 @@ void Server::_readFromSocket(Connection *conn) {
 	conn->readFromSocket();
 	if (conn->requestReady())
 	{
-		conn->resetParser();
+		//conn->resetParser();
 		try {
 			// finished reading request, create the source and the response
+			std::cout << "Root folder for server: " << (_config).getRootFolder() << std::endl;
 			conn->setSource(Source::getNewSource(conn->getTarget(), _config));
 			if (conn->getSource()->getType() == CGI) {
 				_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn, conn->getSourceFd());

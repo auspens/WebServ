@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/16 14:22:48 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/16 17:55:39 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ StaticFileSource::StaticFileSource(const std::string &target, const ServerConfig
 			struct stat st;
 			stat(_target.c_str(), &st);
 			_size = st.st_size;
+			defineMimeType();
 		}
 
 StaticFileSource::~StaticFileSource(){
@@ -34,6 +35,7 @@ void StaticFileSource::readSource(){
 		return;
 	_body.clear();
 	_body.resize(_serverConfig.getBufferSize());
+	_offset = 0;
 	ssize_t readSize = read(_fd, _body.data(),_serverConfig.getBufferSize());
 	if (readSize < 0)
 		throw Source::SourceException("Could not read from static source file");
@@ -57,6 +59,7 @@ void StaticFileSource::checkIfDirectory(){
 }
 
 void StaticFileSource::checkIfExists(){
+	std::cout << "root folder: " << _serverConfig.getRootFolder() << std::endl;
 	DIR *dir = opendir(_serverConfig.getRootFolder().c_str());
 	if (!dir)
 		throw (Source::SourceException("No root folder"));
@@ -68,6 +71,13 @@ void StaticFileSource::checkIfExists(){
 	if(access(_target.c_str(), R_OK))
 		throw (Source::SourceException("No 404 page"));
 }
+
+void StaticFileSource::defineMimeType(){
+	int dotAt = _target.find_last_of('.');
+	std::string extension = _target.substr(dotAt);
+	_mime = _mimeTypes.find(extension)->second;
+}
+
 
 std::string StaticFileSource::generateIndex()const{
 	//placeholder!!
@@ -85,4 +95,9 @@ std::string StaticFileSource::getErrorPage(int code)const{
 	std::string current_error = "/error/404.html";
 	return (_serverConfig.getRootFolder() + current_error);
 	throw (Source::SourceException("No error page"));
+}
+
+char *StaticFileSource::readFromSource(){
+	readSource();
+	return readFromBuffer();
 }

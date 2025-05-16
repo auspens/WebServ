@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 12:55:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/05/16 16:46:23 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/16 17:57:52 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,9 @@ void ServerConfig::_parseRoot(std::ifstream &infile) throw(ConfigParseException)
 	if (!WebServUtils::folderExists(token))
 		throw ConfigParseException("Root folder does not exist");
 
+	std::cout << "Save root folder: " << token << std::endl;
 	_rootFolder = token;
+	std::cout << "Root folder after save: " << _rootFolder << std::endl;
 }
 
 void ServerConfig::_parseUploadPass(std::ifstream &infile) throw(ConfigParseException) {

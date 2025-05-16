@@ -107,3 +107,7 @@ void CGISource::checkIfExists(){
 	if (!access(_scriptPath.c_str(), R_OK))
         std::cout << "Error:script does not exist" << std::endl;
 }
+
+char *CGISource::readFromSource(){
+	return readFromBuffer();
+}

@@ -9,6 +9,8 @@
 class CGISource : public Source {
 	public:
 		void readSource();
+		char *readFromSource();//this will return the pointer to the buffer that can be sent through the socket
+
 		CGISource(const std::string &target, const ServerConfig &serverConfig, Location const &location);
 		~CGISource();
 

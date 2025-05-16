@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 10:33:18 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/13 17:47:41 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/16 17:12:47 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,16 @@ struct ResponseStatusInitializer {
 
 static ResponseStatusInitializer _responseStatusInitializer;
 
-Response::Response(): _header(""), _chunked(false), _offset(0){}
-Response::Response (const Source *source): _header(""), _chunked(false), _offset(0){
+Response::Response()
+	: _header("")
+	, _chunked(false)
+	, _offset(0)
+	, _headerSent(false){}
+Response::Response (const Source *source)
+	: _header("")
+	, _chunked(false)
+	, _offset(0)
+	, _headerSent(false){
 	_header += std::string(PROTOCOL) + " " + num_to_str(source->getCode()) + " " + _statusCodesAndTexts.find(source->getCode())->second + "\r\n";
 	switch(source->getType())
 	{

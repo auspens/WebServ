@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/16 14:18:48 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/16 17:33:07 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,10 @@ void Connection::readFromSocket() {
 
 void Connection::writeToSocket() {
 	if (!_response->headerSent())
+	{
+		std::cout << "Will be sending header now" << std::endl;
 		sendHeader();
+	}
 	else if (_source->getType() != REDIRECT)
 		sendFromSource();
 }
@@ -103,9 +106,9 @@ void Connection::sendHeader(){
 }
 
 void Connection::sendFromSource(){
+	const char *buf = _source->readFromSource();
 	if (_source->_bytesToSend < 1)
 		return ;
-	const char *buf = _source->getBytesRead().data() + _source->_offset;
 	ssize_t size = _source->_bytesToSend > READ_BUFFER ? READ_BUFFER : _source->_bytesToSend;
 	ssize_t bytes_sent = send(_socket.getFd(), buf, size, 0);
 	if (bytes_sent == -1)
