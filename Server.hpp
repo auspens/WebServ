@@ -3,27 +3,28 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/05 11:45:58 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/15 15:16:59 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include "ListeningSocket.hpp"
-#include "Connection.hpp"
-#include "ConfigClasses/ServerConfig.hpp"
 #include <map>
 #include <vector>
+#include "Connection.hpp"
+#include "ListeningSocket.hpp"
+#include "ServerConfig.hpp"
+#include "StaticFileSource.hpp"
 
 #define INFINITE_TIMEOUT -1
 
 class Server {
 	private:
 		int							_epollInstance;
-		ServerConfig				_config;
+		const ServerConfig			&_config;
 		ListeningSocket				*_listeningSocket;
 		std::map<int, Connection*>	_socketConnections;
 		std::map<int, Connection*>	_sourceConnections;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/13 17:44:19 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/16 14:22:44 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,8 +100,8 @@ std::string Source::getLocation()const{
 
 Source *Source::getNewSource(const std::string &target, const ServerConfig &serverConfig){
 	Location location = defineLocation(target, serverConfig);
-	if (location.getRedirect().first != 0)
-		return new RedirectSource(location.getRedirect().second, serverConfig, location.getRedirect().first);
+	if (location.isRedirect())
+		return new RedirectSource(location.getRedirectPath(), serverConfig, location.getRedirectCode());
 	if (target.find(".py") != std::string::npos)
 		return new CGISource(target, serverConfig, location);
 	return new StaticFileSource(target, serverConfig, location);

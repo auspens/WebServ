@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/07 16:25:16 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/16 14:22:48 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,8 +78,8 @@ std::string StaticFileSource::generateIndex()const{
 std::string StaticFileSource::getErrorPage(int code)const{
 	//doesn't handle cases when error directive uses external URLs, like: error_page 404 https://example.com/notfound.html
 	//I'm not sure if we need to include this feature. Doesn't say anything in the subject
-	if (!_location.getErorrPagesLocal().empty() && _location.getErorrPagesLocal().find(code) != _location.getErorrPagesLocal().end())
-		return (_serverConfig.getRootFolder() + _location.getPath() + _location.getErorrPagesLocal().find(code)->second);
+	if (!_location.getErorrPages().empty() && _location.getErorrPages().find(code) != _location.getErorrPages().end())
+		return (_serverConfig.getRootFolder() + _location.getPath() + _location.getErorrPages().find(code)->second);
 	if (_serverConfig.getErrorPages().find(code) != _serverConfig.getErrorPages().end())
 		return (_serverConfig.getRootFolder() + _serverConfig.getErrorPages().find(code)->second);
 	std::string current_error = "/error/404.html";

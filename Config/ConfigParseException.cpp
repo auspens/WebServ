@@ -1,31 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ListeningSocket.hpp                                :+:      :+:    :+:   */
+/*   ConfigParseException.cpp                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/23 16:42:21 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/15 19:39:46 by wpepping         ###   ########.fr       */
+/*   Created: 2025/05/09 16:03:49 by wpepping          #+#    #+#             */
+/*   Updated: 2025/05/15 15:03:15 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
-#include "Socket.hpp"
-#include "WebServUtils.hpp"
+#include "ConfigParseException.hpp"
 
-#define BACKLOG 15
+ConfigParseException::ConfigParseException(const std::string &error) {
+	_error = error;
+}
 
-class ListeningSocket : public Socket{
-	public:
-		ListeningSocket(int port, std::string const *host);
-		~ListeningSocket();
+ConfigParseException::~ConfigParseException() throw() { }
 
-		void				bindSocket();
-		void				startListening();
-		//struct epoll_event	*getEpollevent();
-
-	private:
-		struct addrinfo _hints;
-		ListeningSocket();
-};
+const char* ConfigParseException::what() const throw() {
+	return _error.c_str();
+}

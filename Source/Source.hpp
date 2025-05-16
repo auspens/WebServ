@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Source.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/13 17:40:08 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/16 14:22:47 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 #include <exception>
 #include <string>
-#include "../ConfigClasses/ServerConfig.hpp"
+#include "ServerConfig.hpp"
 #include <fstream>
 #include <unistd.h>
 #include <sys/stat.h>
