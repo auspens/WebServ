@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/16 14:23:12 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/16 17:17:38 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,15 +31,16 @@ void Server::init() {
 }
 
 void Server::_listen() {
-	_listeningSocket = new ListeningSocket(_config.getPort(), _config.getHost());
+	std::cout << "port in server: " << _config.getPort() << std::endl;
+	_listeningSockets.push_back(new ListeningSocket(_config.getPort(), _config.getHost()));
 	_epollInstance = epoll_create(1);
 
 	SystemCallsUtilities::check_for_error(_epollInstance);
-	_listeningSocket->bindSocket();
-	_listeningSocket->startListening();
+	_listeningSockets[0]->bindSocket();
+	_listeningSockets[0]->startListening();
 
 	//add to epoll instance to listen for new incoming connections
-	_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, _listeningSocket->getFd());
+	_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, NULL, _listeningSockets[0]->getFd());
 	_runEpollLoop();
 }
 
@@ -53,7 +54,7 @@ void Server::_runEpollLoop() {
 	int								readyFds;
 
 	while (true) {
-		size = _socketConnections.size() + _sourceConnections.size() + 1;
+		size = _connections.size() + _listeningSockets.size();
 		events.reserve(size);
 		readyFds = epoll_wait(_epollInstance, &events[0], size, INFINITE_TIMEOUT);
 		SystemCallsUtilities::check_for_error(readyFds);
@@ -67,30 +68,19 @@ void Server::_runEpollLoop() {
 //create an interface that would contain a handleSocketEvent method and implement it for different classes.
 //This would allow to avoid these if-else statements
 void Server::_handleSocketEvent(struct epoll_event &event) {
-	std::map<int, Connection *>::iterator conn;
+	Connection *conn = static_cast<Connection*>(event.data.ptr);
 
 	// if listening socket, handle incoming connection
-	if (event.data.fd == _listeningSocket->getFd())
-		_handleIncomingConnection(*_listeningSocket);
-	else {
-		// if source connection, read from source file or cgi
-		conn = _sourceConnections.find(event.data.fd);
-		if (conn != _sourceConnections.end()){
-			_readFromSource(*conn->second);
-		}
-		else {
-			// socket connection, read from or write to socket based on event type
-			conn = _socketConnections.find(event.data.fd);
-			if (conn != _socketConnections.end()) {
-				if (event.events & EPOLLIN)
-					_readFromSocket(*conn->second);
-				if (event.events & EPOLLOUT){
-					_readFromSource(*conn->second);
-					_writeToSocket(*conn->second);
-				}
-			}
-		}
+	if (event.data.fd == _listeningSockets[0]->getFd())
+		_handleIncomingConnection(*_listeningSockets[0]);
+	else if (event.events & EPOLLIN) {
+		if (conn->requestReady())
+			_readFromSource(*conn);
+		else
+			_readFromSocket(conn);
 	}
+	else if (event.events & EPOLLOUT)
+		_writeToSocket(*conn);
 }
 
 void Server::_handleIncomingConnection(ListeningSocket &listeningSocket) {
@@ -102,27 +92,27 @@ void Server::_handleIncomingConnection(ListeningSocket &listeningSocket) {
 	new_fd = accept(listeningSocket.getFd(), (struct sockaddr *)&inc_addr, &addr_size);
 
 	Connection *inc_conn = new Connection(new_fd);
-	_socketConnections.insert(std::make_pair(new_fd, inc_conn));
-	_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, new_fd);
+	_connections.push_back(inc_conn);
+	_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, inc_conn, new_fd);
 }
 
-void Server::_readFromSocket(Connection &conn) {
-	conn.readFromSocket();
-	if (conn.requestReady())
+void Server::_readFromSocket(Connection *conn) {
+	conn->readFromSocket();
+	if (conn->requestReady())
 	{
-		conn.resetParser();
-		try {					// finished reading request, create the source and the response
-			conn.setSource(Source::getNewSource(conn.getTarget(), _config));
-			if (conn.getSource()->getType() == CGI) {
-				_sourceConnections.insert(std::make_pair(conn.getSourceFd(), &conn));
-				_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn.getSourceFd());
+		conn->resetParser();
+		try {
+			// finished reading request, create the source and the response
+			conn->setSource(Source::getNewSource(conn->getTarget(), _config));
+			if (conn->getSource()->getType() == CGI) {
+				_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn, conn->getSourceFd());
 			}
-			conn.setResponse(conn.getSource());
+			conn->setResponse(conn->getSource());
 		}
 		catch (Source::SourceException &e){
 			std::cout << e.what() << std::endl;
 		}
-		_updateEpoll(EPOLL_CTL_MOD, EPOLLOUT, conn.getSocketFd());
+		_updateEpoll(EPOLL_CTL_MOD, EPOLLOUT, conn, conn->getSocketFd());
 	}
 }
 
@@ -136,10 +126,10 @@ void Server::_readFromSource(Connection &conn) {
 	conn.getSource()->readSource();
 }
 
-void Server::_updateEpoll(int action, int events, int fd) {
+void Server::_updateEpoll(int action, int events, Connection *connection, int fd) {
 	epoll_event event;
 
 	event.events = events;
-	event.data.fd = fd;
+	event.data.ptr = connection;
 	epoll_ctl(_epollInstance, action, fd, &event);
 }

@@ -2,7 +2,9 @@ NAME = webserv
 
 CC = c++
 
-CFLAGS = -Wall -Wextra -Werror -std=c++98 -g
+CFLAGS = -Wall -Wextra -Werror -std=c++98
+DEBUG_FLAGS = -g -O0
+CFLAGS += $(DEBUG_FLAGS)
 
 OBJ_DIR = obj
 

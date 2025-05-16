@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:44:56 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/15 19:39:58 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/16 17:07:14 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ ListeningSocket::ListeningSocket(int port, std::string const *host){
 	std::memset(&_hints, 0, sizeof(_hints));
 	_hints.ai_family = AF_UNSPEC;
 	_hints.ai_socktype = SOCK_STREAM;
+	_hints.ai_flags = AI_PASSIVE;
 	result = getaddrinfo(host ? host->c_str() : NULL, WebServUtils::to_string(port).c_str(), &_hints, &_addrinfo);
 
 	if (result != 0){

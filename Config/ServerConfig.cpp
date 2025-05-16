@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 12:55:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/05/15 19:35:47 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/16 16:46:23 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,9 @@ void ServerConfig::_parsePort(std::ifstream &infile) throw(ConfigParseException)
 
 	port = ParseUtils::parseValue(infile);
 	_port = ParseUtils::parseInt(port, 0, 65535);
+
+	std::cout << "port: " << port << std::endl;
+	std::cout << "port: " << _port << std::endl;
 
 	ParseUtils::expectChar(infile, ';');
 }

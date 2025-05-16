@@ -23,6 +23,7 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
-	Server server(config.getServersConfigs()[0]);
+	std::cout << "port in main: " << config.getServerConfigs()[0]->getPort() << std::endl;
+	Server server(*config.getServerConfigs()[0]);
 	// TestStaticFileSource();
 }
