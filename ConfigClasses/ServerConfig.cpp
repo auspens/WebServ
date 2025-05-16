@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 12:55:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/05/05 15:30:45 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/07 14:42:09 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 ServerConfig::ServerConfig() { }
 
 ServerConfig::ServerConfig(std::string host, int port) : _host(host), _port(port) {
-	//this is placeholder
+	//this is a placeholder
 	std::string path("/");
 	_locations.push_back(Location(path));
 }

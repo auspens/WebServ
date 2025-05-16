@@ -9,6 +9,7 @@ OBJ_DIR = obj
 SRC = 	ConfigClasses/Config.cpp \
 		ConfigClasses/Location.cpp \
 		ConfigClasses/ServerConfig.cpp \
+		Response.cpp \
 		Source/Source.cpp \
 		Source/StaticFileSource.cpp \
 		Source/RedirectSource.cpp \
@@ -28,6 +29,7 @@ OBJ = $(SRC:src/%.cpp=$(OBJ_DIR)/%.o)
 HDR = 	ConfigClasses/Config.hpp \
 		ConfigClasses/Location.hpp \
 		ConfigClasses/ServerConfig.hpp \
+		Response.hpp \
 		Source/Source.hpp \
 		Source/StaticFileSource.hpp \
 		Source/RedirectSource.hpp \
