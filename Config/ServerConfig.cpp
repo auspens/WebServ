@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 12:55:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/05/16 17:57:52 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/18 17:59:35 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,9 +80,6 @@ void ServerConfig::_parsePort(std::ifstream &infile) throw(ConfigParseException)
 	port = ParseUtils::parseValue(infile);
 	_port = ParseUtils::parseInt(port, 0, 65535);
 
-	std::cout << "port: " << port << std::endl;
-	std::cout << "port: " << _port << std::endl;
-
 	ParseUtils::expectChar(infile, ';');
 }
 
@@ -105,9 +102,7 @@ void ServerConfig::_parseRoot(std::ifstream &infile) throw(ConfigParseException)
 	if (!WebServUtils::folderExists(token))
 		throw ConfigParseException("Root folder does not exist");
 
-	std::cout << "Save root folder: " << token << std::endl;
 	_rootFolder = token;
-	std::cout << "Root folder after save: " << _rootFolder << std::endl;
 }
 
 void ServerConfig::_parseUploadPass(std::ifstream &infile) throw(ConfigParseException) {

@@ -3,16 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/16 18:00:11 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/18 17:58:25 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-Server::Server(const ServerConfig &config) : _config(config) {
+Server::Server() { }
+
+Server::Server(const Config &config) : _config(&config) {
 	init();
 }
 
@@ -31,16 +33,24 @@ void Server::init() {
 }
 
 void Server::_listen() {
-	std::cout << "port in server: " << _config.getPort() << std::endl;
-	_listeningSockets.push_back(new ListeningSocket(_config.getPort(), _config.getHost()));
+	int					port;
+	ListeningSocket		*socket;
+	std::vector<int>	portsDone;
+
 	_epollInstance = epoll_create(1);
-
 	SystemCallsUtilities::check_for_error(_epollInstance);
-	_listeningSockets[0]->bindSocket();
-	_listeningSockets[0]->startListening();
 
-	//add to epoll instance to listen for new incoming connections
-	_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, NULL, _listeningSockets[0]->getFd());
+	for (size_t i = 0; i < _config->getServerConfigs().size(); i++) {
+		port = _config->getServerConfigs()[i]->getPort();
+		if (std::find(portsDone.begin(), portsDone.end(), port) == portsDone.end()) {
+			socket = new ListeningSocket(port);
+			_listeningSockets.push_back(socket);
+			socket->startListening();
+			_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, NULL, _listeningSockets[0]->getFd());
+			portsDone.push_back(port);
+		}
+	}
+
 	_runEpollLoop();
 }
 
@@ -100,20 +110,21 @@ void Server::_readFromSocket(Connection *conn) {
 	conn->readFromSocket();
 	if (conn->requestReady())
 	{
+		// Reset parser was causing problems here
 		//conn->resetParser();
+
+		// finished reading request, create the source and the response
 		try {
-			// finished reading request, create the source and the response
-			std::cout << "Root folder for server: " << (_config).getRootFolder() << std::endl;
-			conn->setSource(Source::getNewSource(conn->getTarget(), _config));
-			if (conn->getSource()->getType() == CGI) {
-				_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn, conn->getSourceFd());
-			}
-			conn->setResponse(conn->getSource());
+			conn->setupSource(*_config);
 		}
 		catch (Source::SourceException &e){
 			std::cout << e.what() << std::endl;
 		}
+
+		conn->setResponse();
 		_updateEpoll(EPOLL_CTL_MOD, EPOLLOUT, conn, conn->getSocketFd());
+		if (conn->getSource()->getType() == CGI)
+			_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn, conn->getSourceFd());
 	}
 }
 

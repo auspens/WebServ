@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:11:08 by wouter            #+#    #+#             */
-/*   Updated: 2025/05/16 16:58:43 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/18 17:58:58 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,9 +57,8 @@ void Config::_parseConfigFile(const std::string &configFile) throw(ConfigParseEx
 		ParseUtils::expectWhitespace(file);
 		if (_configSettings.isConfigSetting(token))
 			_configSettings.parseConfigSetting(file, token);
-		else if (token == "server"){
+		else if (token == "server")
 			_serverConfigs.push_back(_parseServerConfig(file));
-			std::cout << "port in Config: " << getServerConfigs()[0]->getPort() << std::endl;}
 		else
 			throw ConfigParseException("Unexpected keyword: " + token);
 		ParseUtils::skipWhitespace(file);

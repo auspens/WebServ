@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 12:40:08 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/16 17:37:51 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/18 17:59:55 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,6 @@ void Location::_parseRoot(std::ifstream &infile) throw(ConfigParseException) {
 	token = ParseUtils::parseValue(infile);
 	ParseUtils::expectChar(infile, ';');
 
-	std::cout << "token: " << token << std::endl;
 	if (!WebServUtils::folderExists(token))
 		throw ConfigParseException("Root folder does not exist");
 
