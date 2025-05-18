@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/18 17:58:25 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/18 18:54:33 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,9 +44,9 @@ void Server::_listen() {
 		port = _config->getServerConfigs()[i]->getPort();
 		if (std::find(portsDone.begin(), portsDone.end(), port) == portsDone.end()) {
 			socket = new ListeningSocket(port);
-			_listeningSockets.push_back(socket);
 			socket->startListening();
-			_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, NULL, _listeningSockets[0]->getFd());
+			_listeningSockets.insert(std::pair<int, ListeningSocket*>(socket->getFd(), socket));
+			_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, NULL, socket->getFd());
 			portsDone.push_back(port);
 		}
 	}
@@ -79,10 +79,11 @@ void Server::_runEpollLoop() {
 //This would allow to avoid these if-else statements
 void Server::_handleSocketEvent(struct epoll_event &event) {
 	Connection *conn = static_cast<Connection*>(event.data.ptr);
+	ListeningSocket *listeningSocket;
 
-	// if listening socket, handle incoming connection
-	if (!conn)
-		_handleIncomingConnection(*_listeningSockets[0]);
+	listeningSocket = _findListeningSocket(event.data.fd);
+	if (listeningSocket)
+		_handleIncomingConnection(listeningSocket);
 	else if (event.events & EPOLLIN) {
 		if (conn->requestReady())
 			_readFromSource(*conn);
@@ -93,15 +94,15 @@ void Server::_handleSocketEvent(struct epoll_event &event) {
 		_writeToSocket(*conn);
 }
 
-void Server::_handleIncomingConnection(ListeningSocket &listeningSocket) {
+void Server::_handleIncomingConnection(ListeningSocket *listeningSocket) {
 	struct sockaddr_storage	inc_addr;
 	socklen_t				addr_size;
 	int						new_fd;
 
 	addr_size = sizeof(inc_addr);
-	new_fd = accept(listeningSocket.getFd(), (struct sockaddr *)&inc_addr, &addr_size);
+	new_fd = accept(listeningSocket->getFd(), (struct sockaddr *)&inc_addr, &addr_size);
 
-	Connection *inc_conn = new Connection(new_fd);
+	Connection *inc_conn = new Connection(new_fd, listeningSocket->getPort());
 	_connections.push_back(inc_conn);
 	_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, inc_conn, new_fd);
 }
@@ -119,6 +120,9 @@ void Server::_readFromSocket(Connection *conn) {
 		}
 		catch (Source::SourceException &e){
 			std::cout << e.what() << std::endl;
+			_updateEpoll(EPOLL_CTL_DEL, EPOLLOUT, conn, conn->getSocketFd());
+			conn->close();
+			return;
 		}
 
 		conn->setResponse();
@@ -142,6 +146,20 @@ void Server::_updateEpoll(int action, int events, Connection *connection, int fd
 	epoll_event event;
 
 	event.events = events;
-	event.data.ptr = connection;
+	if (connection)
+		event.data.ptr = connection;
+	else
+		event.data.fd = fd;
+
 	epoll_ctl(_epollInstance, action, fd, &event);
+}
+
+ListeningSocket *Server::_findListeningSocket(int fd) {
+	std::map<int, ListeningSocket*>::iterator needle;
+
+	needle = _listeningSockets.find(fd);
+	if (needle != _listeningSockets.end())
+		return needle->second;
+	else
+		return NULL;
 }

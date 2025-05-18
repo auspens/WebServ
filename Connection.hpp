@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/18 17:42:44 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/18 19:05:27 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,8 @@
 
 class Connection{
 	public:
-		Connection(int fd);
-		Connection(int fd, struct addrinfo *addrinfo);
+		Connection(int fd, int serverPort);
+		Connection(int fd, int serverPort, struct addrinfo *addrinfo);
 		~Connection();
 
 		int					getSourceFd() const;
@@ -39,6 +39,7 @@ class Connection{
 		void				setupSource(const Config &config) throw(Source::SourceException);
 		void				sendHeader();
 		void				sendFromSource();
+		void				close();
 
 	private:
 		Connection(const Connection &src);
@@ -52,11 +53,11 @@ class Connection{
 		) const;
 		bool	_matchServerName(std::string host, std::string serverName) const;
 
-		Socket			_socket;
-		RequestParser	_parser;
-		HttpRequest		_request;
-		Response		*_response;
-		Source			*_source;
-		ServerConfig	*_serverConfig;
-		int				_incPort;
+		Socket				_socket;
+		RequestParser		_parser;
+		HttpRequest			_request;
+		Response			*_response;
+		Source				*_source;
+		const ServerConfig	*_serverConfig;
+		int					_serverPort;
 };

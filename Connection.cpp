@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/18 17:51:01 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/18 19:06:15 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,13 +17,13 @@ Connection::Connection() {
 	_response = NULL;
 }
 
-Connection::Connection(int fd) : _socket(fd) {
+Connection::Connection(int fd, int serverPort) : _socket(fd), _serverPort(serverPort) {
 	_source = NULL;
 	_response = NULL;
  }
 
-Connection::Connection(int fd, struct addrinfo *addrinfo)
-		: _socket(fd, addrinfo) { }
+Connection::Connection(int fd, int serverPort, struct addrinfo *addrinfo)
+		: _socket(fd, addrinfo), _serverPort(serverPort) { }
 
 Connection::Connection(const Connection &src) {
 	(void)src;
@@ -47,19 +47,18 @@ int Connection::getSourceFd() const {
 	return _source->getFd();
 }
 
-Source *Connection::getSource()const{
+Source *Connection::getSource() const {
 	return _source;
 }
 
 void Connection::setupSource(const Config &config) throw(Source::SourceException) {
-	const ServerConfig *serverConfig;
-
 	if (_source)
 		delete(_source);
 
-	serverConfig = _findServerConfig(_incPort, _request.hostname, config);
-	if (!serverConfig)
+	_serverConfig = _findServerConfig(_serverPort, _request.hostname, config);
+	if (!_serverConfig)
 		throw Source::SourceException("No matching server found"); //Should this be a different exception type?
+	std::cout << "getRootFolder: " << _serverConfig->getRootFolder() << std::endl;
 	_source = Source::getNewSource(_request.uri, *_serverConfig);
 }
 
@@ -135,7 +134,10 @@ const ServerConfig *Connection::_findServerConfig(
 
 		if (port == serverConfig->getPort()) {
 			if (serverConfig->getServerNames().size() == 0)
+			{
+				std::cout << "getRootFolder: " << serverConfig->getRootFolder() << std::endl;
 				return serverConfig;
+			}
 
 			for (size_t i = 0; i < serverConfig->getServerNames().size(); i++) {
 				if (_matchServerName(host, serverConfig->getServerNames()[i]))
@@ -163,4 +165,8 @@ bool Connection::_matchServerName(std::string host, std::string serverName) cons
 		return hostLength >= nameLength - 1
 			&& host.substr(0, nameLength) == serverName.substr(0, nameLength - 1);
 	return host == serverName;
+}
+
+void Connection::close() {
+	_socket.close_sock();
 }

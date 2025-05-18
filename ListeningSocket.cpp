@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:44:56 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/18 18:12:27 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/18 18:48:27 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,12 +46,17 @@ void ListeningSocket::init() {
 void ListeningSocket::startListening() {
 	// lose the "Address already in use" error message
 	int yes=1;
+	SystemCallsUtilities::check_for_error(setsockopt(_fd, SOL_SOCKET,SO_REUSEADDR, &yes, sizeof(yes)));
 
 	//bind
-	SystemCallsUtilities::check_for_error(setsockopt(_fd, SOL_SOCKET,SO_REUSEADDR, &yes, sizeof(yes)));
+	SystemCallsUtilities::check_for_error(bind(_fd, _addrinfo->ai_addr, _addrinfo->ai_addrlen));
 
 	//listen
 	SystemCallsUtilities::check_for_error(listen(_fd, BACKLOG));
 
 	std::cout <<"Listening on port " << _listeningPort << std::endl;
+}
+
+int ListeningSocket::getPort() {
+	return _listeningPort;
 }

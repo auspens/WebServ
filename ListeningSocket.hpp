@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:42:21 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/18 18:08:22 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/18 18:48:07 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ class ListeningSocket : public Socket{
 
 		void	init();
 		void	startListening();
+		int		getPort();
 
 	private:
 		ListeningSocket();
