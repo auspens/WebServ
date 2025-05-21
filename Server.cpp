@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/16 18:00:11 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/21 14:29:25 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,6 +119,7 @@ void Server::_readFromSocket(Connection *conn) {
 
 void Server::_writeToSocket(Connection &conn) {
 	conn.writeToSocket();
+	//when the response is sent, then (1) if keep alive - then epoll_ctl to EPOLLIN, or (2) close connection
 }
 
 void Server::_readFromSource(Connection &conn) {

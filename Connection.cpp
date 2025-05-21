@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/16 17:33:07 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/21 13:59:55 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,12 @@ Connection::Connection() {
 Connection::Connection(int fd) : _socket(fd) {
 	_source = NULL;
 	_response = NULL;
+	std::cout <<"Create new connection with fd: " << fd << std::endl;
  }
 
 Connection::Connection(int fd, struct addrinfo *addrinfo)
-		: _socket(fd, addrinfo) { }
+		: _socket(fd, addrinfo) { 	std::cout <<"Create new connection with addrinfo, fd :" << fd << std::endl;
+}
 
 Connection::Connection(const Connection &src) {
 	(void)src;

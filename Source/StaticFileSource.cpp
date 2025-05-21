@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/16 17:55:39 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/21 14:12:26 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ void StaticFileSource::readSource(){
 	ssize_t readSize = read(_fd, _body.data(),_serverConfig.getBufferSize());
 	if (readSize < 0)
 		throw Source::SourceException("Could not read from static source file");
+	//notify that the file is read
 	_bytesToSend = readSize;
 	_body.resize(readSize);
 }

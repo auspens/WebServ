@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/06 16:37:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/16 16:26:54 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/20 10:24:27 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@ class RedirectSource : public Source
 		~RedirectSource();
 		void readSource();
 		char *readFromSource();
-
 };
 
 
