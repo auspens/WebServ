@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/16 18:00:11 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/21 14:58:53 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,16 +47,16 @@ void Server::_listen() {
 void Server::_runEpollLoop() {
 	//epoll wait parameters here: fd of epoll instance,
 	//pointer to an array of epoll events (first element of the vector),
-	//MAX_SIZE is set to the total amount of connections + 1(for listening socket)
-	//TIMEOUT is set to -1, so the wait blocks until one of monitored fds is ready
+	//MAX_SIZE is set to the total amount of connections + 1(for listening socket)     // EW: What about CGI?
+	//TIMEOUT is set to -1, so the wait blocks until one of monitored fds is ready     
 	std::vector<struct epoll_event>	events;
 	int								size;
 	int								readyFds;
 
 	while (true) {
 		size = _connections.size() + _listeningSockets.size();
-		events.reserve(size);
-		readyFds = epoll_wait(_epollInstance, &events[0], size, INFINITE_TIMEOUT);
+		events.reserve(size);  // EW: is .resize() maybe safer?
+		readyFds = epoll_wait(_epollInstance, &events[0], size, INFINITE_TIMEOUT); // EW: each epoll_event struct records: events on the fd (e.g. EPOLLIN) and data (ptr to connection)
 		SystemCallsUtilities::check_for_error(readyFds);
 
 		for(int i = 0; i < readyFds; ++i){
@@ -73,7 +73,8 @@ void Server::_handleSocketEvent(struct epoll_event &event) {
 	// if listening socket, handle incoming connection
 	if (!conn)
 		_handleIncomingConnection(*_listeningSockets[0]);
-	else if (event.events & EPOLLIN) {
+	else if (event.events & EPOLLIN) {   // EW: maybe one also has to check for EPOLLHUP and EPOLLERR and if so close the connection
+		std::cout << "detected EPOLLIN" << ((event.events & EPOLLOUT) ? " and EPOLLOUT" : "") << std::endl;
 		if (conn->requestReady())
 			_readFromSource(*conn);
 		else
