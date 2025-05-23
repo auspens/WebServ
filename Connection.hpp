@@ -3,51 +3,61 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/13 17:17:32 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/18 19:05:27 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+
+#include "Config.hpp"
 #include "SystemCallsUtilities.hpp"
 #include "Socket.hpp"
-#include "Source/StaticFileSource.hpp"
-
+#include "StaticFileSource.hpp"
 #include "RequestParser.hpp"
 #include "Response.hpp"
-
 #include <sstream>
 #include <vector>
 
 class Connection{
 	public:
-		Connection(int fd);
-		Connection(int fd, struct addrinfo *addrinfo);
+		Connection(int fd, int serverPort);
+		Connection(int fd, int serverPort, struct addrinfo *addrinfo);
 		~Connection();
 
-		int				getSourceFd() const;
-		int				getSocketFd() const;
-		bool			requestReady() const;
-		void			readFromSocket();
-		void			writeToSocket();
-		void			setResponse(const Source *source);
-		void			resetParser();
-		const std::string& getTarget() const;
-		Source			*getSource() const;
-		void			setSource(Source *source);
-		void			sendHeader();
-		void			sendFromSource();
+		int					getSourceFd() const;
+		int					getSocketFd() const;
+		bool				requestReady() const;
+		void				readFromSocket();
+		void				writeToSocket();
+		void				setResponse();
+		void				resetParser();
+		const std::string&	getTarget() const;
+		Source				*getSource() const;
+		void				setupSource(const Config &config) throw(Source::SourceException);
+		void				sendHeader();
+		void				sendFromSource();
+		void				close();
 
 	private:
 		Connection(const Connection &src);
 		Connection &operator=(const Connection &other);
 		Connection();
 
-		Socket			_socket;
-		RequestParser	_parser;
-		HttpRequest		_request;
-		Response		*_response;
-		Source			*_source;
+		const	ServerConfig *_findServerConfig(
+			int port,
+			const std::string host,
+			const Config &config
+		) const;
+		bool	_matchServerName(std::string host, std::string serverName) const;
+
+		Socket				_socket;
+		RequestParser		_parser;
+		HttpRequest			_request;
+		Response			*_response;
+		Source				*_source;
+		const ServerConfig	*_serverConfig;
+		int					_serverPort;
 };
