@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:11:08 by wouter            #+#    #+#             */
-/*   Updated: 2025/05/18 17:58:58 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/23 18:19:44 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,36 @@ const std::vector<ServerConfig *> &Config::getServerConfigs() const {
 	return _serverConfigs;
 }
 
+size_t Config::getClientMaxBodySize() const {
+	if (_configSettings.getClientMaxBodySize())
+		return _configSettings.getClientMaxBodySize();
+	return DEFAULT_CLIENT_MAX_BODY_SIZE;
+}
+
+const std::map<int, std::string>& Config::getErrorPages() const {
+	return _configSettings.getErrorPages();
+}
+
+const std::vector<std::string>& Config::getIndexPages() const {
+	return _configSettings.getIndexPages();
+}
+
+const std::vector<std::string>& Config::getAcceptCgi() const {
+	return _configSettings.getAcceptCgi();
+}
+
+int Config::getAcceptMethod() const {
+	if (_configSettings.getAcceptMethod())
+		return _configSettings.getAcceptMethod();
+	return DEFAULT_ACCEPT_METHOD;
+}
+
+bool Config::getAutoIndex() const {
+	if (_configSettings.autoIndexIsSet())
+		return _configSettings.getAutoIndex();
+	return DEFAULT_AUTO_INDEX;
+}
+
 void Config::_parseConfigFile(const std::string &configFile) throw(ConfigParseException) {
 	std::string token;
 	std::ifstream file(configFile.c_str());
@@ -70,7 +100,7 @@ void Config::_parseConfigFile(const std::string &configFile) throw(ConfigParseEx
 ServerConfig *Config::_parseServerConfig(std::ifstream &configFile) throw(ConfigParseException) {
 	ServerConfig *config;
 
-	config = new ServerConfig();
+	config = new ServerConfig(*this);
 	config->parse(configFile);
 
 	return config;

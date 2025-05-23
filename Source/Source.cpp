@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/18 19:05:48 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/23 19:00:42 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ const char *Source::SourceException::what() const throw(){
 const Location &Source::defineLocation(const std::string &target, const ServerConfig &serverConfig){
 //do location lookup here
 	(void) target;
-	return(serverConfig.getLocations().at(0));
+	return (*serverConfig.getLocations().at(0));
 }
 
 int Source::getCode()const{
@@ -96,8 +96,7 @@ std::string Source::getLocation()const{
 	return _target;
 }
 
-Source *Source::getNewSource(const std::string &target, const ServerConfig &serverConfig){
-	std::cout << "Root folder in getNewSource: " << (serverConfig).getRootFolder() << std::endl;
+Source *Source::getNewSource(const std::string &target, const ServerConfig &serverConfig) {
 	Location location = defineLocation(target, serverConfig);
 	if (location.isRedirect())
 		return new RedirectSource(location.getRedirectPath(), serverConfig, location.getRedirectCode());

@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 11:41:02 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/15 19:06:46 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/23 17:36:50 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 #include "ParseUtils.hpp"
 #include "WebServUtils.hpp"
 
+class ServerConfig;
+
 struct HttpRedirect {
 	int code;
 	std::string path;
@@ -27,7 +29,7 @@ struct HttpRedirect {
 class Location{
 public:
 	Location();
-	Location(const std::string &path);
+	Location(const ServerConfig &serverConfig);
 	~Location();
 	Location(const Location &src);
 	Location &operator =(const Location &other);
@@ -42,7 +44,12 @@ public:
 	const std::string &getPath() const;
 	const std::string &getIndex() const;
 	const std::string &getRootFolder() const;
-	const std::map<int, std::string> &getErorrPages() const;
+	size_t getClientMaxBodySize() const;
+	const std::map<int, std::string>& getErrorPages() const;
+	const std::vector<std::string>& getIndexPages() const;
+	const std::vector<std::string>& getAcceptCgi() const;
+	int getAcceptMethod() const;
+	bool getAutoIndex() const;
 
 private:
 	bool 						_autoindex;
@@ -53,6 +60,7 @@ private:
 	std::string 				_index;
 	std::string 				_rootFolder;
 	ConfigSettings				_configSettings;
+	const ServerConfig			*_serverConfig;
 
 	void _parseRoot(std::ifstream &file) throw(ConfigParseException);
 	void _parseUploadPass(std::ifstream &file) throw(ConfigParseException);

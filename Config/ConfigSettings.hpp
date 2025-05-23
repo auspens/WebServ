@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 16:03:27 by wpepping          #+#    #+#             */
-/*   Updated: 2025/05/15 18:54:25 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/23 18:48:08 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,13 +20,6 @@
 #include "Constants.hpp"
 #include "ParseUtils.hpp"
 #include "WebServUtils.hpp"
-
-enum eHttpMethod {
-		METHOD_NONE   = 0,
-		METHOD_GET    = 1 << 0, // 0001
-		METHOD_POST   = 1 << 1, // 0010
-		METHOD_DELETE = 1 << 2  // 0100
-};
 
 class ConfigSettings {
 public:
@@ -48,18 +41,20 @@ public:
 	size_t								getClientMaxBodySize()			const;
 	const std::map<int, std::string>	&getErrorPages()				const;
 	const std::string					&getErrorPage(int errorCode)	const;
-	const std::vector<std::string>		&getIndex()						const;
+	const std::vector<std::string>		&getIndexPages()				const;
 	const std::vector<std::string>		&getAcceptCgi()					const;
 	int									getAcceptMethod()				const;
 	bool								getAutoIndex()					const;
+	bool								autoIndexIsSet()				const;
 
 	bool acceptsMethod(std::string method)	const;
 
-private:
+public:
 	size_t						_clientMaxBodySize;
 	std::map<int, std::string>	_errorPages;
 	std::vector<std::string>	_index;
 	std::vector<std::string>	_acceptCgi;
 	int							_acceptMethod;
 	bool						_autoIndex;
+	bool						_autoIndexIsSet;
 };

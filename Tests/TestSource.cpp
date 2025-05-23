@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 11:48:50 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/15 15:30:30 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/23 18:02:15 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 void TestStaticFileSource(){
 //set up the config
-	ServerConfig serverConfig(DEFAULT_PORT, DEFAULT_HOST);
+	ServerConfig serverConfig;
 
 //try to get /about.html
 	std::string target = "/about.html";

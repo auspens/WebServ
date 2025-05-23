@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 16:57:51 by wpepping          #+#    #+#             */
-/*   Updated: 2025/05/16 16:58:47 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/23 17:21:36 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,12 @@ class Config {
 
 		void 								parse(const std::string &configFile) throw(ConfigParseException);
 		const std::vector<ServerConfig *>	&getServerConfigs() const;
+		size_t								getClientMaxBodySize() const;
+		const std::map<int, std::string>	&getErrorPages() const;
+		const std::vector<std::string>		&getIndexPages() const;
+		const std::vector<std::string>		&getAcceptCgi() const;
+		int									getAcceptMethod() const;
+		bool								getAutoIndex() const;
 
 	private:
 		ConfigSettings				_configSettings;
