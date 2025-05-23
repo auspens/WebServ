@@ -1,8 +1,9 @@
 #include "CGISource.hpp"
 
 CGISource::CGISource(const std::string &target, const ServerConfig &serverConfig, Location const &location)
- : Source(target, serverConfig) {
+ : Source(target, serverConfig), _cleanupFunc(NULL), _cleanupCtx(NULL) {
     _location = location;
+    
     size_t qmark = target.find('?');
 
     if (qmark != std::string::npos) {
@@ -30,24 +31,25 @@ CGISource::~CGISource(){
     close(_pipefd[1]);
 }
 
+void CGISource::setPreExecCleanup(CleanupFunc func, void* ctx) {
+    _cleanupFunc = func;
+    _cleanupCtx = ctx;
+}
+
 void CGISource::readSource() {
     pid_t pid = fork();
     if (pid < 0) {
         perror("fork");
     } else if (pid == 0) {
         //CHILD
-
+        std::cout << "in child!" << std::endl;
 
         close(_pipefd[0]);
-        // Redirect stdout to pipe
-        dup2(_pipefd[1], STDOUT_FILENO);
+        dup2(_pipefd[1], STDOUT_FILENO); // Redirect stdout to pipe
         close(_pipefd[1]);
 
-        //need to somehow close listening socket and client sockets in the child...
-        //not the best but temporary solution:
-        for (int fd = 3; fd < 1024; ++fd) { //need proper limit instead of 1024
-            close(fd);
-        }
+        if (_cleanupFunc)
+            _cleanupFunc(_cleanupCtx); // cleans everything including obj we are in....
 
         _scriptPath = _serverConfig.getRootFolder() + _scriptPath;
 
@@ -109,5 +111,6 @@ void CGISource::checkIfExists(){
 }
 
 char *CGISource::readFromSource(){
+    readSource();
 	return readFromBuffer();
 }

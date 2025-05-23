@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/18 18:53:23 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/23 13:12:21 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,9 @@ class Server {
 
 		void init();
 
+		// Static wrapper for cleanup
+    	static void cleanupForFork(void* ctx);
+
 	private:
 		int									_epollInstance;
 		const Config						*_config;
@@ -47,4 +50,6 @@ class Server {
 		void _readFromSource(Connection &conn);
 		void _updateEpoll(int action, int events, Connection *connection, int fd);
 		ListeningSocket *_findListeningSocket(int fd);
+
+		void cleanup();
 };

@@ -6,7 +6,7 @@
 /*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/23 11:38:56 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/23 14:25:16 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ Server::Server(const Config &config) : _config(&config) {
 }
 
 Server::~Server(){
-	close(_epollInstance);
+	cleanup();
 }
 
 Server &Server::operator=(Server const &other){
@@ -85,8 +85,6 @@ void Server::_handleSocketEvent(struct epoll_event &event) {
 	if (listeningSocket)
 		_handleIncomingConnection(listeningSocket);
 	else if (event.events & EPOLLIN) {  // EW: maybe one also has to check for EPOLLHUP and EPOLLERR and if so close the connection
-		
-		std::cout << "detected EPOLLIN" << ((event.events & EPOLLOUT) ? " and EPOLLOUT" : "") << std::endl;
 		if (conn->requestReady())
 			_readFromSource(*conn);
 		else
@@ -119,11 +117,16 @@ void Server::_readFromSocket(Connection *conn) {
 		// finished reading request, create the source and the response
 		try {
 			conn->setupSource(*_config);
+			conn->configureSourceCleanup(cleanupForFork, this);
 		}
 		catch (Source::SourceException &e){
 			std::cout << e.what() << std::endl;
 			_updateEpoll(EPOLL_CTL_DEL, EPOLLOUT, conn, conn->getSocketFd());
-			conn->close();
+			delete conn;
+			_connections.erase(
+				std::remove(_connections.begin(), _connections.end(), conn),
+				_connections.end()
+			);
 			return;
 		}
 
@@ -164,4 +167,20 @@ ListeningSocket *Server::_findListeningSocket(int fd) {
 		return needle->second;
 	else
 		return NULL;
+}
+
+void Server::cleanup() {
+	for (std::map<int, ListeningSocket*>::iterator it = _listeningSockets.begin(); it != _listeningSockets.end(); ++it) {
+    	close(it->first);
+	}
+    for (std::vector<Connection*>::iterator it = _connections.begin(); it != _connections.end(); ++it) {
+    	close((*it)->getSocketFd());
+	}
+	close(_epollInstance);
+}
+
+void Server::cleanupForFork(void* ctx) {
+	std::cerr << "cleanup for child process" << std::endl; //not error, writing there due to dup
+    Server* srv = static_cast<Server*>(ctx);
+    srv->cleanup();
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/18 19:05:27 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/23 13:21:09 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,9 +37,9 @@ class Connection{
 		const std::string&	getTarget() const;
 		Source				*getSource() const;
 		void				setupSource(const Config &config) throw(Source::SourceException);
+		void 				configureSourceCleanup(CleanupFunc func, void* ctx);
 		void				sendHeader();
 		void				sendFromSource();
-		void				close();
 
 	private:
 		Connection(const Connection &src);

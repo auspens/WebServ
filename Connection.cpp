@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/18 19:06:15 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/23 13:27:55 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ Connection::Connection(const Connection &src) {
 }
 
 Connection::~Connection() {
+	_socket.close_sock();
 	delete(_source);
 	delete(_response);
 }
@@ -167,6 +168,8 @@ bool Connection::_matchServerName(std::string host, std::string serverName) cons
 	return host == serverName;
 }
 
-void Connection::close() {
-	_socket.close_sock();
+void Connection::configureSourceCleanup(CleanupFunc func, void* ctx) {
+	CGISource* cgiptr = dynamic_cast<CGISource*>(_source); 
+	if (cgiptr != NULL)			
+    	cgiptr->setPreExecCleanup(func, ctx);
 }
