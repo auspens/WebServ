@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 16:03:27 by wpepping          #+#    #+#             */
-/*   Updated: 2025/05/23 18:48:08 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/23 19:09:17 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ public:
 
 	bool acceptsMethod(std::string method)	const;
 
-public:
+private:
 	size_t						_clientMaxBodySize;
 	std::map<int, std::string>	_errorPages;
 	std::vector<std::string>	_index;
