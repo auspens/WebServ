@@ -18,13 +18,14 @@ const HttpRequest RequestParser::getRequest() const {
 }
 
 RequestParser::ParseResult RequestParser::parse(const char* data, size_t len) {
-    
+
     buffer.append(data, len);
 
     while (true) {
         switch (state) {
             case START_LINE:
                 if (!parseStartLine()) return INCOMPLETE;
+				_parseUrl();
                 state = HEADERS;
                 break;
 
@@ -96,3 +97,21 @@ bool RequestParser::parseBody() {
     return true;
 }
 
+void RequestParser::_parseUrl() {
+	size_t 		hostStart;
+	size_t		hostEnd;
+	std::string	url = request.uri;
+
+	hostStart = url.find("://");
+	if (hostStart != std::string::npos)
+		hostStart += 3;
+	else
+		hostStart = 0;
+
+	hostEnd = url.find_first_of("/:?#", hostStart);
+	if (hostEnd == std::string::npos)
+		hostEnd = url.length();
+
+	request.hostname = url.substr(hostStart, hostEnd - hostStart);
+	request.path = url.substr(hostEnd, url.length() - hostEnd - 1);
+}

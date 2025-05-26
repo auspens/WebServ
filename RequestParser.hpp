@@ -8,24 +8,24 @@
 
 class RequestParser {
     public:
-        enum ParseState { 
+        enum ParseState {
             START_LINE,
             HEADERS,
             BODY,
             DONE,
             ERROR
         };
-        enum ParseResult { 
-            INCOMPLETE, 
-            COMPLETE, 
-            BAD 
+        enum ParseResult {
+            INCOMPLETE,
+            COMPLETE,
+            BAD
         };
         RequestParser();
         ParseResult parse(const char* data, size_t len);
         bool isDone() const;
         const HttpRequest getRequest() const;
         void reset();
-    
+
     private:
         ParseState state;
         HttpRequest request;
@@ -34,7 +34,7 @@ class RequestParser {
         bool parseStartLine();
         bool parseHeaders();
         bool parseBody(); //does not matter for GET, on which we focus for now
+		void _parseUrl();
 
         size_t contentLength;
     };
-    
