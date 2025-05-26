@@ -1,6 +1,6 @@
 #include "CGISource.hpp"
 
-CGISource::CGISource(const std::string &target, const ServerConfig &serverConfig, Location const &location)
+CGISource::CGISource(const std::string &target, const ServerConfig &serverConfig, Location const *location)
  : Source(target, serverConfig) {
     _location = location;
     size_t qmark = target.find('?');
@@ -108,6 +108,6 @@ void CGISource::checkIfExists(){
         std::cout << "Error:script does not exist" << std::endl;
 }
 
-char *CGISource::readFromSource(){
+char *CGISource::getBufferToSend(){
 	return readFromBuffer();
 }

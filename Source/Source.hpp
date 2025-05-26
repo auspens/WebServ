@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/16 18:06:20 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/26 16:09:46 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,15 @@
 class StaticFileSource;
 
 enum SourceType {STATIC, REDIRECT, CGI};
+struct HTTPStatusCode{
+	std::string code;
+	std::string message;
+	std::string description;
+};
 
+#define STATUS_CODES_JSON "StatusCodes.json"
 #define MIME_TYPES_JSON "FileExtesionsToMime.json"
+
 
 class Source {
 	public:
@@ -35,7 +42,7 @@ class Source {
 		};
 		virtual 					~Source();
 		virtual void 				readSource() = 0;
-		virtual char *				readFromSource() = 0;//returns a buffer that can be sent through socket
+		virtual char *				getBufferToSend() = 0;//returns a buffer that can be sent through socket
 
 		int 						getCode()const;
 		std::string 				getMime()const;
@@ -44,6 +51,8 @@ class Source {
 		int							getSize()const;
 		SourceType					getType()const;
 		std::string					getLocation()const;
+		bool						isReadPerformed()const;
+		void						unsetReadPerformed();
 
 		static Source *				getNewSource(const std::string &target, const ServerConfig &serverConfig);
 
@@ -51,6 +60,7 @@ class Source {
 		int							_bytesToSend;
 		int							_offset;
 		static std::map<std::string, std::string> _mimeTypes;
+		static std::map<int, HTTPStatusCode> _statusCodes;
 
 	protected:
 		int					_code;
@@ -58,15 +68,16 @@ class Source {
 		int					_size;
 		SourceType			_type;
 		const ServerConfig	&_serverConfig;
-		Location			_location;
+		const Location			*_location;
 		std::string			_target;
 		std::string			_mime;
 		std::vector<char>	_body;
+		bool				_readPerformed;
 
 		Source(const std::string &target, const ServerConfig &serverConfig);
 		char *readFromBuffer();
 
 	private:
-		static const Location &defineLocation(const std::string &target, const ServerConfig &serverConfig);
+		static const Location *defineLocation(const std::string &target, const ServerConfig &serverConfig);
 
 };

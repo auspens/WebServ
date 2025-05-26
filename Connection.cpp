@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/26 10:36:12 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/26 11:10:39 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,8 @@ void Connection::writeToSocket() {
 	}
 	else if (_source->getType() != REDIRECT)
 		sendFromSource();
+	else
+		close();
 }
 
 bool Connection::requestReady() const {
@@ -111,15 +113,19 @@ void Connection::sendHeader() {
 }
 
 void Connection::sendFromSource() {
-	const char *buf = _source->readFromSource();
-	if (_source->_bytesToSend < 1)
+	const char *buf = _source->getBufferToSend();
+	if (_source->_bytesToSend < 1){
+		if(_source->isReadPerformed())
+			close();
 		return ;
+	}
 	ssize_t size = _source->_bytesToSend > READ_BUFFER ? READ_BUFFER : _source->_bytesToSend;
 	ssize_t bytes_sent = send(_socket.getFd(), buf, size, 0);
 	if (bytes_sent == -1)
 		throw (std::runtime_error("Error sending body"));
 	_source->_bytesToSend -= bytes_sent;
 	_source->_offset += bytes_sent;
+	_source->unsetReadPerformed();
 }
 
 const ServerConfig *Connection::_findServerConfig(
@@ -145,7 +151,6 @@ const ServerConfig *Connection::_findServerConfig(
 			}
 		}
 	}
-
 	return NULL;
 }
 

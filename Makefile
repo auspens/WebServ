@@ -19,6 +19,8 @@ SRC = 	Config/Config.cpp \
 		Source/StaticFileSource.cpp \
 		Source/RedirectSource.cpp \
 		Source/CGISource.cpp \
+		Source/StatusCodesInitialiser.cpp \
+		Source/MimeTypeInitialiser.cpp \
 		Connection.cpp \
 		ListeningSocket.cpp \
 		main.cpp \

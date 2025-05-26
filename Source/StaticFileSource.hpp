@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:08:43 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/16 17:32:29 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/26 16:40:49 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,18 +17,27 @@
 #include "ServerConfig.hpp"
 #include <dirent.h>
 
+struct DirEntry {
+    std::string name;
+    bool is_directory;
+	DirEntry(const std::string& n, bool is_dir) : name(n), is_directory(is_dir) {}
+};
+
 class StaticFileSource : public Source {
 	public:
 		void readSource();
-		char *readFromSource();//returns a buffer that can be sent through socket
+		char *getBufferToSend();//returns a buffer that can be sent through socket
 
-		StaticFileSource(const std::string &target, const ServerConfig &serverConfig, Location const &location);
+		StaticFileSource(const std::string &target, const ServerConfig &serverConfig, Location const *location);
 		~StaticFileSource();
 
 	private:
+		bool _generated;
 		void checkIfExists();
 		void checkIfDirectory();
 		void defineMimeType();
-		std::string generateIndex()const;
-		std::string getErrorPage(int index)const;
+		bool generateIndex();
+		void getErrorPage(int index);
+		bool readDirectories(std::vector<DirEntry>&entries);
+		void generateErrorPage(int code);
 };
