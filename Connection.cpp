@@ -6,7 +6,7 @@
 /*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/26 14:23:01 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/26 15:03:18 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,6 @@ void Connection::setupSource(const Config &config) throw(Source::SourceException
 	_serverConfig = _findServerConfig(_serverPort, _request.hostname, config);
 	if (!_serverConfig)
 		throw Source::SourceException("No matching server found"); //Should this be a different exception type?
-	std::cout << "getRootFolder: " << _serverConfig->getRootFolder() << std::endl;
 	_source = Source::getNewSource(_request.uri, *_serverConfig);
 }
 

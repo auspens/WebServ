@@ -27,7 +27,7 @@ SRC = 	Config/Config.cpp \
 		Socket.cpp \
 		SystemCallsUtilities.cpp \
 		WebServUtils.cpp \
-		Tests/TestSource.cpp
+		Tests/TestConfig.cpp
 
 OBJ = $(SRC:src/%.cpp=$(OBJ_DIR)/%.o)
 
@@ -52,7 +52,7 @@ HDR = 	Config/Config.hpp \
 		Socket.hpp \
 		SystemCallsUtilities.hpp \
 		WebServUtlis.hpp \
-		Tests/TestSource.hpp
+		Tests/TestConfig.hpp
 
 INCLUDE = -I. -IConfig -ISource -ITests
 

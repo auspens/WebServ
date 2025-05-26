@@ -12,7 +12,7 @@
 
 #include "ConfigSettings.hpp"
 
-ConfigSettings::ConfigSettings() : _clientMaxBodySize(-1), _acceptMethod(0), _autoIndex(false) {}
+ConfigSettings::ConfigSettings() : _clientMaxBodySize(0), _acceptMethod(0), _autoIndex(false), _autoIndexIsSet(false) {}
 
 ConfigSettings::~ConfigSettings() {}
 
@@ -23,6 +23,7 @@ ConfigSettings::ConfigSettings(ConfigSettings &src) {
 	_acceptCgi = src._acceptCgi;
 	_acceptMethod = src._acceptMethod;
 	_autoIndex = src._autoIndex;
+	_autoIndexIsSet = src._autoIndexIsSet;
 }
 
 ConfigSettings& ConfigSettings::operator=(ConfigSettings &src) {
@@ -33,6 +34,7 @@ ConfigSettings& ConfigSettings::operator=(ConfigSettings &src) {
 		_acceptCgi = src._acceptCgi;
 		_acceptMethod = src._acceptMethod;
 		_autoIndex = src._autoIndex;
+		_autoIndexIsSet = src._autoIndexIsSet;
 	}
 	return *this;
 }
@@ -71,7 +73,7 @@ const std::map<int, std::string>& ConfigSettings::getErrorPages() const {
 	return _errorPages;
 }
 
-const std::vector<std::string>& ConfigSettings::getIndex() const {
+const std::vector<std::string>& ConfigSettings::getIndexPages() const {
 	return _index;
 }
 
@@ -85,6 +87,10 @@ int ConfigSettings::getAcceptMethod() const {
 
 bool ConfigSettings::getAutoIndex() const {
 	return _autoIndex;
+}
+
+bool ConfigSettings::autoIndexIsSet() const {
+	return _autoIndexIsSet;
 }
 
 bool ConfigSettings::acceptsMethod(std::string method) const {
@@ -101,20 +107,23 @@ void ConfigSettings::parseClientMaxBodySize(std::ifstream &infile) throw(ConfigP
 	std::string token;
 	char		lastChar;
 
+	if (_clientMaxBodySize)
+		throw  ConfigParseException("client_max_body_size already set");
+
 	_clientMaxBodySize = 1;
 
 	token = ParseUtils::parseValue(infile);
 	lastChar = token[token.length() - 1];
 
-	if (lastChar == 'G')
+	if (lastChar == 'K')
 		_clientMaxBodySize *= 1024;
-	if (lastChar == 'G' || lastChar == 'M')
+	if (lastChar == 'M')
 		_clientMaxBodySize *= 1024 * 1024;
-	if (lastChar == 'G' || lastChar == 'M' || lastChar == 'K') {
+	if (lastChar == 'G') {
 		_clientMaxBodySize *= 1024 * 1024 * 1024;
 		token = token.substr(0, token.length() - 1);
 	}
-	_clientMaxBodySize = ParseUtils::parseInt(token);
+	_clientMaxBodySize *= ParseUtils::parseInt(token);
 
 	ParseUtils::expectChar(infile, ';');
 }
@@ -147,6 +156,9 @@ void ConfigSettings::parseErrorPage(std::ifstream &infile) throw(ConfigParseExce
 void ConfigSettings::parseIndex(std::ifstream &infile) throw(ConfigParseException) {
 	std::string token;
 
+	if (_index.size() > 0)
+		throw ConfigParseException("index pages already set");
+
 	token = ParseUtils::parseValue(infile);
 	if (token == "")
 		throw ConfigParseException("Invalid value for index");
@@ -161,6 +173,9 @@ void ConfigSettings::parseIndex(std::ifstream &infile) throw(ConfigParseExceptio
 
 void ConfigSettings::parseAcceptCgi(std::ifstream &infile) throw(ConfigParseException) {
 	std::string token;
+
+	if (_acceptCgi.size() > 0)
+		throw ConfigParseException("accept_cgi already set");
 
 	token = ParseUtils::parseValue(infile);
 	if (token == "")
@@ -178,6 +193,9 @@ void ConfigSettings::parseAcceptCgi(std::ifstream &infile) throw(ConfigParseExce
 
 void ConfigSettings::parseAcceptMethod(std::ifstream &infile) throw(ConfigParseException) {
 	std::string	method;
+
+	if (_acceptMethod != 0)
+		throw  ConfigParseException("accept method already set");
 
 	ParseUtils::skipWhitespace(infile);
 	while (infile.peek() != ';') {
@@ -205,6 +223,9 @@ void ConfigSettings::parseAcceptMethod(std::ifstream &infile) throw(ConfigParseE
 void ConfigSettings::parseAutoIndex(std::ifstream &infile) throw(ConfigParseException) {
 	std::string value = ParseUtils::parseValue(infile);
 
+	if (_autoIndexIsSet)
+		throw  ConfigParseException("autoindex value already set");
+
 	if (value == "on")
 		_autoIndex = true;
 	else if (value == "off")
@@ -213,6 +234,7 @@ void ConfigSettings::parseAutoIndex(std::ifstream &infile) throw(ConfigParseExce
 		throw ConfigParseException("Invalid value for auto index");
 
 	ParseUtils::expectChar(infile, ';');
+	_autoIndexIsSet = true;
 }
 
 

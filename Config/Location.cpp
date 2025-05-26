@@ -6,25 +6,28 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 12:40:08 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/18 17:59:55 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/23 19:01:58 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Location.hpp"
+#include "ServerConfig.hpp"
 
 Location::Location() :
 		_autoindex(false),
 		_uploadPass(false),
 		_isRedirect(false),
 		_path(""),
-		_index("index.html") { }
+		_index("index.html"),
+		_serverConfig(NULL) { }
 
-Location::Location(const std::string &path) :
+Location::Location(const ServerConfig &serverConfig) :
 		_autoindex(false),
 		_uploadPass(false),
 		_isRedirect(false),
-		_path(path),
-		_index("index.html") { }
+		_path(""),
+		_index("index.html"),
+		_serverConfig(&serverConfig) { }
 
 Location::~Location() { }
 
@@ -33,14 +36,17 @@ Location::Location(const Location &src) :
 			_uploadPass(src._uploadPass),
 			_isRedirect(src._isRedirect),
 			_path(src._path),
-			_index(src._index) { }
+			_index(src._index),
+			_serverConfig(src._serverConfig) { }
 
 Location &Location::operator =(const Location &other) {
 	if (this != &other) {
 		_autoindex = other._autoindex;
+		_uploadPass = other._uploadPass;
+		_isRedirect = other._isRedirect;
 		_path = other._path;
 		_index = other._index;
-		_isRedirect = other._isRedirect;
+		_serverConfig = other._serverConfig;
 	}
 	return *this;
 }
@@ -78,7 +84,12 @@ const std::string &Location::getPath() const {
 }
 
 const std::string &Location::getIndex() const {
-	return _index;
+	static std::string empty_string = "";
+
+	std::cout << "getIndex() should be removed, use getIndexPages() instead" << std::endl;
+	if (getIndexPages().size() > 0)
+		return getIndexPages()[0];
+	return empty_string;
 }
 
 const std::string &Location::getRootFolder() const {
@@ -105,8 +116,52 @@ const std::string &Location::getRedirectPath() const {
 	return _redirect.path;
 }
 
-const std::map<int, std::string> &Location::getErorrPages() const {
+size_t Location::getClientMaxBodySize() const {
+	if (_configSettings.getClientMaxBodySize())
+		return _configSettings.getClientMaxBodySize();
+	if (_serverConfig)
+		return _serverConfig->getClientMaxBodySize();
+	return DEFAULT_CLIENT_MAX_BODY_SIZE;
+}
+
+const std::map<int, std::string>& Location::getErrorPages() const {
+	if (!_configSettings.getErrorPages().empty())
+		return _configSettings.getErrorPages();
+	if (_serverConfig)
+		return _serverConfig->getErrorPages();
 	return _configSettings.getErrorPages();
+}
+
+const std::vector<std::string>& Location::getIndexPages() const {
+	if (!_configSettings.getIndexPages().empty())
+		return _configSettings.getIndexPages();
+	if (_serverConfig)
+		return _serverConfig->getIndexPages();
+	return _configSettings.getIndexPages();
+}
+
+const std::vector<std::string>& Location::getAcceptCgi() const {
+	if (!_configSettings.getAcceptCgi().empty())
+		return _configSettings.getAcceptCgi();
+	if (_serverConfig)
+		return _serverConfig->getAcceptCgi();
+	return _configSettings.getAcceptCgi();
+}
+
+int Location::getAcceptMethod() const {
+	if (_configSettings.getAcceptMethod())
+		return _configSettings.getAcceptMethod();
+	if (_serverConfig)
+		return _serverConfig->getAcceptMethod();
+	return DEFAULT_ACCEPT_METHOD;
+}
+
+bool Location::getAutoIndex() const {
+	if (_configSettings.autoIndexIsSet())
+		return _configSettings.getAutoIndex();
+	if (_serverConfig)
+		return _serverConfig->getAutoIndex();
+	return DEFAULT_AUTO_INDEX;
 }
 
 void Location::_parseRoot(std::ifstream &infile) throw(ConfigParseException) {

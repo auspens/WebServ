@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Config.hpp"
 #include "Server.hpp"
-#include "Tests/TestSource.hpp"
+#include "TestConfig.hpp"
 
 int main(int argc, char *argv[]) {
 	std::string	config_file;
@@ -22,6 +22,8 @@ int main(int argc, char *argv[]) {
 		std::cout << e.what() << std::endl;
 		exit(1);
 	}
+
+	printFullConfig(config);
 
 	Server server(config);
 }
