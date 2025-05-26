@@ -6,7 +6,7 @@
 /*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/23 13:12:21 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/26 14:15:43 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,4 +52,6 @@ class Server {
 		ListeningSocket *_findListeningSocket(int fd);
 
 		void cleanup();
+		void configureCGI(Connection* conn);
+		void removeConnection(Connection *conn);
 };

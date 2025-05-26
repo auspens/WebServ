@@ -6,7 +6,7 @@
 /*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/23 13:27:55 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/26 14:23:01 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,14 +78,15 @@ void Connection::readFromSocket() {
 	_request = _parser.getRequest(); // maybe weird for it to sit here..
 }
 
-void Connection::writeToSocket() {
+bool Connection::writeToSocket() {
 	if (!_response->headerSent())
 	{
 		std::cout << "Will be sending header now" << std::endl;
 		sendHeader();
 	}
 	else if (_source->getType() != REDIRECT)
-		sendFromSource();
+		return (sendFromSource());
+	return (0);
 }
 
 bool Connection::requestReady() const {
@@ -111,16 +112,18 @@ void Connection::sendHeader() {
 	_response->setOffset(bytes_sent);
 }
 
-void Connection::sendFromSource() {
+bool Connection::sendFromSource() {
 	const char *buf = _source->readFromSource();
+	std::cout << "Gonna send from source buf: " << buf << std::endl; 
 	if (_source->_bytesToSend < 1)
-		return ;
+		return (1);
 	ssize_t size = _source->_bytesToSend > READ_BUFFER ? READ_BUFFER : _source->_bytesToSend;
 	ssize_t bytes_sent = send(_socket.getFd(), buf, size, 0);
 	if (bytes_sent == -1)
 		throw (std::runtime_error("Error sending body"));
 	_source->_bytesToSend -= bytes_sent;
 	_source->_offset += bytes_sent;
+	return (0);
 }
 
 const ServerConfig *Connection::_findServerConfig(
@@ -166,10 +169,4 @@ bool Connection::_matchServerName(std::string host, std::string serverName) cons
 		return hostLength >= nameLength - 1
 			&& host.substr(0, nameLength) == serverName.substr(0, nameLength - 1);
 	return host == serverName;
-}
-
-void Connection::configureSourceCleanup(CleanupFunc func, void* ctx) {
-	CGISource* cgiptr = dynamic_cast<CGISource*>(_source); 
-	if (cgiptr != NULL)			
-    	cgiptr->setPreExecCleanup(func, ctx);
 }

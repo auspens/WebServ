@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/18 19:05:48 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/26 14:46:50 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,11 +101,16 @@ Source *Source::getNewSource(const std::string &target, const ServerConfig &serv
 	Location location = defineLocation(target, serverConfig);
 	if (location.isRedirect())
 		return new RedirectSource(location.getRedirectPath(), serverConfig, location.getRedirectCode());
-	if (target.find(".py") != std::string::npos)
-		return new CGISource(target, serverConfig, location);
+	if (target.find(".py") != std::string::npos) {
+		CGISource* ptr = new CGISource(target, serverConfig, location);
+		if (ptr->checkIfExists() == 0)
+			delete ptr;
+		else
+			return ptr;
+	}
 	return new StaticFileSource(target, serverConfig, location);
 }
 
 char *Source::readFromBuffer(){
-	return _body.data() + _offset;
+	return _body.data() + _offset; //static cast or maybe even reinterpret cast?
 }

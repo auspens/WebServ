@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 10:33:18 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/16 17:12:47 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/26 14:39:19 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,8 +58,8 @@ Response::Response (const Source *source)
 		case CGI:
 			_header += "Connection: Keep-Alive\r\n";
 			_header += "Keep-Alive: timeout=5, max=997\r\n";
-			_header += "Transfer-Encoding: chunked\r\n";
-			_chunked = true;
+			//_header += "Transfer-Encoding: chunked\r\n";
+			//_chunked = true;
 	}
 	_header += "\r\n"; // END of headers: blank line
 }

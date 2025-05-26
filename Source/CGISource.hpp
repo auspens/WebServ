@@ -12,18 +12,22 @@ class CGISource : public Source {
 	public:
 		void setPreExecCleanup(CleanupFunc func, void* ctx);
 		void readSource();
-		char *readFromSource();//this will return the pointer to the buffer that can be sent through the socket
+		char* readFromSource();
+		void forkAndExec();
 
 		CGISource(const std::string &target, const ServerConfig &serverConfig, Location const &location);
 		//copy construct missing
 		~CGISource();
+
+		int getPipeReadEnd() const;
+		bool checkIfExists();
 
 	private:
         int _pipefd[2];
         std::string _scriptPath;
         std::string _queryString;
         std::string _pathInfo;
-		void checkIfExists();
+
 		CGISource(); //default constructor that is never used
 		CleanupFunc _cleanupFunc; //this function and its argument will be provided by server
     	void* _cleanupCtx; //will be passed as argument to cleanupFunc_
