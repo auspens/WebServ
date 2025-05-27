@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/18 19:05:27 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/26 14:16:12 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,15 +31,14 @@ class Connection{
 		int					getSocketFd() const;
 		bool				requestReady() const;
 		void				readFromSocket();
-		void				writeToSocket();
+		bool				writeToSocket();
 		void				setResponse();
 		void				resetParser();
 		const std::string&	getTarget() const;
 		Source				*getSource() const;
 		void				setupSource(const Config &config) throw(Source::SourceException);
 		void				sendHeader();
-		void				sendFromSource();
-		void				close();
+		bool				sendFromSource();
 
 	private:
 		Connection(const Connection &src);

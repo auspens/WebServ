@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:08:43 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/26 16:40:49 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/27 11:24:01 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ class StaticFileSource : public Source {
 
 	private:
 		bool _generated;
-		void checkIfExists();
+		bool checkIfExists();
 		void checkIfDirectory();
 		void defineMimeType();
 		bool generateIndex();

@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/26 11:00:15 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/27 11:41:13 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ Server::Server(const Config &config) : _config(&config) {
 }
 
 Server::~Server(){
-	close(_epollInstance);
+	cleanup();
 }
 
 Server &Server::operator=(Server const &other){
@@ -57,7 +57,7 @@ void Server::_listen() {
 void Server::_runEpollLoop() {
 	//epoll wait parameters here: fd of epoll instance,
 	//pointer to an array of epoll events (first element of the vector),
-	//MAX_SIZE is set to the total amount of connections + 1(for listening socket)
+	//MAX_SIZE is set to the total amount of connections + 1(for listening socket)     // EW: What about CGI?
 	//TIMEOUT is set to -1, so the wait blocks until one of monitored fds is ready
 	std::vector<struct epoll_event>	events;
 	int								size;
@@ -65,11 +65,13 @@ void Server::_runEpollLoop() {
 
 	while (true) {
 		size = _connections.size() + _listeningSockets.size();
-		events.reserve(size);
-		readyFds = epoll_wait(_epollInstance, &events[0], size, INFINITE_TIMEOUT);
+		events.reserve(size);  // EW: is .resize() maybe safer?
+		readyFds = epoll_wait(_epollInstance, &events[0], size, INFINITE_TIMEOUT); // EW: each epoll_event struct records: events on the fd (e.g. EPOLLIN) and data (ptr to connection)
+		// std::cout << "Epoll returned " << readyFds << " ready fds" << std::endl;
 		SystemCallsUtilities::check_for_error(readyFds);
 
 		for(int i = 0; i < readyFds; ++i){
+			// std::cout << "Going through ready list, i = " << i << std::endl;
 			_handleSocketEvent(events[i]);
 		}
 	}
@@ -82,16 +84,24 @@ void Server::_handleSocketEvent(struct epoll_event &event) {
 	ListeningSocket *listeningSocket;
 
 	listeningSocket = _findListeningSocket(event.data.fd);
-	if (listeningSocket)
+	if (listeningSocket) {
+		// std::cout << "epoll returned listening socket with fd " << event.data.fd << std::endl;
 		_handleIncomingConnection(listeningSocket);
-	else if (event.events & EPOLLIN) {
-		if (conn->requestReady())
-			_readFromSource(*conn);
-		else
-			_readFromSocket(conn);
 	}
-	else if (event.events & EPOLLOUT)
+	else if (event.events & EPOLLIN) {  // EW: maybe one also has to check for EPOLLHUP and EPOLLERR and if so close the connection
+		if (conn->requestReady()) {
+			// std::cout << "EPOLLIN and req is ready, so we read from source.." << std::endl;
+			_readFromSource(*conn);
+		}
+		else {
+			// std::cout << "EPOLLIN and req is not ready, so we read from socket.." << std::endl;
+			_readFromSocket(conn);
+		}
+	}
+	else if (event.events & EPOLLOUT) {
+		// std::cout << "EPOLLOUT so we write to socket.." << std::endl;
 		_writeToSocket(*conn);
+	}
 }
 
 void Server::_handleIncomingConnection(ListeningSocket *listeningSocket) {
@@ -117,24 +127,29 @@ void Server::_readFromSocket(Connection *conn) {
 		// finished reading request, create the source and the response
 		try {
 			conn->setupSource(*_config);
+			if (conn->getSource()->getType() == CGI)
+				configureCGI(conn);
 		}
 		catch (Source::SourceException &e){
 			std::cout << e.what() << std::endl;
-			_updateEpoll(EPOLL_CTL_DEL, EPOLLOUT, conn, conn->getSocketFd());
-			conn->close();
+			removeConnection(conn);
 			return;
 		}
 
 		conn->setResponse();
 		_updateEpoll(EPOLL_CTL_MOD, EPOLLOUT, conn, conn->getSocketFd());
-		if (conn->getSource()->getType() == CGI)
-			_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn, conn->getSourceFd());
+		// if (conn->getSource()->getType() == CGI)
+		// 	_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn, conn->getSourceFd());
 	}
 }
 
 void Server::_writeToSocket(Connection &conn) {
-	conn.writeToSocket();
-	//when the response is sent, then (1) if keep alive - then epoll_ctl to EPOLLIN, or (2) close connection
+	bool wroteNothing = conn.writeToSocket();
+	if (!wroteNothing)
+		return ;
+	// _updateEpoll(EPOLL_CTL_MOD, EPOLLIN, &conn, conn.getSocketFd());
+	// conn.resetParser();
+	removeConnection(&conn);
 }
 
 void Server::_readFromSource(Connection &conn) {
@@ -163,4 +178,35 @@ ListeningSocket *Server::_findListeningSocket(int fd) {
 		return needle->second;
 	else
 		return NULL;
+}
+
+void Server::cleanup() {
+	for (std::map<int, ListeningSocket*>::iterator it = _listeningSockets.begin(); it != _listeningSockets.end(); ++it) {
+    	delete it->second;
+	}
+    for (std::vector<Connection*>::iterator it = _connections.begin(); it != _connections.end(); ++it) {
+    	delete (*it);
+	}
+	close(_epollInstance);
+}
+
+void Server::cleanupForFork(void* ctx) {
+	std::cerr << "cleanup for child process" << std::endl; //not error, writing there due to dup
+    Server* srv = static_cast<Server*>(ctx);
+    srv->cleanup();
+}
+
+void Server::configureCGI(Connection* conn) {
+	CGISource *cgiptr = (CGISource *)conn->getSource();
+	cgiptr->setPreExecCleanup(cleanupForFork, static_cast<void *>(this));
+	_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn, cgiptr->getPipeReadEnd());
+}
+
+void Server::removeConnection(Connection *conn) {
+	_updateEpoll(EPOLL_CTL_DEL, EPOLLOUT, conn, conn->getSocketFd());
+	delete conn;
+	_connections.erase(
+		std::remove(_connections.begin(), _connections.end(), conn),
+		_connections.end()
+	);
 }

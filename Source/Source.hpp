@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/26 16:09:46 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/27 10:43:13 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,8 +51,6 @@ class Source {
 		int							getSize()const;
 		SourceType					getType()const;
 		std::string					getLocation()const;
-		bool						isReadPerformed()const;
-		void						unsetReadPerformed();
 
 		static Source *				getNewSource(const std::string &target, const ServerConfig &serverConfig);
 
@@ -72,7 +70,6 @@ class Source {
 		std::string			_target;
 		std::string			_mime;
 		std::vector<char>	_body;
-		bool				_readPerformed;
 
 		Source(const std::string &target, const ServerConfig &serverConfig);
 		char *readFromBuffer();

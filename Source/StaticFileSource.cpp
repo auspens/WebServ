@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/26 16:58:24 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/27 13:42:33 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,13 @@ StaticFileSource::StaticFileSource(const std::string &target, const ServerConfig
 		: Source(target, serverConfig), _generated(false){
 			_location = location;
 			checkIfDirectory();
-			checkIfExists();
-			_fd = open(_target.c_str(), O_RDONLY);
-			if (_fd < 0)
-				throw Source::SourceException("Could not open static source file");
+			if (!_generated && !checkIfExists()){
+				std::cout << "I shouldn't be here" <<std ::endl;
+				_code = 404;
+				getErrorPage(404);
+			}
 			if (!_generated){
+				_fd = open(_target.c_str(), O_RDONLY);
 				struct stat st;
 				stat(_target.c_str(), &st);
 				_size = st.st_size;
@@ -33,7 +35,6 @@ StaticFileSource::~StaticFileSource(){
 }
 
 void StaticFileSource::readSource(){
-	_readPerformed = true;
 	if (_bytesToSend > 0 || _generated)
 		return;
 	_body.clear();
@@ -48,26 +49,37 @@ void StaticFileSource::readSource(){
 
 //!!Needs testing
 void StaticFileSource::checkIfDirectory(){
-	if (_target.at(_target.size()-1) != '/')
+	DIR *dir = opendir(_target.c_str());
+	if (!dir)
 		return ;
+	closedir(dir);
 	if (!_location){
-		if (!_serverConfig.getIndexPages().empty())
-		{
-			_target += _serverConfig.getIndexPages().at(0);
-			return;
-		}
-		else if(_serverConfig.getAutoIndex()){
+		// if (!_serverConfig.getIndexPages().empty())
+		// {
+			for (size_t i = 0; i < _serverConfig.getIndexPages().size(); ++i){
+				_target = _serverConfig.getRootFolder() + std::string("/") + _serverConfig.getIndexPages().at(i);
+				if (checkIfExists())
+					return;
+			}
+		// }
+		if(_serverConfig.getAutoIndex()){
 			if (generateIndex())
 				return;
 		}
 	}
 	else {
-		if (!_location->getIndex().empty()){
-			_target += _location->getIndex();
-			return;
-		}
-		if (_location->autoindexOn()){
-			_target += generateIndex();
+		// std::cout << "In index, location statement" <<std::endl;
+		// if (!_location->getIndexPages().empty()){
+		// 	std::cout << "Index pages exist" <<std::endl;
+			for (size_t i = 0; i < _location->getIndexPages().size(); ++i){
+				_target = _location->getPath() +  std::string("/") + _location->getIndexPages().at(i);
+				if (checkIfExists())
+					return;
+			}
+		// }
+		std::cout << "Autoindex on: " <<_location->getAutoIndex() <<std::endl;
+		if (_location->getAutoIndex()){
+			generateIndex();
 			return ;
 		}
 	}
@@ -75,15 +87,16 @@ void StaticFileSource::checkIfDirectory(){
 	getErrorPage(403);
 }
 
-void StaticFileSource::checkIfExists(){
+bool StaticFileSource::checkIfExists(){
 	DIR *dir = opendir(_serverConfig.getRootFolder().c_str());
 	if (!dir)
 		throw (Source::SourceException("No root folder"));
 	closedir(dir);
 	if(access(_target.c_str(), R_OK)){
-		_code = 404;
-		getErrorPage(404);
+		std::cout << "No access for target: " << _target << std::endl;
+		return false;
 	}
+	return true;
 }
 
 void StaticFileSource::defineMimeType(){
@@ -112,6 +125,7 @@ bool StaticFileSource::readDirectories(std::vector<DirEntry>&entries) {
 }
 
 bool StaticFileSource::generateIndex(){
+	std::cout << "generate Index" <<std::endl;
 	std::vector<DirEntry>entries;
 	if (!readDirectories(entries))
 		return false;
@@ -139,9 +153,9 @@ void StaticFileSource::getErrorPage(int code){
 	//doesn't handle cases when error directive uses external URLs, like: error_page 404 https://example.com/notfound.html
 	//I'm not sure if we need to include this feature. Doesn't say anything in the subject
 	if (_location && !_location->getErrorPages().empty() && _location->getErrorPages().find(code) != _location->getErrorPages().end())
-		_target = _serverConfig.getRootFolder() + _location->getPath() + _location->getErrorPages().find(code)->second;
+		_target = _location->getErrorPages().find(code)->second;
 	else if (_serverConfig.getErrorPages().find(code) != _serverConfig.getErrorPages().end())
-		_target = _serverConfig.getRootFolder() + _serverConfig.getErrorPages().find(code)->second;
+		_target = _serverConfig.getErrorPages().find(code)->second;
 	else
 		generateErrorPage(code);
 }

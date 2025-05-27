@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/26 16:56:27 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/27 13:06:37 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,7 @@ Source::Source(const std::string &target, const ServerConfig &serverConfig)
 		,_serverConfig(serverConfig)
 		,_location(defineLocation(target, serverConfig))
 		,_target(_serverConfig.getRootFolder() + target)
-		,_mime("")
-		,_readPerformed(false){}
+		,_mime(""){}
 
 Source::SourceException::SourceException(std::string error)throw(): _error(error){}
 Source::SourceException::~SourceException()throw(){}
@@ -70,23 +69,24 @@ std::string Source::getLocation()const{
 	return _target;
 }
 
-bool Source::isReadPerformed()const{
-	return _readPerformed;
-}
-
-void Source::unsetReadPerformed(){
-	_readPerformed = false;
-}
-
 Source *Source::getNewSource(const std::string &target, const ServerConfig &serverConfig) {
 	const Location *location = defineLocation(target, serverConfig);
-	if (location && location->isRedirect())
+	std::cout << "Location: " << (location? location->getPath():serverConfig.getRootFolder()) << std::endl;
+	if (location && location->isRedirect()){
+		std::cout << "This location is redirect "<< std::endl;
 		return new RedirectSource(location->getRedirectPath(), serverConfig, location->getRedirectCode());
-	if (target.find(".py") != std::string::npos)
-		return new CGISource(target, serverConfig, location);
+	}
+std::cout << "This location is NOT redirect "<< std::endl;
+	if (target.find(".py") != std::string::npos) {
+		CGISource* ptr = new CGISource(target, serverConfig, location);
+		if (ptr->checkIfExists() == 0)
+			delete ptr;
+		else
+			return ptr;
+	}
 	return new StaticFileSource(target, serverConfig, location);
 }
 
 char *Source::readFromBuffer(){
-	return _body.data() + _offset;
+	return _body.data() + _offset; //static cast or maybe even reinterpret cast?
 }
