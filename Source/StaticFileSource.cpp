@@ -3,27 +3,31 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/23 17:53:35 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/27 13:42:33 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "StaticFileSource.hpp"
 
-StaticFileSource::StaticFileSource(const std::string &target, const ServerConfig &serverConfig, Location const &location)
-		: Source(target, serverConfig){
+StaticFileSource::StaticFileSource(const std::string &target, const ServerConfig &serverConfig, Location const *location)
+		: Source(target, serverConfig), _generated(false){
 			_location = location;
 			checkIfDirectory();
-			checkIfExists();
-			_fd = open(_target.c_str(), O_RDONLY);
-			if (_fd < 0)
-				throw Source::SourceException("Could not open static source file");
-			struct stat st;
-			stat(_target.c_str(), &st);
-			_size = st.st_size;
-			defineMimeType();
+			if (!_generated && !checkIfExists()){
+				std::cout << "I shouldn't be here" <<std ::endl;
+				_code = 404;
+				getErrorPage(404);
+			}
+			if (!_generated){
+				_fd = open(_target.c_str(), O_RDONLY);
+				struct stat st;
+				stat(_target.c_str(), &st);
+				_size = st.st_size;
+				defineMimeType();
+			}
 		}
 
 StaticFileSource::~StaticFileSource(){
@@ -31,7 +35,7 @@ StaticFileSource::~StaticFileSource(){
 }
 
 void StaticFileSource::readSource(){
-	if (_bytesToSend > 0)
+	if (_bytesToSend > 0 || _generated)
 		return;
 	_body.clear();
 	_body.resize(_serverConfig.getBufferSize());
@@ -43,32 +47,56 @@ void StaticFileSource::readSource(){
 	_body.resize(readSize);
 }
 
+//!!Needs testing
 void StaticFileSource::checkIfDirectory(){
-	if (_target.at(_target.size()-1) != '/')
+	DIR *dir = opendir(_target.c_str());
+	if (!dir)
 		return ;
-	if (!_location.getIndex().empty()){
-		_target += _location.getIndex();
-		return;
+	closedir(dir);
+	if (!_location){
+		// if (!_serverConfig.getIndexPages().empty())
+		// {
+			for (size_t i = 0; i < _serverConfig.getIndexPages().size(); ++i){
+				_target = _serverConfig.getRootFolder() + std::string("/") + _serverConfig.getIndexPages().at(i);
+				if (checkIfExists())
+					return;
+			}
+		// }
+		if(_serverConfig.getAutoIndex()){
+			if (generateIndex())
+				return;
+		}
 	}
-	if (_location.autoindexOn()){
-		_target += generateIndex();
-		return ;
+	else {
+		// std::cout << "In index, location statement" <<std::endl;
+		// if (!_location->getIndexPages().empty()){
+		// 	std::cout << "Index pages exist" <<std::endl;
+			for (size_t i = 0; i < _location->getIndexPages().size(); ++i){
+				_target = _location->getPath() +  std::string("/") + _location->getIndexPages().at(i);
+				if (checkIfExists())
+					return;
+			}
+		// }
+		std::cout << "Autoindex on: " <<_location->getAutoIndex() <<std::endl;
+		if (_location->getAutoIndex()){
+			generateIndex();
+			return ;
+		}
 	}
 	_code = 403;
-	_target = getErrorPage(403);
+	getErrorPage(403);
 }
 
-void StaticFileSource::checkIfExists(){
+bool StaticFileSource::checkIfExists(){
 	DIR *dir = opendir(_serverConfig.getRootFolder().c_str());
 	if (!dir)
 		throw (Source::SourceException("No root folder"));
 	closedir(dir);
 	if(access(_target.c_str(), R_OK)){
-		_code = 404;
-		_target = getErrorPage(404);
+		std::cout << "No access for target: " << _target << std::endl;
+		return false;
 	}
-	if(access(_target.c_str(), R_OK))
-		throw (Source::SourceException("No 404 page"));
+	return true;
 }
 
 void StaticFileSource::defineMimeType(){
@@ -77,26 +105,77 @@ void StaticFileSource::defineMimeType(){
 	_mime = _mimeTypes.find(extension)->second;
 }
 
+bool StaticFileSource::readDirectories(std::vector<DirEntry>&entries) {
+	DIR* dir = opendir(_target.c_str());
+	if (!dir) return false;
+	struct dirent* entry;
+	while ((entry = readdir(dir)) != NULL) {
+		std::string name = entry->d_name;
+		if (name == "." || name == "..") continue;
 
-std::string StaticFileSource::generateIndex()const{
-	//placeholder!!
-	std::string index("generated index");
-	return index;
+		std::string full_path = _target + "/" + name;
+		struct stat s;
+		if (stat(full_path.c_str(), &s) == 0) {
+			bool is_dir = S_ISDIR(s.st_mode);
+			entries.push_back(DirEntry(name, is_dir));
+		}
+	}
+	closedir(dir);
+	return true;
 }
 
-std::string StaticFileSource::getErrorPage(int code)const{
+bool StaticFileSource::generateIndex(){
+	std::cout << "generate Index" <<std::endl;
+	std::vector<DirEntry>entries;
+	if (!readDirectories(entries))
+		return false;
+	std::string html = "<html><head><title>Index of " + _target + "</title></head>";
+	html += "<body><h1>Index of " + _target + "</h1><hr><ul>";
+	for (size_t i = 0; i < entries.size(); ++i) {
+		std::string name = entries[i].name;
+		std::string href = _target + name;
+		if (entries[i].is_directory) {
+			href += "/";
+			name += "/";
+		}
+		html += "<li><a href=\"" + href + "\">" + name + "</a></li>";
+	}
+	html += "</ul><hr></body></html>";
+	_body.assign(html.begin(), html.end());
+	_generated = true;
+	_bytesToSend = _body.size();
+	_size = _body.size();
+	_mime = _mimeTypes.find(".html")->second;
+	return true;
+}
+
+void StaticFileSource::getErrorPage(int code){
 	//doesn't handle cases when error directive uses external URLs, like: error_page 404 https://example.com/notfound.html
 	//I'm not sure if we need to include this feature. Doesn't say anything in the subject
-	if (!_location.getErrorPages().empty() && _location.getErrorPages().find(code) != _location.getErrorPages().end())
-		return (_serverConfig.getRootFolder() + _location.getPath() + _location.getErrorPages().find(code)->second);
-	if (_serverConfig.getErrorPages().find(code) != _serverConfig.getErrorPages().end())
-		return (_serverConfig.getRootFolder() + _serverConfig.getErrorPages().find(code)->second);
-	std::string current_error = "/error/404.html";
-	return (_serverConfig.getRootFolder() + current_error);
-	throw (Source::SourceException("No error page"));
+	if (_location && !_location->getErrorPages().empty() && _location->getErrorPages().find(code) != _location->getErrorPages().end())
+		_target = _location->getErrorPages().find(code)->second;
+	else if (_serverConfig.getErrorPages().find(code) != _serverConfig.getErrorPages().end())
+		_target = _serverConfig.getErrorPages().find(code)->second;
+	else
+		generateErrorPage(code);
 }
 
-char *StaticFileSource::readFromSource(){
+void StaticFileSource::generateErrorPage(int code){
+	_code = code;
+	_generated = true;
+	std::string html = "<html><head><title> " + _statusCodes.at(code).message + "</title></head>";
+	html += "<body><h1>" + _statusCodes.at(code).code + "</h1><hr><ul>";
+	html += "<body><h1>" + _statusCodes.at(code).message + "</h1><hr><ul>";
+	html += "<body><h2>" + _statusCodes.at(code).description + "</h2><hr><ul>";
+	html += "</ul><hr></body></html>";
+	_body.assign(html.begin(), html.end());
+	_generated = true;
+	_bytesToSend = _body.size();
+	_size = _body.size();
+	_mime = _mimeTypes.find(".html")->second;
+}
+
+char *StaticFileSource::getBufferToSend(){
 	readSource();
 	return readFromBuffer();
 }

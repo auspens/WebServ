@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 10:33:18 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/26 14:39:19 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/27 13:02:56 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ Response::Response (const Source *source)
 			break;
 		case REDIRECT:
 			_header += "Location: " + source->getLocation() + "\r\n";
+			_header += "Content-Length: 0\r\n";
 			break;
 		case CGI:
 			_header += "Connection: Keep-Alive\r\n";

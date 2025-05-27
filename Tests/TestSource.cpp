@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   TestSource.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 11:48:50 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/23 18:02:15 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/27 10:17:53 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,3 +36,4 @@ void TestStaticFileSource(){
 		std::cout<<*iter;
 	std::cout <<std::endl;
 }
+

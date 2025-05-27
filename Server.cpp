@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/26 14:21:36 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/27 11:41:13 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ void Server::_runEpollLoop() {
 	//epoll wait parameters here: fd of epoll instance,
 	//pointer to an array of epoll events (first element of the vector),
 	//MAX_SIZE is set to the total amount of connections + 1(for listening socket)     // EW: What about CGI?
-	//TIMEOUT is set to -1, so the wait blocks until one of monitored fds is ready     
+	//TIMEOUT is set to -1, so the wait blocks until one of monitored fds is ready
 	std::vector<struct epoll_event>	events;
 	int								size;
 	int								readyFds;
@@ -67,11 +67,11 @@ void Server::_runEpollLoop() {
 		size = _connections.size() + _listeningSockets.size();
 		events.reserve(size);  // EW: is .resize() maybe safer?
 		readyFds = epoll_wait(_epollInstance, &events[0], size, INFINITE_TIMEOUT); // EW: each epoll_event struct records: events on the fd (e.g. EPOLLIN) and data (ptr to connection)
-		std::cout << "Epoll returned " << readyFds << " ready fds" << std::endl;
+		// std::cout << "Epoll returned " << readyFds << " ready fds" << std::endl;
 		SystemCallsUtilities::check_for_error(readyFds);
 
 		for(int i = 0; i < readyFds; ++i){
-			std::cout << "Going through ready list, i = " << i << std::endl;
+			// std::cout << "Going through ready list, i = " << i << std::endl;
 			_handleSocketEvent(events[i]);
 		}
 	}
@@ -85,21 +85,21 @@ void Server::_handleSocketEvent(struct epoll_event &event) {
 
 	listeningSocket = _findListeningSocket(event.data.fd);
 	if (listeningSocket) {
-		std::cout << "epoll returned listening socket with fd " << event.data.fd << std::endl;
+		// std::cout << "epoll returned listening socket with fd " << event.data.fd << std::endl;
 		_handleIncomingConnection(listeningSocket);
 	}
 	else if (event.events & EPOLLIN) {  // EW: maybe one also has to check for EPOLLHUP and EPOLLERR and if so close the connection
 		if (conn->requestReady()) {
-			std::cout << "EPOLLIN and req is ready, so we read from source.." << std::endl;
+			// std::cout << "EPOLLIN and req is ready, so we read from source.." << std::endl;
 			_readFromSource(*conn);
 		}
 		else {
-			std::cout << "EPOLLIN and req is not ready, so we read from socket.." << std::endl;
+			// std::cout << "EPOLLIN and req is not ready, so we read from socket.." << std::endl;
 			_readFromSocket(conn);
 		}
 	}
 	else if (event.events & EPOLLOUT) {
-		std::cout << "EPOLLOUT so we write to socket.." << std::endl;
+		// std::cout << "EPOLLOUT so we write to socket.." << std::endl;
 		_writeToSocket(*conn);
 	}
 }
@@ -196,10 +196,10 @@ void Server::cleanupForFork(void* ctx) {
     srv->cleanup();
 }
 
-void Server::configureCGI(Connection* conn) {	
-	CGISource *cgiptr = (CGISource *)conn->getSource();	
+void Server::configureCGI(Connection* conn) {
+	CGISource *cgiptr = (CGISource *)conn->getSource();
 	cgiptr->setPreExecCleanup(cleanupForFork, static_cast<void *>(this));
-	_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn, cgiptr->getPipeReadEnd()); 
+	_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn, cgiptr->getPipeReadEnd());
 }
 
 void Server::removeConnection(Connection *conn) {

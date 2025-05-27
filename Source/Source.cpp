@@ -6,7 +6,7 @@
 /*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/27 13:30:08 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/27 13:46:35 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,39 +14,6 @@
 #include "RedirectSource.hpp"
 #include "StaticFileSource.hpp"
 #include "CGISource.hpp"
-
-std::map <std::string, std::string> Source::_mimeTypes;
-
-std::string trim(const std::string& str) {
-	size_t start = 0, end = str.length();
-	while (start < end && std::isspace(str[start])) start++;
-	while (end > start && std::isspace(str[end - 1])) end--;
-	if (start < end && str[start] == '\"') ++start;
-	if (end > start && str[end - 1] == '\"') --end;
-	return str.substr(start, end - start);
-}
-
-struct mimeTypesInitializer {
-	mimeTypesInitializer(){
-		std::ifstream file(MIME_TYPES_JSON);
-		if (!file)
-			throw (std::runtime_error("Could not open json with mime types"));
-		std::string line;
-
-		while (std::getline(file, line)) {
-			std::string::size_type colon = line.find(':');
-			if (colon == std::string::npos) continue;
-			std::string key = trim(line.substr(0, colon));
-			std::string val = line.substr(colon + 1);
-			if (!val.empty() && val[val.size() - 1] == ',')
-							val = val.substr(0, val.size() - 1);
-			val = trim(val);
-			Source::_mimeTypes[key] = val;
-		}
-	}
-};
-
-static mimeTypesInitializer _mimeTypeInitializer;
 
 Source::~Source(){}
 Source::Source(const std::string &target, const ServerConfig &serverConfig)
@@ -67,10 +34,16 @@ const char *Source::SourceException::what() const throw(){
 	return _error.c_str();
 }
 
-const Location &Source::defineLocation(const std::string &target, const ServerConfig &serverConfig){
-//do location lookup here
-	(void) target;
-	return (*serverConfig.getLocations().at(0));
+const Location *Source::defineLocation(const std::string &target, const ServerConfig &serverConfig){
+	const std::vector<Location *> locations = serverConfig.getLocations();
+	std::vector<Location *>::const_iterator it = locations.begin();
+	for (;it != locations.end();++it){
+		std::string locationPath = (*it)->getPath();
+		if (target.find(locationPath) == 0
+			&& (target.size() == locationPath.size() || target.at(locationPath.size()) == '/'))
+			return *it;
+	}
+	return (NULL);
 }
 
 int Source::getCode()const{
@@ -97,9 +70,13 @@ std::string Source::getLocation()const{
 }
 
 Source *Source::getNewSource(const std::string &target, const ServerConfig &serverConfig) {
-	Location location = defineLocation(target, serverConfig);
-	if (location.isRedirect())
-		return new RedirectSource(location.getRedirectPath(), serverConfig, location.getRedirectCode());
+	const Location *location = defineLocation(target, serverConfig);
+	std::cout << "Location: " << (location? location->getPath():serverConfig.getRootFolder()) << std::endl;
+	if (location && location->isRedirect()){
+		std::cout << "This location is redirect "<< std::endl;
+		return new RedirectSource(location->getRedirectPath(), serverConfig, location->getRedirectCode());
+	}
+std::cout << "This location is NOT redirect "<< std::endl;
 	if (target.find(".py") != std::string::npos) {
 		CGISource* ptr = new CGISource(target, serverConfig, location);
 		if (ptr->getIfExists() == 1)

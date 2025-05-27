@@ -1,10 +1,10 @@
 #include "CGISource.hpp"
 
-CGISource::CGISource(const std::string &target, const ServerConfig &serverConfig, Location const &location)
+CGISource::CGISource(const std::string &target, const ServerConfig &serverConfig, Location const *location)
  : Source(target, serverConfig), _cleanupFunc(NULL), _cleanupCtx(NULL) {
     _location = location;
     _type = CGI;
-    
+
     size_t qmark = target.find('?');
 
     if (qmark != std::string::npos) {
@@ -54,7 +54,7 @@ void CGISource::forkAndExec() {
         dup2(_pipefd[1], STDOUT_FILENO); // Redirect stdout to pipe
         close(_pipefd[1]);
 
-        
+
 
         std::string path = _scriptPath;
 
@@ -124,12 +124,11 @@ bool CGISource::checkIfExists(){
     return (1);
 }
 
-
 int CGISource::getPipeReadEnd() const {
     return _pipefd[0];
 }
 
-char* CGISource::readFromSource() {
+char* CGISource::getBufferToSend() {
     //need to form chunks
     return static_cast<char *>(_body.data() + _offset);
 }
