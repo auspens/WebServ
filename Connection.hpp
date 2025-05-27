@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/26 14:16:12 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/27 14:18:00 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ class Connection{
 		void				setupSource(const Config &config) throw(Source::SourceException);
 		void				sendHeader();
 		bool				sendFromSource();
+		std::string			getRequestBody()const;
 
 	private:
 		Connection(const Connection &src);

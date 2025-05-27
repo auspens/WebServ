@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/27 13:42:33 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/27 15:26:09 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,6 +106,7 @@ void StaticFileSource::defineMimeType(){
 }
 
 bool StaticFileSource::readDirectories(std::vector<DirEntry>&entries) {
+	std::cout <<"Tearget: " <<_target <<std::endl;
 	DIR* dir = opendir(_target.c_str());
 	if (!dir) return false;
 	struct dirent* entry;

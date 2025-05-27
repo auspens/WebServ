@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/27 11:41:13 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/27 14:19:08 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,6 +125,7 @@ void Server::_readFromSocket(Connection *conn) {
 		//conn->resetParser();
 
 		// finished reading request, create the source and the response
+		std::cout <<"Request body: "<< conn->getRequestBody() <<std::endl;
 		try {
 			conn->setupSource(*_config);
 			if (conn->getSource()->getType() == CGI)
