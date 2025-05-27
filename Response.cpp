@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 10:33:18 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/27 13:02:56 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/27 13:52:31 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ Response::Response (const Source *source)
 			break;
 		case CGI:
 			_header += "Connection: Keep-Alive\r\n";
-			_header += "Keep-Alive: timeout=5, max=997\r\n";
+			_header += "Keep-Alive: timeout=5, max=997";
 			//_header += "Transfer-Encoding: chunked\r\n";
 			//_chunked = true;
 	}

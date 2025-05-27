@@ -6,7 +6,7 @@
 /*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/27 15:25:22 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/27 15:32:27 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,11 @@ Source *Connection::getSource() const {
 HttpRequest Connection::getRequest() const {
 	return _request;
 }
+
+std::string Connection::getRequestBody()const{
+	return _request.body;
+}
+
 
 void Connection::setupSource(const Config &config) throw(Source::SourceException) {
 	if (_source)

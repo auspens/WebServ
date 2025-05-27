@@ -26,14 +26,17 @@ CGISource::CGISource(const std::string &target, const ServerConfig &serverConfig
     _pathExists = checkIfExists();
     if (!_pathExists)
         return ;
-    if (pipe(_pipefd) != -1 && pipe(_inputPipe) != -1)
+    
+    pipe(_inputPipe);
+
+    if (pipe(_pipefd) != -1) 
         forkAndExec();
 }
 
 CGISource::~CGISource(){
 	std::cout << "FileSource destructor called";
-    if (_pathExists)
-	    close(_pipefd[0]);
+    /if (_pathExists)
+	    close(_pipefd[0]); could be too early ?
 }
 
 void CGISource::setPreExecCleanup(CleanupFunc func, void* ctx) {
@@ -51,8 +54,12 @@ void CGISource::forkAndExec() {
         std::cout << "in child!" << std::endl;
 
         close(_pipefd[0]);
-        dup2(_pipefd[1], STDOUT_FILENO); // Redirect stdout to pipe
+        dup2(_pipefd[1], STDOUT_FILENO); // Redirect stdout to output pipe
         close(_pipefd[1]);
+
+        char buf[10] = {0};
+        read(_inputPipe[0], buf, 9);
+        std::cerr << "read buf from pipe: " << buf << std::endl;
 
         close(_inputPipe[1]);
         dup2(_inputPipe[0], STDIN_FILENO); 
@@ -67,8 +74,8 @@ void CGISource::forkAndExec() {
         std::vector<std::string> env_strings;
         if (_pathInfo.length())
             env_strings.push_back(std::string("PATH_INFO=") + _pathInfo);
-        env_strings.push_back("REQUEST_METHOD=GET");
-        env_strings.push_back(std::string("QUERY_STRING=") + _queryString);
+        env_strings.push_back("REQUEST_METHOD=POST");
+        //env_strings.push_back(std::string("QUERY_STRING=") + _queryString);
         env_strings.push_back(std::string("SCRIPT_NAME=") + _scriptPath);
         env_strings.push_back("SERVER_PROTOCOL=HTTP/1.1");
 
@@ -93,8 +100,8 @@ void CGISource::forkAndExec() {
         // PARENT
         close(_inputPipe[0]);
         close(_pipefd[1]);  // Close write end of cgi pipe
-        int status;
-        waitpid(pid, &status, 0); //?
+        //int status;
+        //waitpid(pid, &status, 0); //?
     }
 }
 

@@ -6,7 +6,7 @@
 /*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/27 15:23:17 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/27 16:01:06 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,6 +125,7 @@ void Server::_readFromSocket(Connection *conn) {
 		//conn->resetParser();
 
 		// finished reading request, create the source and the response
+		std::cout <<"Request body: "<< conn->getRequestBody() <<std::endl;
 		try {
 			conn->setupSource(*_config);
 			if (conn->getSource()->getType() == CGI)
@@ -197,11 +198,14 @@ void Server::cleanupForFork(void* ctx) {
 }
 
 void Server::configureCGI(Connection* conn) {
+	std::cout << "in configure CGI" << std::endl;
 	CGISource *cgiptr = (CGISource *)conn->getSource();
 	cgiptr->setPreExecCleanup(cleanupForFork, static_cast<void *>(this));
 	_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn, cgiptr->getPipeReadEnd());
-	if (conn->getRequest().method == "POST")
-		write(cgiptr->getInputFd(), conn->getRequest().body.c_str(), conn->getRequest().body.length());
+	if (conn->getRequest().method == "POST") {
+		int numbytes = write(cgiptr->getInputFd(), conn->getRequest().body.c_str(), conn->getRequest().body.length());
+		std::cout << "method is POST! wrote " << numbytes << " bytes" << std::endl;
+	}
 	close(cgiptr->getInputFd());
 }
 

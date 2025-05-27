@@ -6,7 +6,7 @@
 /*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/27 15:25:37 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/27 15:31:02 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ class Connection{
 		void				setupSource(const Config &config) throw(Source::SourceException);
 		void				sendHeader();
 		bool				sendFromSource();
+		std::string			getRequestBody()const;
 
 		
 
