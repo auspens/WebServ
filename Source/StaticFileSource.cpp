@@ -6,29 +6,30 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/27 15:26:09 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/27 16:21:04 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "StaticFileSource.hpp"
 
 StaticFileSource::StaticFileSource(const std::string &target, const ServerConfig &serverConfig, Location const *location)
-		: Source(target, serverConfig), _generated(false){
-			_location = location;
-			checkIfDirectory();
-			if (!_generated && !checkIfExists()){
-				std::cout << "I shouldn't be here" <<std ::endl;
-				_code = 404;
-				getErrorPage(404);
-			}
-			if (!_generated){
-				_fd = open(_target.c_str(), O_RDONLY);
-				struct stat st;
-				stat(_target.c_str(), &st);
-				_size = st.st_size;
-				defineMimeType();
-			}
-		}
+	: Source(target, serverConfig)
+	, _generated(false){
+	_location = location;
+	checkIfDirectory();
+	if (!_generated && !checkIfExists(_target)){
+		std::cout << "I shouldn't be here" << std ::endl;
+		_code = 404;
+		getErrorPage(404);
+	}
+	if (!_generated){
+		_fd = open(_target.c_str(), O_RDONLY);
+		struct stat st;
+		stat(_target.c_str(), &st);
+		_size = st.st_size;
+		defineMimeType();
+	}
+}
 
 StaticFileSource::~StaticFileSource(){
 	close(_fd);
@@ -40,62 +41,56 @@ void StaticFileSource::readSource(){
 	_body.clear();
 	_body.resize(_serverConfig.getBufferSize());
 	_offset = 0;
-	ssize_t readSize = read(_fd, _body.data(),_serverConfig.getBufferSize());
+	ssize_t readSize = read(_fd, _body.data(), _serverConfig.getBufferSize());
 	if (readSize < 0)
 		throw Source::SourceException("Could not read from static source file");
 	_bytesToSend = readSize;
 	_body.resize(readSize);
 }
 
-//!!Needs testing
+bool StaticFileSource::indexExists(const std::vector<std::string> &indexes, const std::string &root){
+	for (size_t i = 0; i < indexes.size(); ++i){
+		std::string target = root + std::string("/") + indexes.at(i);
+		if (checkIfExists(target)){
+				_target = target;
+				return true;
+		}
+	}
+	return false;
+}
+
 void StaticFileSource::checkIfDirectory(){
 	DIR *dir = opendir(_target.c_str());
 	if (!dir)
-		return ;
+		return;
 	closedir(dir);
 	if (!_location){
-		// if (!_serverConfig.getIndexPages().empty())
-		// {
-			for (size_t i = 0; i < _serverConfig.getIndexPages().size(); ++i){
-				_target = _serverConfig.getRootFolder() + std::string("/") + _serverConfig.getIndexPages().at(i);
-				if (checkIfExists())
-					return;
-			}
-		// }
-		if(_serverConfig.getAutoIndex()){
+		if (indexExists(_serverConfig.getIndexPages(), _serverConfig.getRootFolder()))
+			return;
+		if (_serverConfig.getAutoIndex()){
 			if (generateIndex())
 				return;
 		}
 	}
-	else {
-		// std::cout << "In index, location statement" <<std::endl;
-		// if (!_location->getIndexPages().empty()){
-		// 	std::cout << "Index pages exist" <<std::endl;
-			for (size_t i = 0; i < _location->getIndexPages().size(); ++i){
-				_target = _location->getPath() +  std::string("/") + _location->getIndexPages().at(i);
-				if (checkIfExists())
-					return;
-			}
-		// }
-		std::cout << "Autoindex on: " <<_location->getAutoIndex() <<std::endl;
+	else{
+		if(indexExists(_location->getIndexPages(),_location->getPath()))
+				return;
 		if (_location->getAutoIndex()){
-			generateIndex();
-			return ;
+			if (generateIndex())
+				return;
 		}
 	}
 	_code = 403;
 	getErrorPage(403);
 }
 
-bool StaticFileSource::checkIfExists(){
+bool StaticFileSource::checkIfExists(std::string &target){
 	DIR *dir = opendir(_serverConfig.getRootFolder().c_str());
 	if (!dir)
-		throw (Source::SourceException("No root folder"));
+		throw(Source::SourceException("No root folder"));
 	closedir(dir);
-	if(access(_target.c_str(), R_OK)){
-		std::cout << "No access for target: " << _target << std::endl;
+	if (access(target.c_str(), R_OK))
 		return false;
-	}
 	return true;
 }
 
@@ -105,18 +100,20 @@ void StaticFileSource::defineMimeType(){
 	_mime = _mimeTypes.find(extension)->second;
 }
 
-bool StaticFileSource::readDirectories(std::vector<DirEntry>&entries) {
-	std::cout <<"Tearget: " <<_target <<std::endl;
-	DIR* dir = opendir(_target.c_str());
-	if (!dir) return false;
-	struct dirent* entry;
-	while ((entry = readdir(dir)) != NULL) {
+bool StaticFileSource::readDirectories(std::vector<DirEntry> &entries){
+	std::cout << "Target: " << _target << std::endl;
+	DIR *dir = opendir(_target.c_str());
+	if (!dir)
+		return false;
+	struct dirent *entry;
+	while ((entry = readdir(dir)) != NULL){
 		std::string name = entry->d_name;
-		if (name == "." || name == "..") continue;
+		if (name == "." || name == "..")
+			continue;
 
 		std::string full_path = _target + "/" + name;
 		struct stat s;
-		if (stat(full_path.c_str(), &s) == 0) {
+		if (stat(full_path.c_str(), &s) == 0){
 			bool is_dir = S_ISDIR(s.st_mode);
 			entries.push_back(DirEntry(name, is_dir));
 		}
@@ -126,16 +123,20 @@ bool StaticFileSource::readDirectories(std::vector<DirEntry>&entries) {
 }
 
 bool StaticFileSource::generateIndex(){
-	std::cout << "generate Index" <<std::endl;
-	std::vector<DirEntry>entries;
+	std::vector<DirEntry> entries;
 	if (!readDirectories(entries))
 		return false;
-	std::string html = "<html><head><title>Index of " + _target + "</title></head>";
-	html += "<body><h1>Index of " + _target + "</h1><hr><ul>";
-	for (size_t i = 0; i < entries.size(); ++i) {
+	std::string relativeTarget = _target;
+	std::string prefix = _serverConfig.getRootFolder();
+	if (relativeTarget.rfind(prefix, 0) == 0)
+		relativeTarget.erase(0, prefix.length());
+
+	std::string html = "<html><head><title>Index of " + relativeTarget + "</title></head>";
+	html += "<body><h1> This is autogenerated index of " + relativeTarget + "</h1><hr><ul>";
+	for (size_t i = 0; i < entries.size(); ++i){
 		std::string name = entries[i].name;
-		std::string href = _target + name;
-		if (entries[i].is_directory) {
+		std::string href = relativeTarget + "/" + name;
+		if (entries[i].is_directory){
 			href += "/";
 			name += "/";
 		}
@@ -151,8 +152,8 @@ bool StaticFileSource::generateIndex(){
 }
 
 void StaticFileSource::getErrorPage(int code){
-	//doesn't handle cases when error directive uses external URLs, like: error_page 404 https://example.com/notfound.html
-	//I'm not sure if we need to include this feature. Doesn't say anything in the subject
+	// doesn't handle cases when error directive uses external URLs, like: error_page 404 https://example.com/notfound.html
+	// I'm not sure if we need to include this feature. Doesn't say anything in the subject
 	if (_location && !_location->getErrorPages().empty() && _location->getErrorPages().find(code) != _location->getErrorPages().end())
 		_target = _location->getErrorPages().find(code)->second;
 	else if (_serverConfig.getErrorPages().find(code) != _serverConfig.getErrorPages().end())

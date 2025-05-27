@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/27 14:18:35 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/27 15:49:27 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,10 +89,11 @@ bool Connection::writeToSocket() {
 	{
 		std::cout << "Header to be sent:" << std::endl;
 		sendHeader();
+		return (0);
 	}
 	else if (_source->getType() != REDIRECT)
 		return (sendFromSource());
-	return (0);
+	return (1);
 }
 
 bool Connection::requestReady() const {

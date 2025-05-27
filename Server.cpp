@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/27 14:19:08 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/27 15:47:14 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,6 +150,7 @@ void Server::_writeToSocket(Connection &conn) {
 		return ;
 	// _updateEpoll(EPOLL_CTL_MOD, EPOLLIN, &conn, conn.getSocketFd());
 	// conn.resetParser();
+	std::cout <<"Removing connection" <<std::endl;
 	removeConnection(&conn);
 }
 
