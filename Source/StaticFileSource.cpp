@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/27 16:21:04 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/27 16:40:13 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,10 +159,10 @@ void StaticFileSource::getErrorPage(int code){
 	else if (_serverConfig.getErrorPages().find(code) != _serverConfig.getErrorPages().end())
 		_target = _serverConfig.getErrorPages().find(code)->second;
 	else
-		generateErrorPage(code);
+		generatePage(code);
 }
 
-void StaticFileSource::generateErrorPage(int code){
+void StaticFileSource::generatePage(int code){
 	_code = code;
 	_generated = true;
 	std::string html = "<html><head><title> " + _statusCodes.at(code).message + "</title></head>";
