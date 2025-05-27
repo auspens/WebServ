@@ -6,7 +6,7 @@
 /*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/26 14:16:12 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/27 15:25:37 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ class Connection{
 		int					getSourceFd() const;
 		int					getSocketFd() const;
 		bool				requestReady() const;
+		HttpRequest		getRequest() const;
 		void				readFromSocket();
 		bool				writeToSocket();
 		void				setResponse();
@@ -39,6 +40,8 @@ class Connection{
 		void				setupSource(const Config &config) throw(Source::SourceException);
 		void				sendHeader();
 		bool				sendFromSource();
+
+		
 
 	private:
 		Connection(const Connection &src);

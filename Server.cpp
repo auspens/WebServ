@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/27 11:41:13 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/27 15:23:17 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,6 +200,9 @@ void Server::configureCGI(Connection* conn) {
 	CGISource *cgiptr = (CGISource *)conn->getSource();
 	cgiptr->setPreExecCleanup(cleanupForFork, static_cast<void *>(this));
 	_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn, cgiptr->getPipeReadEnd());
+	if (conn->getRequest().method == "POST")
+		write(cgiptr->getInputFd(), conn->getRequest().body.c_str(), conn->getRequest().body.length());
+	close(cgiptr->getInputFd());
 }
 
 void Server::removeConnection(Connection *conn) {

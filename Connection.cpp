@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/27 11:49:27 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/27 15:25:22 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,10 @@ int Connection::getSourceFd() const {
 
 Source *Connection::getSource() const {
 	return _source;
+}
+
+HttpRequest Connection::getRequest() const {
+	return _request;
 }
 
 void Connection::setupSource(const Config &config) throw(Source::SourceException) {

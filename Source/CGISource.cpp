@@ -24,16 +24,16 @@ CGISource::CGISource(const std::string &target, const ServerConfig &serverConfig
     _scriptPath = _serverConfig.getRootFolder() + _scriptPath;
 
     _pathExists = checkIfExists();
-    if (_pathExists && pipe(_pipefd) != -1)
+    if (!_pathExists)
+        return ;
+    if (pipe(_pipefd) != -1 && pipe(_inputPipe) != -1)
         forkAndExec();
 }
 
 CGISource::~CGISource(){
 	std::cout << "FileSource destructor called";
-    if (_pathExists) {
+    if (_pathExists)
 	    close(_pipefd[0]);
-        close(_pipefd[1]);
-    }
 }
 
 void CGISource::setPreExecCleanup(CleanupFunc func, void* ctx) {
@@ -54,7 +54,9 @@ void CGISource::forkAndExec() {
         dup2(_pipefd[1], STDOUT_FILENO); // Redirect stdout to pipe
         close(_pipefd[1]);
 
-
+        close(_inputPipe[1]);
+        dup2(_inputPipe[0], STDIN_FILENO); 
+        close(_inputPipe[0]);
 
         std::string path = _scriptPath;
 
@@ -89,9 +91,10 @@ void CGISource::forkAndExec() {
 
     } else {
         // PARENT
-        close(_pipefd[1]);  // Close write end
+        close(_inputPipe[0]);
+        close(_pipefd[1]);  // Close write end of cgi pipe
         int status;
-        waitpid(pid, &status, 0);
+        waitpid(pid, &status, 0); //?
     }
 }
 
@@ -113,6 +116,7 @@ bool CGISource::getIfExists() const {
     return (_pathExists);
 }
 
+
 bool CGISource::checkIfExists(){
 	DIR *dir = opendir(_serverConfig.getRootFolder().c_str());
 	if (!dir)
@@ -126,6 +130,10 @@ bool CGISource::checkIfExists(){
 
 int CGISource::getPipeReadEnd() const {
     return _pipefd[0];
+}
+
+int CGISource::getInputFd() const {
+    return _inputPipe[1];
 }
 
 char* CGISource::getBufferToSend() {

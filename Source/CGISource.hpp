@@ -19,6 +19,7 @@ class CGISource : public Source {
 		//copy construct missing
 		~CGISource();
 
+		int getInputFd() const;
 		int getPipeReadEnd() const;
 		bool getIfExists() const;
 		
@@ -26,6 +27,7 @@ class CGISource : public Source {
 	private:
 		bool	_pathExists;
         int _pipefd[2];
+		int _inputPipe[2];
         std::string _scriptPath;
         std::string _queryString;
         std::string _pathInfo;
