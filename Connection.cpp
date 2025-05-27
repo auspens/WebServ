@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/26 15:03:18 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/27 11:49:27 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ Connection::Connection() {
 Connection::Connection(int fd, int serverPort) : _socket(fd), _serverPort(serverPort) {
 	_source = NULL;
 	_response = NULL;
+	// std::cout <<"Create new connection with fd: " << fd << std::endl;
  }
 
 Connection::Connection(int fd, int serverPort, struct addrinfo *addrinfo)
@@ -59,6 +60,7 @@ void Connection::setupSource(const Config &config) throw(Source::SourceException
 	_serverConfig = _findServerConfig(_serverPort, _request.hostname, config);
 	if (!_serverConfig)
 		throw Source::SourceException("No matching server found"); //Should this be a different exception type?
+	std::cout << "Request uri: " << _request.uri << std::endl;
 	_source = Source::getNewSource(_request.uri, *_serverConfig);
 }
 
@@ -80,7 +82,7 @@ void Connection::readFromSocket() {
 bool Connection::writeToSocket() {
 	if (!_response->headerSent())
 	{
-		std::cout << "Will be sending header now" << std::endl;
+		std::cout << "Header to be sent:" << std::endl;
 		sendHeader();
 	}
 	else if (_source->getType() != REDIRECT)
@@ -102,6 +104,7 @@ const std::string& Connection::getTarget() const {
 
 void Connection::sendHeader() {
 	const char *buf = _response->getHeader() + _response->getOffset();
+	std::cout << std::string(buf) << std::endl;
 	ssize_t size = std::strlen(buf) > READ_BUFFER ? READ_BUFFER : std::strlen(buf);
 	ssize_t bytes_sent = send(_socket.getFd(), buf, size, 0);
 	if (bytes_sent == -1)
@@ -112,8 +115,8 @@ void Connection::sendHeader() {
 }
 
 bool Connection::sendFromSource() {
-	const char *buf = _source->readFromSource();
-	std::cout << "Gonna send from source buf: " << buf << std::endl; 
+	const char *buf = _source->getBufferToSend();
+	// std::cout << "Gonna send from source buf: " << buf << std::endl;
 	if (_source->_bytesToSend < 1)
 		return (1);
 	ssize_t size = _source->_bytesToSend > READ_BUFFER ? READ_BUFFER : _source->_bytesToSend;
@@ -138,7 +141,7 @@ const ServerConfig *Connection::_findServerConfig(
 		if (port == serverConfig->getPort()) {
 			if (serverConfig->getServerNames().size() == 0)
 			{
-				std::cout << "getRootFolder: " << serverConfig->getRootFolder() << std::endl;
+				// std::cout << "getRootFolder: " << serverConfig->getRootFolder() << std::endl;
 				return serverConfig;
 			}
 
@@ -148,7 +151,6 @@ const ServerConfig *Connection::_findServerConfig(
 			}
 		}
 	}
-
 	return NULL;
 }
 

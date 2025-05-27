@@ -6,16 +6,16 @@
 
 #include <sys/wait.h>
 
-typedef void (*CleanupFunc)(void* ctx); // a ptr to void returning function, that takes a ptr that will provide context (ctx) 
+typedef void (*CleanupFunc)(void* ctx); // a ptr to void returning function, that takes a ptr that will provide context (ctx)
 
 class CGISource : public Source {
 	public:
 		void setPreExecCleanup(CleanupFunc func, void* ctx);
 		void readSource();
-		char* readFromSource();
+		char* getBufferToSend();
 		void forkAndExec();
 
-		CGISource(const std::string &target, const ServerConfig &serverConfig, Location const &location);
+		CGISource(const std::string &target, const ServerConfig &serverConfig, Location const *location);
 		//copy construct missing
 		~CGISource();
 

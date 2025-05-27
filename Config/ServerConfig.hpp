@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 17:00:59 by wpepping          #+#    #+#             */
-/*   Updated: 2025/05/23 18:59:42 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/26 16:51:43 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ public:
 	const std::vector<std::string>		&getAcceptCgi() const;
 	int									getAcceptMethod() const;
 	bool								getAutoIndex() const;
-	bool								autoIndexIsSet() const;
+	bool								autoIndexIsSet() const;//not defined!
 
 private:
 	int							_port;
