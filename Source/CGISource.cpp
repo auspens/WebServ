@@ -21,15 +21,19 @@ CGISource::CGISource(const std::string &target, const ServerConfig &serverConfig
         _scriptPath = _scriptPath.substr(0, script_end);
     }
 
-    if (pipe(_pipefd) == -1)
-        perror("pipe");
-    forkAndExec();
+    _scriptPath = _serverConfig.getRootFolder() + _scriptPath;
+
+    _pathExists = checkIfExists();
+    if (_pathExists && pipe(_pipefd) != -1)
+        forkAndExec();
 }
 
 CGISource::~CGISource(){
 	std::cout << "FileSource destructor called";
-	close(_pipefd[0]);
-    close(_pipefd[1]);
+    if (_pathExists) {
+	    close(_pipefd[0]);
+        close(_pipefd[1]);
+    }
 }
 
 void CGISource::setPreExecCleanup(CleanupFunc func, void* ctx) {
@@ -52,7 +56,7 @@ void CGISource::forkAndExec() {
 
         
 
-        std::string path = _serverConfig.getRootFolder() + _scriptPath;
+        std::string path = _scriptPath;
 
         /// Build argv
         char* argv[] = {(char*)_scriptPath.c_str(), NULL};
@@ -105,14 +109,18 @@ void CGISource::readSource() {
     std::cout << std::endl;
 }
 
+bool CGISource::getIfExists() const {
+    return (_pathExists);
+}
 
 bool CGISource::checkIfExists(){
 	DIR *dir = opendir(_serverConfig.getRootFolder().c_str());
 	if (!dir)
 		return (0);
 	closedir(dir);
-	if (!access(_scriptPath.c_str(), R_OK))
+	if (access(_scriptPath.c_str(), X_OK) == -1)
         return (0);
+    std::cout << _scriptPath << " exists and is executable" << std::endl;
     return (1);
 }
 

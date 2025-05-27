@@ -6,7 +6,7 @@
 /*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/26 15:03:01 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/27 13:30:08 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,10 +102,10 @@ Source *Source::getNewSource(const std::string &target, const ServerConfig &serv
 		return new RedirectSource(location.getRedirectPath(), serverConfig, location.getRedirectCode());
 	if (target.find(".py") != std::string::npos) {
 		CGISource* ptr = new CGISource(target, serverConfig, location);
-		if (ptr->checkIfExists() == 0)
-			delete ptr;
-		else
+		if (ptr->getIfExists() == 1)
 			return ptr;
+		else
+			delete ptr;
 	}
 	return new StaticFileSource(target, serverConfig, location);
 }
