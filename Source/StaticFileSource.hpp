@@ -6,7 +6,7 @@
 /*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:08:43 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/28 14:17:24 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/28 14:44:36 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,11 +33,12 @@ class StaticFileSource : public Source {
 
 	private:
 		bool _generated;
-		bool checkIfExists();
+		bool checkIfExists(std::string &target);
 		void checkIfDirectory();
 		void defineMimeType();
 		bool generateIndex();
 		void getErrorPage(int index);
 		bool readDirectories(std::vector<DirEntry>&entries);
-		void generateErrorPage(int code);
+		void generatePage(int code);
+		bool indexExists(const std::vector<std::string> &indexes, const std::string &root);
 };

@@ -6,7 +6,7 @@
 /*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/28 14:18:35 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/28 14:45:13 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,7 @@ void Connection::writeToSocket() {
 	{
 		std::cout << "Header to be sent:" << std::endl;
 		sendHeader();
+		return (0);
 	}
 	else if (_source->getType() != REDIRECT)
 		sendFromSource();
