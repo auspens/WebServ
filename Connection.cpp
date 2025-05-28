@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/28 15:56:28 by wouter           ###   ########.fr       */
+/*   Updated: 2025/05/28 16:41:05 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,10 +67,9 @@ void Connection::setupSource(const Config &config) throw(Source::SourceException
 		delete(_source);
 
 	_serverConfig = _findServerConfig(_serverPort, _request.hostname, config);
-	_location = _findLocation(_request.path, *_serverConfig);
 	if (!_serverConfig)
 		throw Source::SourceException("No matching server found"); //Should this be a different exception type?
-	_source = Source::getNewSource(*_serverConfig, _location, _request);
+	_source = Source::getNewSource(*_serverConfig, _request);
 }
 
 void Connection::setResponse() {
@@ -164,24 +163,6 @@ const ServerConfig *Connection::_findServerConfig(
 		}
 	}
 	return NULL;
-}
-
-const Location *Connection::_findLocation (
-	const std::string &target,
-	const ServerConfig &serverConfig
-) const {
-	const std::vector<Location *> locations = serverConfig.getLocations();
-	std::vector<Location *>::const_iterator it;
-
-	for (it = locations.begin(); it != locations.end(); ++it) {
-		std::string locationPath = (*it)->getPath();
-
-		if (target.compare(0, locationPath.size(), locationPath) == 0
-			&& (target.size() == locationPath.size()
-			|| WebServUtils::isin("/#?", target.at(locationPath.size()))))
-			return *it;
-	}
-	return (NULL);
 }
 
 bool Connection::_matchServerName(std::string host, std::string serverName) const {

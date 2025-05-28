@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/28 16:06:37 by wouter           ###   ########.fr       */
+/*   Updated: 2025/05/28 16:41:59 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,10 +55,8 @@ class Source {
 
 		static Source *getNewSource(
 			const ServerConfig &serverConfig,
-			const Location *location,
 			HttpRequest req
 		);
-
 
 		int							_bytesToSend;
 		int							_offset;
@@ -83,6 +81,9 @@ class Source {
 		char *readFromBuffer();
 
 	private:
-		static const Location *defineLocation(const std::string &target, const ServerConfig &serverConfig);
-
+		static const Location *_findLocation (
+			const std::string &target,
+			const ServerConfig &serverConfig
+		);
+		static bool _isCgiRequest(const Location &location, const std::string &path);
 };

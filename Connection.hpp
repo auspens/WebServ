@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/28 15:52:02 by wouter           ###   ########.fr       */
+/*   Updated: 2025/05/28 16:24:33 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ class Connection{
 		int					getSourceFd() const;
 		int					getSocketFd() const;
 		bool				requestReady() const;
-		HttpRequest		getRequest() const;
+		HttpRequest			getRequest() const;
 		void				readFromSocket();
 		void				writeToSocket();
 		void				setResponse();
@@ -55,10 +55,7 @@ class Connection{
 			const std::string host,
 			const Config &config
 		) const;
-		const Location *_findLocation (
-			const std::string &target,
-			const ServerConfig &serverConfig
-		) const;
+
 		bool	_matchServerName(std::string host, std::string serverName) const;
 
 		Socket				_socket;

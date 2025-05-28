@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:15:00 by wouter            #+#    #+#             */
-/*   Updated: 2025/05/28 16:17:56 by wouter           ###   ########.fr       */
+/*   Updated: 2025/05/28 16:35:40 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,12 @@ bool	WebServUtils::folderExists(const std::string &dname) {
 
 bool WebServUtils::isin(const std::string haystack, char needle) {
 	return (haystack.find(needle) != std::string::npos);
+}
+
+bool WebServUtils::strEndsWith(const std::string& str, const std::string& end) {
+	if (end.size() > str.size())
+		return false;
+	return str.compare(str.size() - end.size(), end.size(), end) == 0;
 }
 
 std::string WebServUtils::pathJoin(const std::string& path1, const std::string& path2) {
