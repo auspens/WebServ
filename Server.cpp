@@ -6,7 +6,7 @@
 /*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/27 16:01:06 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/28 11:50:49 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,19 +138,19 @@ void Server::_readFromSocket(Connection *conn) {
 		}
 
 		conn->setResponse();
-		_updateEpoll(EPOLL_CTL_MOD, EPOLLOUT, conn, conn->getSocketFd());
+		_updateEpoll(EPOLL_CTL_MOD, EPOLLOUT, conn, conn->getSocketFd()); 
 		// if (conn->getSource()->getType() == CGI)
 		// 	_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn, conn->getSourceFd());
 	}
 }
 
 void Server::_writeToSocket(Connection &conn) {
-	bool wroteNothing = conn.writeToSocket();
+	bool wroteNothing = conn.writeToSocket(); //if could not write returns 1
 	if (!wroteNothing)
 		return ;
-	// _updateEpoll(EPOLL_CTL_MOD, EPOLLIN, &conn, conn.getSocketFd());
+	//_updateEpoll(EPOLL_CTL_MOD, EPOLLIN, &conn, conn.getSocketFd());
 	// conn.resetParser();
-	removeConnection(&conn);
+	//removeConnection(&conn);
 }
 
 void Server::_readFromSource(Connection &conn) {
@@ -206,11 +206,13 @@ void Server::configureCGI(Connection* conn) {
 		int numbytes = write(cgiptr->getInputFd(), conn->getRequest().body.c_str(), conn->getRequest().body.length());
 		std::cout << "method is POST! wrote " << numbytes << " bytes" << std::endl;
 	}
-	close(cgiptr->getInputFd());
+	if (close(cgiptr->getInputFd()) != -1)
+        std::cout << "Closed write end of input pipe" << std::endl;
 }
 
 void Server::removeConnection(Connection *conn) {
 	_updateEpoll(EPOLL_CTL_DEL, EPOLLOUT, conn, conn->getSocketFd());
+	std::cout << "Gonna delete connection!" << std::endl;
 	delete conn;
 	_connections.erase(
 		std::remove(_connections.begin(), _connections.end(), conn),

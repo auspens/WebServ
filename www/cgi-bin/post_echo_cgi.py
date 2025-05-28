@@ -9,7 +9,13 @@ def main():
     except ValueError:
         length = 0
 
-    post_data = sys.stdin.read(length)
+    print(f"CONTENT_LENGTH: {length}", file=sys.stderr)
+    
+    if length > 0:
+        post_data = sys.stdin.read(length)
+    else:
+        post_data = sys.stdin.read()
+
     params = parse_qs(post_data)
 
     print("Content-Type: text/html\n")

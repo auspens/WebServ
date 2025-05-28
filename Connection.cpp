@@ -6,7 +6,7 @@
 /*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/27 15:32:27 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/28 11:46:58 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,9 +125,9 @@ void Connection::sendHeader() {
 
 bool Connection::sendFromSource() {
 	const char *buf = _source->getBufferToSend();
-	// std::cout << "Gonna send from source buf: " << buf << std::endl;
 	if (_source->_bytesToSend < 1)
 		return (1);
+	std::cout << "_source->_bytesToSend: " << _source->_bytesToSend << std::endl;
 	ssize_t size = _source->_bytesToSend > READ_BUFFER ? READ_BUFFER : _source->_bytesToSend;
 	ssize_t bytes_sent = send(_socket.getFd(), buf, size, 0);
 	if (bytes_sent == -1)
