@@ -3,22 +3,22 @@
 /*                                                        :::      ::::::::   */
 /*   RedirectSource.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/06 16:39:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/28 14:25:11 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/28 16:14:24 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "RedirectSource.hpp"
 
-RedirectSource::RedirectSource(const std::string &target, const ServerConfig &serverConfig, int code, HttpRequest req)
-		:Source(target, serverConfig, req)
+RedirectSource::RedirectSource(const ServerConfig &serverConfig, const Location &location, HttpRequest req)
+		: Source(serverConfig, &location, req)
 {
 	std::cout <<"Redirect source constructor"<<std::endl;
 	_type = REDIRECT;
-	_code = code;
-	_target = target;
+	_code = location.getRedirectCode();
+	_target = req.path;
 }
 
 RedirectSource::~RedirectSource()

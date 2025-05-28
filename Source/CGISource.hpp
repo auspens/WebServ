@@ -15,14 +15,14 @@ class CGISource : public Source {
 		char* getBufferToSend();
 		void forkAndExec();
 
-		CGISource(const std::string &target, const ServerConfig &serverConfig, Location const *location, HttpRequest req);
+		CGISource(const ServerConfig &serverConfig, const Location *location, HttpRequest req);
 		//copy construct missing
 		~CGISource();
 
 		int getInputFd() const;
 		int getPipeReadEnd() const;
 		bool getIfExists() const;
-		
+
 
 	private:
 		bool	_pathExists;

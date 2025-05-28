@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 12:40:08 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/23 19:01:58 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/28 15:13:33 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,10 @@ Location &Location::operator =(const Location &other) {
 void Location::parse(std::ifstream &infile) throw(ConfigParseException) {
 	std::string token;
 
+	ParseUtils::expectChar(infile, '/');
+
 	token = ParseUtils::parseValue(infile);
-	_path = token;
+	_path = '/' + token;
 
 	if (_path == "")
 		throw ConfigParseException("Missing path for location");

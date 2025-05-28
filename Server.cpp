@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/28 14:45:29 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/28 15:22:31 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,7 +138,7 @@ void Server::_readFromSocket(Connection *conn) {
 		}
 
 		conn->setResponse();
-		_updateEpoll(EPOLL_CTL_MOD, EPOLLOUT, conn, conn->getSocketFd()); 
+		_updateEpoll(EPOLL_CTL_MOD, EPOLLOUT, conn, conn->getSocketFd());
 		// if (conn->getSource()->getType() == CGI)
 		// 	_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn, conn->getSourceFd());
 	}
@@ -148,6 +148,9 @@ void Server::_writeToSocket(Connection &conn) {
 	conn.writeToSocket(); //if could not write returns 1
 	//_updateEpoll(EPOLL_CTL_MOD, EPOLLIN, &conn, conn.getSocketFd());
 	// conn.resetParser();
+
+	// This seems wrong, if the source is done reading there may still be
+	// buffered data that needs to be sent
 	if (conn.doneReadingSource())
 		removeConnection(&conn);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/28 14:23:39 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/28 16:06:37 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,11 @@ class Source {
 		SourceType					getType()const;
 		std::string					getLocation()const;
 
-		static Source *				getNewSource(const std::string &target, const ServerConfig &serverConfig, HttpRequest req);
+		static Source *getNewSource(
+			const ServerConfig &serverConfig,
+			const Location *location,
+			HttpRequest req
+		);
 
 
 		int							_bytesToSend;
@@ -70,12 +74,12 @@ class Source {
 		const ServerConfig	&_serverConfig;
 		const Location			*_location;
 		std::string			_target;
-		std::string			_mime; 
+		std::string			_mime;
 		HttpRequest			_request;
 
 		std::vector<char>	_body; //where we are writing
 
-		Source(const std::string &target, const ServerConfig &serverConfig, HttpRequest req);
+		Source(const ServerConfig &serverConfig, const Location *location, HttpRequest req);
 		char *readFromBuffer();
 
 	private:

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/28 14:25:44 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/28 16:15:01 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include "CGISource.hpp"
 
 Source::~Source(){}
-Source::Source(const std::string &target, const ServerConfig &serverConfig, HttpRequest req)
+Source::Source(const ServerConfig &serverConfig, const Location *location, HttpRequest req)
 		:_bytesToSend(0)
 		,_offset(0)
 		,_doneReading(false)
@@ -25,8 +25,8 @@ Source::Source(const std::string &target, const ServerConfig &serverConfig, Http
 		,_size(0)
 		,_type(STATIC)
 		,_serverConfig(serverConfig)
-		,_location(defineLocation(target, serverConfig))
-		,_target(_serverConfig.getRootFolder() + target)
+		,_location(location)
+		,_target(WebServUtils::pathJoin(serverConfig.getRootFolder(), req.path))
 		,_mime("")
 		,_request(req){}
 
@@ -34,18 +34,6 @@ Source::SourceException::SourceException(std::string error)throw(): _error(error
 Source::SourceException::~SourceException()throw(){}
 const char *Source::SourceException::what() const throw(){
 	return _error.c_str();
-}
-
-const Location *Source::defineLocation(const std::string &target, const ServerConfig &serverConfig){
-	const std::vector<Location *> locations = serverConfig.getLocations();
-	std::vector<Location *>::const_iterator it = locations.begin();
-	for (;it != locations.end();++it){
-		std::string locationPath = (*it)->getPath();
-		if (target.find(locationPath) == 0
-			&& (target.size() == locationPath.size() || target.at(locationPath.size()) == '/'))
-			return *it;
-	}
-	return (NULL);
 }
 
 int Source::getCode()const{
@@ -71,22 +59,25 @@ std::string Source::getLocation()const{
 	return _target;
 }
 
-Source *Source::getNewSource(const std::string &target, const ServerConfig &serverConfig, HttpRequest req) {
-	const Location *location = defineLocation(target, serverConfig);
+Source *Source::getNewSource(
+	const ServerConfig &serverConfig,
+	const Location *location,
+	HttpRequest req)
+{
 	//std::cout << "Location: " << (location? location->getPath():serverConfig.getRootFolder()) << std::endl;
 	if (location && location->isRedirect()){
 		//std::cout << "This location is redirect "<< std::endl;
-		return new RedirectSource(location->getRedirectPath(), serverConfig, location->getRedirectCode(), req);
+		return new RedirectSource(serverConfig, *location, req);
 	}
 	//std::cout << "This location is NOT redirect "<< std::endl;
-	if (target.find(".py") != std::string::npos) {
-		CGISource* ptr = new CGISource(target, serverConfig, location, req);
+	if (req.path.find(".py") != std::string::npos) {
+		CGISource* ptr = new CGISource(serverConfig, location, req);
 		if (ptr->getIfExists() == 1)
 			return ptr;
 		else
 			delete ptr;
 	}
-	return new StaticFileSource(target, serverConfig, location, req);
+	return new StaticFileSource(serverConfig, location, req);
 }
 
 char *Source::readFromBuffer(){

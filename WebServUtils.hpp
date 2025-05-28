@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServUtils.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 14:38:47 by wouter            #+#    #+#             */
-/*   Updated: 2025/05/15 14:35:58 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/05/28 16:04:48 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,11 @@ public:
 	void printErrorAndExit(std::string message, int exit_status);
 	static bool fileExists(const std::string &filename);
 	static bool folderExists(const std::string &dname);
+	static bool isin(const std::string haystack, char needle);
+	static std::string pathJoin(
+		const std::string& path1,
+		const std::string& path2
+	);
 
 	template <typename T, size_t N>
 	static bool isin(const T (&array)[N], const T &value) 	{

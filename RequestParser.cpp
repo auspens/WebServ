@@ -100,6 +100,7 @@ bool RequestParser::parseBody() {
 void RequestParser::_parseUrl() {
 	size_t 		hostStart;
 	size_t		hostEnd;
+	size_t		pathEnd;
 	std::string	url = request.uri;
 
 	hostStart = url.find("://");
@@ -109,9 +110,12 @@ void RequestParser::_parseUrl() {
 		hostStart = 0;
 
 	hostEnd = url.find_first_of("/:?#", hostStart);
+	pathEnd = url.find_first_of("?#", hostEnd);
 	if (hostEnd == std::string::npos)
 		hostEnd = url.length();
 
 	request.hostname = url.substr(hostStart, hostEnd - hostStart);
-	request.path = url.substr(hostEnd, url.length() - hostEnd - 1);
+	request.path = url.substr(hostEnd, pathEnd - hostEnd);
+	if (request.path == "")
+		request.path = "/";
 }

@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/28 14:44:28 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/28 16:07:47 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "StaticFileSource.hpp"
 
-StaticFileSource::StaticFileSource(const std::string &target, const ServerConfig &serverConfig, Location const *location, HttpRequest req)
-	: Source(target, serverConfig, req)
+StaticFileSource::StaticFileSource(const ServerConfig &serverConfig, Location const *location, HttpRequest req)
+	: Source(serverConfig, location, req)
 	, _generated(false){
 	_location = location;
 	checkIfDirectory();

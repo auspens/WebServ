@@ -1,10 +1,11 @@
 #include "CGISource.hpp"
 
-CGISource::CGISource(const std::string &target, const ServerConfig &serverConfig, Location const *location, HttpRequest req)
- : Source(target, serverConfig, req), _cleanupFunc(NULL), _cleanupCtx(NULL) {
+CGISource::CGISource(const ServerConfig &serverConfig, Location const *location, HttpRequest req)
+ : Source(serverConfig, location, req), _cleanupFunc(NULL), _cleanupCtx(NULL) {
     _location = location;
     _type = CGI;
 
+    std::string target = req.path;
     size_t qmark = target.find('?');
 
     if (qmark != std::string::npos) {
@@ -26,10 +27,10 @@ CGISource::CGISource(const std::string &target, const ServerConfig &serverConfig
     _pathExists = checkIfExists();
     if (!_pathExists)
         return ;
-    
+
     pipe(_inputPipe);
 
-    if (pipe(_pipefd) != -1) 
+    if (pipe(_pipefd) != -1)
         forkAndExec();
 }
 
@@ -62,7 +63,7 @@ void CGISource::forkAndExec() {
         // std::cerr << "read buf from pipe: " << buf << std::endl;
 
         close(_inputPipe[1]);
-        dup2(_inputPipe[0], STDIN_FILENO); 
+        dup2(_inputPipe[0], STDIN_FILENO);
         close(_inputPipe[0]);
 
         std::string path = _scriptPath;
@@ -113,7 +114,7 @@ void CGISource::forkAndExec() {
 void CGISource::readSource() {
     _body.resize(1024);
     size_t bytesread = read(_pipefd[0], _body.data(), 1024);
-    _body[bytesread] = '\0'; 
+    _body[bytesread] = '\0';
     if (bytesread == 0)
         _doneReading = true;
     _size = bytesread;
