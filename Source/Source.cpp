@@ -6,7 +6,7 @@
 /*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/27 13:46:35 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/28 14:25:44 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,10 @@
 #include "CGISource.hpp"
 
 Source::~Source(){}
-Source::Source(const std::string &target, const ServerConfig &serverConfig)
+Source::Source(const std::string &target, const ServerConfig &serverConfig, HttpRequest req)
 		:_bytesToSend(0)
 		,_offset(0)
+		,_doneReading(false)
 		,_code(200)
 		,_fd(-1)
 		,_size(0)
@@ -26,7 +27,8 @@ Source::Source(const std::string &target, const ServerConfig &serverConfig)
 		,_serverConfig(serverConfig)
 		,_location(defineLocation(target, serverConfig))
 		,_target(_serverConfig.getRootFolder() + target)
-		,_mime(""){}
+		,_mime("")
+		,_request(req){}
 
 Source::SourceException::SourceException(std::string error)throw(): _error(error){}
 Source::SourceException::~SourceException()throw(){}
@@ -69,22 +71,22 @@ std::string Source::getLocation()const{
 	return _target;
 }
 
-Source *Source::getNewSource(const std::string &target, const ServerConfig &serverConfig) {
+Source *Source::getNewSource(const std::string &target, const ServerConfig &serverConfig, HttpRequest req) {
 	const Location *location = defineLocation(target, serverConfig);
-	std::cout << "Location: " << (location? location->getPath():serverConfig.getRootFolder()) << std::endl;
+	//std::cout << "Location: " << (location? location->getPath():serverConfig.getRootFolder()) << std::endl;
 	if (location && location->isRedirect()){
-		std::cout << "This location is redirect "<< std::endl;
-		return new RedirectSource(location->getRedirectPath(), serverConfig, location->getRedirectCode());
+		//std::cout << "This location is redirect "<< std::endl;
+		return new RedirectSource(location->getRedirectPath(), serverConfig, location->getRedirectCode(), req);
 	}
-std::cout << "This location is NOT redirect "<< std::endl;
+	//std::cout << "This location is NOT redirect "<< std::endl;
 	if (target.find(".py") != std::string::npos) {
-		CGISource* ptr = new CGISource(target, serverConfig, location);
+		CGISource* ptr = new CGISource(target, serverConfig, location, req);
 		if (ptr->getIfExists() == 1)
 			return ptr;
 		else
 			delete ptr;
 	}
-	return new StaticFileSource(target, serverConfig, location);
+	return new StaticFileSource(target, serverConfig, location, req);
 }
 
 char *Source::readFromBuffer(){

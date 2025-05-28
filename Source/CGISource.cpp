@@ -1,7 +1,7 @@
 #include "CGISource.hpp"
 
-CGISource::CGISource(const std::string &target, const ServerConfig &serverConfig, Location const *location)
- : Source(target, serverConfig), _cleanupFunc(NULL), _cleanupCtx(NULL) {
+CGISource::CGISource(const std::string &target, const ServerConfig &serverConfig, Location const *location, HttpRequest req)
+ : Source(target, serverConfig, req), _cleanupFunc(NULL), _cleanupCtx(NULL) {
     _location = location;
     _type = CGI;
 
@@ -35,7 +35,8 @@ CGISource::CGISource(const std::string &target, const ServerConfig &serverConfig
 
 CGISource::~CGISource(){
 	std::cout << "CGISource destructor called" << std::endl;
-
+    if (_pathExists)
+        close(_pipefd[0]);
 }
 
 void CGISource::setPreExecCleanup(CleanupFunc func, void* ctx) {
@@ -61,7 +62,7 @@ void CGISource::forkAndExec() {
         // std::cerr << "read buf from pipe: " << buf << std::endl;
 
         close(_inputPipe[1]);
-        //dup2(_inputPipe[0], STDIN_FILENO); 
+        dup2(_inputPipe[0], STDIN_FILENO); 
         close(_inputPipe[0]);
 
         std::string path = _scriptPath;
@@ -73,11 +74,13 @@ void CGISource::forkAndExec() {
         std::vector<std::string> env_strings;
         if (_pathInfo.length())
             env_strings.push_back(std::string("PATH_INFO=") + _pathInfo);
-        env_strings.push_back("REQUEST_METHOD=GET");
+        env_strings.push_back(std::string("REQUEST_METHOD=") + _request.method);
         env_strings.push_back(std::string("QUERY_STRING=") + _queryString);
         env_strings.push_back(std::string("SCRIPT_NAME=") + _scriptPath);
         env_strings.push_back("SERVER_PROTOCOL=HTTP/1.1");
-        //env_strings.push_back("CONTENT_LENGTH=30");
+
+        env_strings.push_back(std::string("CONTENT_LENGTH=") + _request.headers["Content-Length"]);
+        env_strings.push_back(std::string("CONTENT_TYPE=") + _request.headers["Content-Type"]);
 
         std::vector<char*> envp;
         for (size_t i = 0; i < env_strings.size(); ++i)
@@ -103,7 +106,7 @@ void CGISource::forkAndExec() {
         if (close(_pipefd[1]) != -1)
             std::cout << "Closed write end of output pipe" << std::endl;
         //int status;
-        //waitpid(pid, &status, 0); //?
+        //waitpid(pid, &status, 0); //???what was i thinking..
     }
 }
 
@@ -111,10 +114,8 @@ void CGISource::readSource() {
     _body.resize(1024);
     size_t bytesread = read(_pipefd[0], _body.data(), 1024);
     _body[bytesread] = '\0'; 
-    if (bytesread <= 0) {
-        close(_pipefd[0]);
-        std::cout << "Closed read end of output pipe" << std::endl;
-    }
+    if (bytesread == 0)
+        _doneReading = true;
     _size = bytesread;
     _bytesToSend = bytesread;
     _body.resize(bytesread);

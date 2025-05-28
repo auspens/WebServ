@@ -6,7 +6,7 @@
 /*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/27 15:31:02 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/28 13:25:41 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,16 +32,17 @@ class Connection{
 		bool				requestReady() const;
 		HttpRequest		getRequest() const;
 		void				readFromSocket();
-		bool				writeToSocket();
+		void				writeToSocket();
 		void				setResponse();
 		void				resetParser();
 		const std::string&	getTarget() const;
 		Source				*getSource() const;
 		void				setupSource(const Config &config) throw(Source::SourceException);
 		void				sendHeader();
-		bool				sendFromSource();
+		void				sendFromSource();
 		std::string			getRequestBody()const;
-
+		
+		bool				doneReadingSource()const;
 		
 
 	private:

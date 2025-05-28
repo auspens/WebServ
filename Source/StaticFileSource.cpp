@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/27 15:26:09 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/28 14:17:03 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "StaticFileSource.hpp"
 
-StaticFileSource::StaticFileSource(const std::string &target, const ServerConfig &serverConfig, Location const *location)
-		: Source(target, serverConfig), _generated(false){
+StaticFileSource::StaticFileSource(const std::string &target, const ServerConfig &serverConfig, Location const *location, HttpRequest req)
+		: Source(target, serverConfig, req), _generated(false){
 			_location = location;
 			checkIfDirectory();
 			if (!_generated && !checkIfExists()){
@@ -43,6 +43,8 @@ void StaticFileSource::readSource(){
 	ssize_t readSize = read(_fd, _body.data(),_serverConfig.getBufferSize());
 	if (readSize < 0)
 		throw Source::SourceException("Could not read from static source file");
+	if (readSize == 0)
+		_doneReading = true;
 	_bytesToSend = readSize;
 	_body.resize(readSize);
 }

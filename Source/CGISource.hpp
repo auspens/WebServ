@@ -15,7 +15,7 @@ class CGISource : public Source {
 		char* getBufferToSend();
 		void forkAndExec();
 
-		CGISource(const std::string &target, const ServerConfig &serverConfig, Location const *location);
+		CGISource(const std::string &target, const ServerConfig &serverConfig, Location const *location, HttpRequest req);
 		//copy construct missing
 		~CGISource();
 

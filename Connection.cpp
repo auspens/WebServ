@@ -6,7 +6,7 @@
 /*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/28 11:46:58 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/28 14:18:35 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,8 +69,7 @@ void Connection::setupSource(const Config &config) throw(Source::SourceException
 	_serverConfig = _findServerConfig(_serverPort, _request.hostname, config);
 	if (!_serverConfig)
 		throw Source::SourceException("No matching server found"); //Should this be a different exception type?
-	std::cout << "Request uri: " << _request.uri << std::endl;
-	_source = Source::getNewSource(_request.uri, *_serverConfig);
+	_source = Source::getNewSource(_request.uri, *_serverConfig, _request);
 }
 
 void Connection::setResponse() {
@@ -86,17 +85,24 @@ void Connection::readFromSocket() {
 	if (_parser.parse(buffer.data(), valread) != RequestParser::COMPLETE)
 		return ;
 	_request = _parser.getRequest(); // maybe weird for it to sit here..
+
+	std::cout << "Headers:" << std::endl;
+	for (std::map<std::string, std::string>::iterator it = _request.headers.begin(); it != _request.headers.end(); ++it)
+		std::cout << it->first << " : " << it->second << std::endl;
 }
 
-bool Connection::writeToSocket() {
+void Connection::writeToSocket() {
 	if (!_response->headerSent())
 	{
 		std::cout << "Header to be sent:" << std::endl;
 		sendHeader();
 	}
 	else if (_source->getType() != REDIRECT)
-		return (sendFromSource());
-	return (0);
+		sendFromSource();
+}
+
+bool Connection::doneReadingSource() const {
+	return (_source->_doneReading);
 }
 
 bool Connection::requestReady() const {
@@ -123,10 +129,10 @@ void Connection::sendHeader() {
 	_response->setOffset(bytes_sent);
 }
 
-bool Connection::sendFromSource() {
+void Connection::sendFromSource() {
 	const char *buf = _source->getBufferToSend();
 	if (_source->_bytesToSend < 1)
-		return (1);
+		return ;
 	std::cout << "_source->_bytesToSend: " << _source->_bytesToSend << std::endl;
 	ssize_t size = _source->_bytesToSend > READ_BUFFER ? READ_BUFFER : _source->_bytesToSend;
 	ssize_t bytes_sent = send(_socket.getFd(), buf, size, 0);
@@ -134,7 +140,6 @@ bool Connection::sendFromSource() {
 		throw (std::runtime_error("Error sending body"));
 	_source->_bytesToSend -= bytes_sent;
 	_source->_offset += bytes_sent;
-	return (0);
 }
 
 const ServerConfig *Connection::_findServerConfig(

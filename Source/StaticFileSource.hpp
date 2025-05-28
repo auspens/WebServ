@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:08:43 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/27 11:24:01 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/28 14:17:24 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ class StaticFileSource : public Source {
 		void readSource();
 		char *getBufferToSend();//returns a buffer that can be sent through socket
 
-		StaticFileSource(const std::string &target, const ServerConfig &serverConfig, Location const *location);
+		StaticFileSource(const std::string &target, const ServerConfig &serverConfig, Location const *location, HttpRequest req);
 		~StaticFileSource();
 
 	private:

@@ -18,11 +18,12 @@ def main():
     filename = os.path.basename(fileitem.filename)
 
     # Save to disk
-    with open(f"/tmp/{filename}", "wb") as f:
+    with open(f"www/{filename}", "wb") as f:
         f.write(fileitem.file.read())
 
     print("<html><body>")
     print(f"<h2>File '{filename}' uploaded successfully!</h2>")
+    print(f'<img src="/{filename}" alt="Uploaded Image" />')
     print("</body></html>")
 
 if __name__ == "__main__":

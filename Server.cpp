@@ -6,7 +6,7 @@
 /*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/28 11:50:49 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/05/28 13:27:03 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,12 +145,11 @@ void Server::_readFromSocket(Connection *conn) {
 }
 
 void Server::_writeToSocket(Connection &conn) {
-	bool wroteNothing = conn.writeToSocket(); //if could not write returns 1
-	if (!wroteNothing)
-		return ;
+	conn.writeToSocket(); //if could not write returns 1
 	//_updateEpoll(EPOLL_CTL_MOD, EPOLLIN, &conn, conn.getSocketFd());
 	// conn.resetParser();
-	//removeConnection(&conn);
+	if (conn.doneReadingSource())
+		removeConnection(&conn);
 }
 
 void Server::_readFromSource(Connection &conn) {

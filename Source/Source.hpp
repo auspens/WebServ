@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/27 10:43:13 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/05/28 14:23:39 by eusatiko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <exception>
 #include <string>
 #include "ServerConfig.hpp"
+#include "../HttpRequest.hpp"
 #include <fstream>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -52,11 +53,12 @@ class Source {
 		SourceType					getType()const;
 		std::string					getLocation()const;
 
-		static Source *				getNewSource(const std::string &target, const ServerConfig &serverConfig);
+		static Source *				getNewSource(const std::string &target, const ServerConfig &serverConfig, HttpRequest req);
 
 
 		int							_bytesToSend;
 		int							_offset;
+		bool						_doneReading;
 		static std::map<std::string, std::string> _mimeTypes;
 		static std::map<int, HTTPStatusCode> _statusCodes;
 
@@ -68,10 +70,12 @@ class Source {
 		const ServerConfig	&_serverConfig;
 		const Location			*_location;
 		std::string			_target;
-		std::string			_mime;
-		std::vector<char>	_body;
+		std::string			_mime; 
+		HttpRequest			_request;
 
-		Source(const std::string &target, const ServerConfig &serverConfig);
+		std::vector<char>	_body; //where we are writing
+
+		Source(const std::string &target, const ServerConfig &serverConfig, HttpRequest req);
 		char *readFromBuffer();
 
 	private:
