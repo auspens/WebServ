@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/28 16:41:59 by wouter           ###   ########.fr       */
+/*   Updated: 2025/05/29 17:48:04 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <exception>
 #include <string>
 #include "ServerConfig.hpp"
-#include "../HttpRequest.hpp"
+#include "HttpRequest.hpp"
 #include <fstream>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -77,7 +77,8 @@ class Source {
 
 		std::vector<char>	_body; //where we are writing
 
-		Source(const ServerConfig &serverConfig, const Location *location, HttpRequest req);
+		Source(const ServerConfig &serverConfig, const Location *location, HttpRequest req)
+			throw(SourceException);
 		char *readFromBuffer();
 
 	private:
@@ -86,4 +87,5 @@ class Source {
 			const ServerConfig &serverConfig
 		);
 		static bool _isCgiRequest(const Location &location, const std::string &path);
+		bool _safePath(const std::string &path) const;
 };

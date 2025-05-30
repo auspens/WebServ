@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/28 16:41:44 by wouter           ###   ########.fr       */
+/*   Updated: 2025/05/29 17:47:58 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 
 Source::~Source(){}
 Source::Source(const ServerConfig &serverConfig, const Location *location, HttpRequest req)
+	throw(SourceException)
 		:_bytesToSend(0)
 		,_offset(0)
 		,_doneReading(false)
@@ -26,9 +27,15 @@ Source::Source(const ServerConfig &serverConfig, const Location *location, HttpR
 		,_type(STATIC)
 		,_serverConfig(serverConfig)
 		,_location(location)
-		,_target(WebServUtils::pathJoin(serverConfig.getRootFolder(), req.path))
 		,_mime("")
-		,_request(req){}
+		,_request(req) {
+	if (!_safePath(req.path))
+			throw SourceException("Invalid Path");
+	if (location)
+		_target = WebServUtils::pathJoin(location->getRootFolder(), req.path.substr(location->getPath().size()));
+	else
+		_target = WebServUtils::pathJoin(serverConfig.getRootFolder(), req.path);
+}
 
 Source::SourceException::SourceException(std::string error)throw(): _error(error){}
 Source::SourceException::~SourceException()throw(){}
@@ -83,6 +90,14 @@ bool Source::_isCgiRequest(const Location &location, const std::string &path) {
 			return true;
 	}
 	return false;
+}
+
+bool Source::_safePath(const std::string &path) const {
+	if (path.find("..") != std::string::npos ||
+		path.find("//") != std::string::npos ||
+		path.find("\\") != std::string::npos)
+		return false;
+	return true;
 }
 
 Source *Source::getNewSource(const ServerConfig &serverConfig, HttpRequest req) {
