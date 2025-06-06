@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/28 16:24:33 by wouter           ###   ########.fr       */
+/*   Updated: 2025/06/06 13:55:29 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,6 @@ class Connection{
 		Response			*_response;
 		Source				*_source;
 		const ServerConfig	*_serverConfig;
-		const Location		*_location;
+		// const Location		*_location;
 		int					_serverPort;
 };

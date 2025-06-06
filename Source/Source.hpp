@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/28 16:41:59 by wouter           ###   ########.fr       */
+/*   Updated: 2025/06/06 15:35:57 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,9 +36,11 @@ class Source {
 	public:
 		class SourceException : std::exception{
 				std::string _error;
+				int			_code;
 			public:
-				SourceException(std::string error) throw();
+				SourceException(std::string error, int code) throw();
 				const char *what() const throw();
+				int errorCode() const throw();
 				~SourceException()throw();
 		};
 		virtual 					~Source();
@@ -51,7 +53,7 @@ class Source {
 		int 						getFd()const;
 		int							getSize()const;
 		SourceType					getType()const;
-		std::string					getLocation()const;
+		std::string					getRedirectLocation()const;
 
 		static Source *getNewSource(
 			const ServerConfig &serverConfig,
@@ -85,5 +87,5 @@ class Source {
 			const std::string &target,
 			const ServerConfig &serverConfig
 		);
-		static bool _isCgiRequest(const Location &location, const std::string &path);
+		static bool _isCgiRequest(const ServerConfig &serverConfig, const Location *location, const std::string &path);
 };

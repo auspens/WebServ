@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 10:15:00 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/13 14:56:47 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/06 13:45:45 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ class Response {
 		~Response();
 		Response (const Response &src);
 		Response &operator=(const Response &other);
-		static std::map <int, std::string>	_statusCodesAndTexts;
+		// static std::map <int, std::string>	_statusCodesAndTexts;
 
 		const char *getHeader()const;
 		bool isChunked()const;

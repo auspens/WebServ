@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/28 16:41:44 by wouter           ###   ########.fr       */
+/*   Updated: 2025/06/06 15:35:48 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,10 +30,13 @@ Source::Source(const ServerConfig &serverConfig, const Location *location, HttpR
 		,_mime("")
 		,_request(req){}
 
-Source::SourceException::SourceException(std::string error)throw(): _error(error){}
+Source::SourceException::SourceException(std::string error, int code)throw(): _error(error), _code(code){}
 Source::SourceException::~SourceException()throw(){}
 const char *Source::SourceException::what() const throw(){
 	return _error.c_str();
+}
+int Source::SourceException::errorCode() const throw(){
+	return _code;
 }
 
 int Source::getCode()const{
@@ -55,8 +58,10 @@ int Source::getSize()const{
 SourceType Source::getType()const{
 	return _type;
 }
-std::string Source::getLocation()const{
-	return _target;
+std::string Source::getRedirectLocation()const{
+	if (!_location->isRedirect())
+		return std::string("");
+	return _location->getRedirectPath();
 }
 
 const Location *Source::_findLocation (
@@ -77,9 +82,16 @@ const Location *Source::_findLocation (
 	return (NULL);
 }
 
-bool Source::_isCgiRequest(const Location &location, const std::string &path) {
-	for (size_t i = 0; i < location.getAcceptCgi().size(); i++) {
-		if (WebServUtils::strEndsWith(path, location.getAcceptCgi()[i]))
+bool Source::_isCgiRequest(const ServerConfig &serverConfig, const Location *location, const std::string &path) {
+	const std::vector<std::string> *acceptCgi;
+
+	if (location)
+		acceptCgi = &location->getAcceptCgi();
+	else
+		acceptCgi = &serverConfig.getAcceptCgi();
+
+	for (size_t i = 0; i < acceptCgi->size(); i++) {
+		if (WebServUtils::strEndsWith(path, acceptCgi->at(i)))
 			return true;
 	}
 	return false;
@@ -88,22 +100,20 @@ bool Source::_isCgiRequest(const Location &location, const std::string &path) {
 Source *Source::getNewSource(const ServerConfig &serverConfig, HttpRequest req) {
 	const Location *location = _findLocation(req.path, serverConfig);
 
-	//std::cout << "Location: " << (location? location->getPath():serverConfig.getRootFolder()) << std::endl;
-	if (location) {
-		if (location->isRedirect()) {
-			//std::cout << "This location is redirect "<< std::endl;
-			return new RedirectSource(serverConfig, *location, req);
-		}
-		//std::cout << "This location is NOT redirect "<< std::endl;
-		if (_isCgiRequest(*location, req.path)) {
-			CGISource* ptr = new CGISource(serverConfig, location, req);
-			if (ptr->getIfExists() == 1)
-				return ptr;
-			else
-				delete ptr;
-		}
+	std::cout << "Location: " << (location? location->getPath():serverConfig.getRootFolder()) << std::endl;
+	std::cout << "request path:" << req.path << std::endl;
+	if (location && location->isRedirect()) {
+		//std::cout << "This location is redirect "<< std::endl;
+		return new RedirectSource(serverConfig, *location, req);
 	}
-
+	if (_isCgiRequest(serverConfig, location, req.path)) {
+		CGISource* ptr = new CGISource(serverConfig, location, req);
+		if (ptr->getIfExists() == 1)
+			return ptr;
+		else
+			delete ptr;
+	}
+	std::cout << "Static file requested"<< std::endl;
 	return new StaticFileSource(serverConfig, location, req);
 }
 

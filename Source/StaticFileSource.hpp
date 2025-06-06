@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:08:43 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/28 16:07:55 by wouter           ###   ########.fr       */
+/*   Updated: 2025/06/06 16:02:38 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,11 @@ class StaticFileSource : public Source {
 		char *getBufferToSend();//returns a buffer that can be sent through socket
 
 		StaticFileSource(const ServerConfig &serverConfig, Location const *location, HttpRequest req);
+		StaticFileSource(const StaticFileSource &src);
+		StaticFileSource &operator=(StaticFileSource const &other);
 		~StaticFileSource();
 
-	private:
+	protected:
 		bool _generated;
 		bool checkIfExists(std::string &target);
 		void checkIfDirectory();

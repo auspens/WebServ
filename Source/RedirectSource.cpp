@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RedirectSource.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/06 16:39:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/28 16:14:24 by wouter           ###   ########.fr       */
+/*   Updated: 2025/06/06 13:55:06 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ RedirectSource::RedirectSource(const ServerConfig &serverConfig, const Location 
 	_type = REDIRECT;
 	_code = location.getRedirectCode();
 	_target = req.path;
+	_doneReading = true;
 }
 
 RedirectSource::~RedirectSource()

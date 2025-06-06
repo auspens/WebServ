@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/28 16:07:47 by wouter           ###   ########.fr       */
+/*   Updated: 2025/06/06 15:48:01 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,16 @@ StaticFileSource::StaticFileSource(const ServerConfig &serverConfig, Location co
 		defineMimeType();
 	}
 }
-
+StaticFileSource::StaticFileSource(const StaticFileSource &src):
+	Source(src),
+	_generated(src._generated){}
+StaticFileSource &StaticFileSource::operator=(StaticFileSource const &other){
+	if (this != &other){
+		Source::operator=(other);
+		_generated = other._generated;
+	}
+	return *this;
+}
 StaticFileSource::~StaticFileSource(){
 	close(_fd);
 }
@@ -43,7 +52,7 @@ void StaticFileSource::readSource(){
 	_offset = 0;
 	ssize_t readSize = read(_fd, _body.data(), _serverConfig.getBufferSize());
 	if (readSize < 0)
-		throw Source::SourceException("Could not read from static source file");
+		throw Source::SourceException("Could not read from static source file", 500);
 	if (readSize == 0)
 		_doneReading = true;
 	_bytesToSend = readSize;
@@ -89,7 +98,7 @@ void StaticFileSource::checkIfDirectory(){
 bool StaticFileSource::checkIfExists(std::string &target){
 	DIR *dir = opendir(_serverConfig.getRootFolder().c_str());
 	if (!dir)
-		throw(Source::SourceException("No root folder"));
+		throw(Source::SourceException("No root folder", 404));
 	closedir(dir);
 	if (access(target.c_str(), R_OK))
 		return false;
