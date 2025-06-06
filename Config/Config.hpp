@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 16:57:51 by wpepping          #+#    #+#             */
-/*   Updated: 2025/05/23 17:21:36 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/06 15:59:18 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,13 @@ class Config {
 		const std::vector<std::string>		&getAcceptCgi() const;
 		int									getAcceptMethod() const;
 		bool								getAutoIndex() const;
+
+		static size_t							getClientMaxBodySize(const ServerConfig &serverConfig, const Location *location);
+		static const std::map<int, std::string>	&getErrorPages(const ServerConfig &serverConfig, const Location *location);
+		static const std::vector<std::string>	&getIndexPages(const ServerConfig &serverConfig, const Location *location);
+		static const std::vector<std::string>	&getAcceptCgi(const ServerConfig &serverConfig, const Location *location);
+		static int								getAcceptMethod(const ServerConfig &serverConfig, const Location *location);
+		static bool								getAutoIndex(const ServerConfig &serverConfig, const Location *location);
 
 	private:
 		ConfigSettings				_configSettings;

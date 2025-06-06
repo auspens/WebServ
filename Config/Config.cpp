@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:11:08 by wouter            #+#    #+#             */
-/*   Updated: 2025/05/23 18:19:44 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/06 16:01:54 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,43 @@ bool Config::getAutoIndex() const {
 		return _configSettings.getAutoIndex();
 	return DEFAULT_AUTO_INDEX;
 }
+
+size_t getClientMaxBodySize(const ServerConfig &serverConfig, const Location *location) {
+	if (location)
+		return location->getClientMaxBodySize();
+	return serverConfig.getClientMaxBodySize();
+}
+
+const std::map<int, std::string> &getErrorPages(const ServerConfig &serverConfig, const Location *location) {
+	if (location)
+		return location->getErrorPages();
+	return serverConfig.getErrorPages();
+}
+
+const std::vector<std::string> &getIndexPages(const ServerConfig &serverConfig, const Location *location) {
+	if (location)
+		return location->getIndexPages();
+	return serverConfig.getIndexPages();
+}
+
+const std::vector<std::string> &getAcceptCgi(const ServerConfig &serverConfig, const Location *location) {
+	if (location)
+		return location->getAcceptCgi();
+	return serverConfig.getAcceptCgi();
+}
+
+int getAcceptMethod(const ServerConfig &serverConfig, const Location *location) {
+	if (location)
+		return location->getAcceptMethod();
+	return serverConfig.getAcceptMethod();
+}
+
+bool getAutoIndex(const ServerConfig &serverConfig, const Location *location) {
+	if (location)
+		return location->getAutoIndex();
+	return serverConfig.getAutoIndex();
+}
+
 
 void Config::_parseConfigFile(const std::string &configFile) throw(ConfigParseException) {
 	std::string token;
