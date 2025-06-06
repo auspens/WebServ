@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/06 13:55:29 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/06 16:05:43 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,5 @@ class Connection{
 		Response			*_response;
 		Source				*_source;
 		const ServerConfig	*_serverConfig;
-		// const Location		*_location;
 		int					_serverPort;
 };

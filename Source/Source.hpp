@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/06 15:35:57 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/06 16:07:00 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <exception>
 #include <string>
 #include "ServerConfig.hpp"
-#include "../HttpRequest.hpp"
+#include "HttpRequest.hpp"
 #include <fstream>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -79,7 +79,8 @@ class Source {
 
 		std::vector<char>	_body; //where we are writing
 
-		Source(const ServerConfig &serverConfig, const Location *location, HttpRequest req);
+		Source(const ServerConfig &serverConfig, const Location *location, HttpRequest req)
+			throw(SourceException);
 		char *readFromBuffer();
 
 	private:
@@ -87,5 +88,5 @@ class Source {
 			const std::string &target,
 			const ServerConfig &serverConfig
 		);
-		static bool _isCgiRequest(const ServerConfig &serverConfig, const Location *location, const std::string &path);
+		static bool _isCgiRequest(const Location &location, const std::string &path);
 };
