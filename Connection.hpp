@@ -6,18 +6,19 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/29 17:48:37 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/06 17:53:04 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "Config.hpp"
-#include "SystemCallsUtilities.hpp"
-#include "Socket.hpp"
-#include "StaticFileSource.hpp"
+#include "ChildProcessNeededException.hpp"
 #include "RequestParser.hpp"
 #include "Response.hpp"
+#include "Socket.hpp"
+#include "StaticFileSource.hpp"
+#include "SystemCallsUtilities.hpp"
 #include <sstream>
 #include <vector>
 
@@ -37,7 +38,8 @@ class Connection{
 		void				resetParser();
 		const std::string&	getTarget() const;
 		Source				*getSource() const;
-		void				setupSource(const Config &config) throw(Source::SourceException);
+		void				setupSource(const Config &config)
+								throw(Source::SourceException, ChildProcessNeededException);
 		void				sendHeader();
 		void				sendFromSource();
 		std::string			getRequestBody()const;

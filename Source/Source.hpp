@@ -6,18 +6,21 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/29 17:48:04 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/06 18:20:42 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 #include <exception>
 #include <string>
-#include "ServerConfig.hpp"
+#include "ChildProcessNeededException.hpp"
+#include "Config.hpp"
 #include "HttpRequest.hpp"
+#include "ServerConfig.hpp"
 #include <fstream>
 #include <unistd.h>
 #include <sys/stat.h>
+
 
 class StaticFileSource;
 
@@ -56,7 +59,7 @@ class Source {
 		static Source *getNewSource(
 			const ServerConfig &serverConfig,
 			HttpRequest req
-		);
+		) throw(ChildProcessNeededException);
 
 		int							_bytesToSend;
 		int							_offset;
@@ -86,6 +89,6 @@ class Source {
 			const std::string &target,
 			const ServerConfig &serverConfig
 		);
-		static bool _isCgiRequest(const Location &location, const std::string &path);
+		static bool _isCgiRequest(const ServerConfig &serverConfig, const Location *location, const std::string &path);
 		bool _safePath(const std::string &path) const;
 };

@@ -1,21 +1,26 @@
 #pragma once
-#include "Source.hpp"
+
+#include <dirent.h>
+#include <sys/wait.h>
 #include "../SystemCallsUtilities.hpp"
 #include "../WebServUtils.hpp"
-#include <dirent.h>
-
-#include <sys/wait.h>
+#include "ChildProcessNeededException.hpp"
+#include "Source.hpp"
 
 typedef void (*CleanupFunc)(void* ctx); // a ptr to void returning function, that takes a ptr that will provide context (ctx)
+
+struct ChildProcessArgs {
+
+};
 
 class CGISource : public Source {
 	public:
 		void setPreExecCleanup(CleanupFunc func, void* ctx);
 		void readSource();
 		char* getBufferToSend();
-		void forkAndExec();
+		void forkAndExec() throw(ChildProcessNeededException);
 
-		CGISource(const ServerConfig &serverConfig, const Location *location, HttpRequest req);
+		CGISource(const ServerConfig &serverConfig, const Location *location, HttpRequest req)  throw(ChildProcessNeededException);
 		//copy construct missing
 		~CGISource();
 

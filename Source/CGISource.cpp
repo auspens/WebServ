@@ -1,6 +1,6 @@
 #include "CGISource.hpp"
 
-CGISource::CGISource(const ServerConfig &serverConfig, Location const *location, HttpRequest req)
+CGISource::CGISource(const ServerConfig &serverConfig, Location const *location, HttpRequest req)  throw(ChildProcessNeededException)
  : Source(serverConfig, location, req), _cleanupFunc(NULL), _cleanupCtx(NULL) {
     _location = location;
     _type = CGI;
@@ -31,7 +31,7 @@ CGISource::CGISource(const ServerConfig &serverConfig, Location const *location,
     pipe(_inputPipe);
 
     if (pipe(_pipefd) != -1)
-        forkAndExec();
+		forkAndExec();
 }
 
 CGISource::~CGISource(){
@@ -45,13 +45,12 @@ void CGISource::setPreExecCleanup(CleanupFunc func, void* ctx) {
     _cleanupCtx = ctx;
 }
 
-void CGISource::forkAndExec() {
+void CGISource::forkAndExec()  throw(ChildProcessNeededException) {
     std::cout << "in forkAndExec()" << std::endl;
     pid_t pid = fork();
     if (pid < 0) {
         perror("fork");
-    } else if (pid == 0) {
-        //CHILD
+    } else if (pid == 0) { //CHILD
         std::cout << "in child!" << std::endl;
 
         close(_pipefd[0]);
@@ -66,10 +65,10 @@ void CGISource::forkAndExec() {
         dup2(_inputPipe[0], STDIN_FILENO);
         close(_inputPipe[0]);
 
-        std::string path = _scriptPath;
-
         /// Build argv
-        char* argv[] = {(char*)_scriptPath.c_str(), NULL};
+		std::vector<char *> argv;
+        argv.push_back((char*)_scriptPath.c_str());
+		argv.push_back(NULL);
 
         // Build environment variables
         std::vector<std::string> env_strings;
@@ -91,23 +90,13 @@ void CGISource::forkAndExec() {
         if (_cleanupFunc)
             _cleanupFunc(_cleanupCtx); // cleans everything including obj we are in....
 
-        // Execute
-        //execve("/usr/bin/python3", argv, envp.data());
-        execve(path.c_str(), argv, envp.data());
-
-        // If execve fails:
-
-        std::cerr << "execve failed: " << strerror(errno) << std::endl;
-        std::exit(1);
-
-    } else {
-        // PARENT
+		std::cout << "Throwing ChildProcessNeededException" << std::endl;
+		throw ChildProcessNeededException(_scriptPath, argv, envp);
+    } else { // PARENT
         if (close(_inputPipe[0]) != -1)
             std::cout << "Closed read end of input pipe" << std::endl;
         if (close(_pipefd[1]) != -1)
             std::cout << "Closed write end of output pipe" << std::endl;
-        //int status;
-        //waitpid(pid, &status, 0); //???what was i thinking..
     }
 }
 

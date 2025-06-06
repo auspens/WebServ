@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/28 15:22:31 by wouter           ###   ########.fr       */
+/*   Updated: 2025/06/06 19:12:28 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,7 @@
 
 Server::Server() { }
 
-Server::Server(const Config &config) : _config(&config) {
-	init();
-}
+Server::Server(const Config &config) : _config(&config) { }
 
 Server::~Server(){
 	cleanup();
@@ -27,12 +25,7 @@ Server &Server::operator=(Server const &other){
 	return *this;
 }
 
-void Server::init() {
-	_listen();
-	_runEpollLoop();
-}
-
-void Server::_listen() {
+void Server::listen() throw(ChildProcessNeededException) {
 	int					port;
 	ListeningSocket		*socket;
 	std::vector<int>	portsDone;
@@ -54,7 +47,7 @@ void Server::_listen() {
 	_runEpollLoop();
 }
 
-void Server::_runEpollLoop() {
+void Server::_runEpollLoop() throw(ChildProcessNeededException) {
 	//epoll wait parameters here: fd of epoll instance,
 	//pointer to an array of epoll events (first element of the vector),
 	//MAX_SIZE is set to the total amount of connections + 1(for listening socket)     // EW: What about CGI?
@@ -79,7 +72,7 @@ void Server::_runEpollLoop() {
 
 //create an interface that would contain a handleSocketEvent method and implement it for different classes.
 //This would allow to avoid these if-else statements
-void Server::_handleSocketEvent(struct epoll_event &event) {
+void Server::_handleSocketEvent(struct epoll_event &event) throw(ChildProcessNeededException) {
 	Connection *conn = static_cast<Connection*>(event.data.ptr);
 	ListeningSocket *listeningSocket;
 
@@ -117,7 +110,7 @@ void Server::_handleIncomingConnection(ListeningSocket *listeningSocket) {
 	_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, inc_conn, new_fd);
 }
 
-void Server::_readFromSocket(Connection *conn) {
+void Server::_readFromSocket(Connection *conn) throw(ChildProcessNeededException) {
 	conn->readFromSocket();
 	if (conn->requestReady())
 	{
@@ -193,23 +186,17 @@ void Server::cleanup() {
 	close(_epollInstance);
 }
 
-void Server::cleanupForFork(void* ctx) {
-	std::cerr << "cleanup for child process" << std::endl; //not error, writing there due to dup
-    Server* srv = static_cast<Server*>(ctx);
-    srv->cleanup();
-}
-
 void Server::configureCGI(Connection* conn) {
 	std::cout << "in configure CGI" << std::endl;
 	CGISource *cgiptr = (CGISource *)conn->getSource();
-	cgiptr->setPreExecCleanup(cleanupForFork, static_cast<void *>(this));
+
 	_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn, cgiptr->getPipeReadEnd());
 	if (conn->getRequest().method == "POST") {
 		int numbytes = write(cgiptr->getInputFd(), conn->getRequest().body.c_str(), conn->getRequest().body.length());
 		std::cout << "method is POST! wrote " << numbytes << " bytes" << std::endl;
 	}
 	if (close(cgiptr->getInputFd()) != -1)
-        std::cout << "Closed write end of input pipe" << std::endl;
+		std::cout << "Closed write end of input pipe" << std::endl;
 }
 
 void Server::removeConnection(Connection *conn) {
