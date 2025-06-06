@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/06 16:07:00 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/06 18:36:51 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include <sys/stat.h>
 
 class StaticFileSource;
+class ErrorPageSource;
 
 enum SourceType {STATIC, REDIRECT, CGI};
 struct HTTPStatusCode{
@@ -59,6 +60,11 @@ class Source {
 			const ServerConfig &serverConfig,
 			HttpRequest req
 		);
+		static Source *getNewErrorPageSource(
+			const ServerConfig &serverConfig,
+			HttpRequest req,
+			int code
+		);
 
 		int							_bytesToSend;
 		int							_offset;
@@ -72,7 +78,7 @@ class Source {
 		int					_size;
 		SourceType			_type;
 		const ServerConfig	&_serverConfig;
-		const Location			*_location;
+		const Location		*_location;
 		std::string			_target;
 		std::string			_mime;
 		HttpRequest			_request;
@@ -81,6 +87,10 @@ class Source {
 
 		Source(const ServerConfig &serverConfig, const Location *location, HttpRequest req)
 			throw(SourceException);
+		Source(const ServerConfig &serverConfig, const Location *location, HttpRequest req, int code)
+			throw();
+		Source(const Source &src);
+		Source &operator=(const Source &other);
 		char *readFromBuffer();
 
 	private:
@@ -88,5 +98,6 @@ class Source {
 			const std::string &target,
 			const ServerConfig &serverConfig
 		);
-		static bool _isCgiRequest(const Location &location, const std::string &path);
+		static bool _isCgiRequest(const ServerConfig &serverConfig, const Location *location, const std::string &path);
+		bool _safePath(const std::string &path) const;
 };

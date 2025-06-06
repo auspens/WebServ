@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/28 15:22:31 by wouter           ###   ########.fr       */
+/*   Updated: 2025/06/06 18:22:34 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,9 +132,9 @@ void Server::_readFromSocket(Connection *conn) {
 				configureCGI(conn);
 		}
 		catch (Source::SourceException &e){
-			std::cout << e.what() << std::endl;
-			removeConnection(conn);
-			return;
+			// std::cout << e.what() << std::endl;
+			// removeConnection(conn);
+			conn->setupErrorPageSource(*_config, e.errorCode());
 		}
 
 		conn->setResponse();

@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/06 16:05:43 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/06 18:15:16 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ class Connection{
 		const std::string&	getTarget() const;
 		Source				*getSource() const;
 		void				setupSource(const Config &config) throw(Source::SourceException);
+		void				setupErrorPageSource(const Config &config, int code)throw();
 		void				sendHeader();
 		void				sendFromSource();
 		std::string			getRequestBody()const;

@@ -24,6 +24,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	printFullConfig(config);
+	Server server(config);
 
 	// Server * server = new Server(config);
 	// std::string command = server->start();

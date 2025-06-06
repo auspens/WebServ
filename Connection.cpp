@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/29 17:48:29 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/06 18:16:14 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,9 +66,17 @@ void Connection::setupSource(const Config &config) throw(Source::SourceException
 		delete(_source);
 
 	_serverConfig = _findServerConfig(_serverPort, _request.hostname, config);
-	if (!_serverConfig)
-		throw Source::SourceException("No matching server found"); //Should this be a different exception type?
+	// if (!_serverConfig)
+	// 	throw Source::SourceException("No matching server found", 404); //Should this be a different exception type?
 	_source = Source::getNewSource(*_serverConfig, _request);
+}
+
+void Connection::setupErrorPageSource(const Config &config, int code) throw() {
+	if (_source)
+		delete(_source);
+
+	_serverConfig = _findServerConfig(_serverPort, _request.hostname, config);
+	_source = Source::getNewErrorPageSource(*_serverConfig, _request, code);
 }
 
 void Connection::setResponse() {

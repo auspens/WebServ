@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:11:08 by wouter            #+#    #+#             */
-/*   Updated: 2025/06/06 16:01:54 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/06 16:25:27 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,37 +72,37 @@ bool Config::getAutoIndex() const {
 	return DEFAULT_AUTO_INDEX;
 }
 
-size_t getClientMaxBodySize(const ServerConfig &serverConfig, const Location *location) {
+size_t Config::getClientMaxBodySize(const ServerConfig &serverConfig, const Location *location) {
 	if (location)
 		return location->getClientMaxBodySize();
 	return serverConfig.getClientMaxBodySize();
 }
 
-const std::map<int, std::string> &getErrorPages(const ServerConfig &serverConfig, const Location *location) {
+const std::map<int, std::string> &Config::getErrorPages(const ServerConfig &serverConfig, const Location *location) {
 	if (location)
 		return location->getErrorPages();
 	return serverConfig.getErrorPages();
 }
 
-const std::vector<std::string> &getIndexPages(const ServerConfig &serverConfig, const Location *location) {
+const std::vector<std::string> &Config::getIndexPages(const ServerConfig &serverConfig, const Location *location) {
 	if (location)
 		return location->getIndexPages();
 	return serverConfig.getIndexPages();
 }
 
-const std::vector<std::string> &getAcceptCgi(const ServerConfig &serverConfig, const Location *location) {
+const std::vector<std::string> &Config::getAcceptCgi(const ServerConfig &serverConfig, const Location *location) {
 	if (location)
 		return location->getAcceptCgi();
 	return serverConfig.getAcceptCgi();
 }
 
-int getAcceptMethod(const ServerConfig &serverConfig, const Location *location) {
+int Config::getAcceptMethod(const ServerConfig &serverConfig, const Location *location) {
 	if (location)
 		return location->getAcceptMethod();
 	return serverConfig.getAcceptMethod();
 }
 
-bool getAutoIndex(const ServerConfig &serverConfig, const Location *location) {
+bool Config::getAutoIndex(const ServerConfig &serverConfig, const Location *location) {
 	if (location)
 		return location->getAutoIndex();
 	return serverConfig.getAutoIndex();

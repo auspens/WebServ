@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/06 15:48:01 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/06 17:42:23 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,8 @@ StaticFileSource::StaticFileSource(const ServerConfig &serverConfig, Location co
 	, _generated(false){
 	_location = location;
 	checkIfDirectory();
-	if (!_generated && !checkIfExists(_target)){
-		std::cout << "I shouldn't be here" << std ::endl;
-		_code = 404;
-		getErrorPage(404);
-	}
+	if (!_generated && !checkIfExists(_target))
+		throw (SourceException("Page doesn't exist", 404));
 	if (!_generated){
 		_fd = open(_target.c_str(), O_RDONLY);
 		struct stat st;
@@ -30,6 +27,12 @@ StaticFileSource::StaticFileSource(const ServerConfig &serverConfig, Location co
 		defineMimeType();
 	}
 }
+StaticFileSource::StaticFileSource(const ServerConfig &serverConfig, Location const *location, HttpRequest req, int code)throw()
+	: Source(serverConfig, location, req, code)
+	, _generated(false){
+	_location = location;
+}
+
 StaticFileSource::StaticFileSource(const StaticFileSource &src):
 	Source(src),
 	_generated(src._generated){}
@@ -91,8 +94,7 @@ void StaticFileSource::checkIfDirectory(){
 				return;
 		}
 	}
-	_code = 403;
-	getErrorPage(403);
+	throw SourceException("No index page for this directory and autoindex is off", 404);
 }
 
 bool StaticFileSource::checkIfExists(std::string &target){
@@ -162,16 +164,6 @@ bool StaticFileSource::generateIndex(){
 	return true;
 }
 
-void StaticFileSource::getErrorPage(int code){
-	// doesn't handle cases when error directive uses external URLs, like: error_page 404 https://example.com/notfound.html
-	// I'm not sure if we need to include this feature. Doesn't say anything in the subject
-	if (_location && !_location->getErrorPages().empty() && _location->getErrorPages().find(code) != _location->getErrorPages().end())
-		_target = _location->getErrorPages().find(code)->second;
-	else if (_serverConfig.getErrorPages().find(code) != _serverConfig.getErrorPages().end())
-		_target = _serverConfig.getErrorPages().find(code)->second;
-	else
-		generatePage(code);
-}
 
 void StaticFileSource::generatePage(int code){
 	_code = code;
