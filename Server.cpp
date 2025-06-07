@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/06 19:12:28 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/07 17:59:34 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ Server::Server() { }
 Server::Server(const Config &config) : _config(&config) { }
 
 Server::~Server(){
+	std::cout << "Cleaning up server" << std::endl;
 	cleanup();
 }
 
@@ -125,7 +126,7 @@ void Server::_readFromSocket(Connection *conn) throw(ChildProcessNeededException
 				configureCGI(conn);
 		}
 		catch (Source::SourceException &e){
-			std::cout << e.what() << std::endl;
+			std::cout << "Source exception: " << e.what() << std::endl;
 			removeConnection(conn);
 			return;
 		}
@@ -149,21 +150,28 @@ void Server::_writeToSocket(Connection &conn) {
 }
 
 void Server::_readFromSource(Connection &conn) {
+	std::cout << "Server::readFromSource" << std::endl;
 	if (!conn.getSource())
 		return;
 	conn.getSource()->readSource();
 }
 
-void Server::_updateEpoll(int action, int events, Connection *connection, int fd) {
+int Server::_updateEpoll(int action, int events, Connection *connection, int fd) {
 	epoll_event event;
+	epoll_event *event_ptr;
 
-	event.events = events;
-	if (connection)
-		event.data.ptr = connection;
-	else
-		event.data.fd = fd;
+	if (events > 0) {
+		event_ptr = &event;
+		event.events = events;
+		if (connection)
+			event.data.ptr = connection;
+		else
+			event.data.fd = fd;
+	} else {
+		event_ptr = NULL;
+	}
 
-	epoll_ctl(_epollInstance, action, fd, &event);
+	return epoll_ctl(_epollInstance, action, fd, event_ptr);
 }
 
 ListeningSocket *Server::_findListeningSocket(int fd) {
@@ -186,11 +194,16 @@ void Server::cleanup() {
 	close(_epollInstance);
 }
 
+
+// This should probably not be here. Maybe in connection?
+// We cannot write to a pipe without polling. Also, request body can be larged, should be chuncked
 void Server::configureCGI(Connection* conn) {
 	std::cout << "in configure CGI" << std::endl;
 	CGISource *cgiptr = (CGISource *)conn->getSource();
 
-	_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn, cgiptr->getPipeReadEnd());
+	std::cout << "Add to epoll: fd " << cgiptr->getPipeReadEnd() << std::endl;
+	int result = _updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn, cgiptr->getPipeReadEnd());
+	std::cout << "Result of add: " << result << std::endl;
 	if (conn->getRequest().method == "POST") {
 		int numbytes = write(cgiptr->getInputFd(), conn->getRequest().body.c_str(), conn->getRequest().body.length());
 		std::cout << "method is POST! wrote " << numbytes << " bytes" << std::endl;
@@ -200,8 +213,10 @@ void Server::configureCGI(Connection* conn) {
 }
 
 void Server::removeConnection(Connection *conn) {
-	_updateEpoll(EPOLL_CTL_DEL, EPOLLOUT, conn, conn->getSocketFd());
-	std::cout << "Gonna delete connection!" << std::endl;
+	std::cout << "Closing connection!" << std::endl;
+	_updateEpoll(EPOLL_CTL_DEL, -1, conn, conn->getSocketFd());
+	if (conn->getSource()->getType() == CGI)
+		_updateEpoll(EPOLL_CTL_DEL, -1, conn, conn->getSourceFd());
 	delete conn;
 	_connections.erase(
 		std::remove(_connections.begin(), _connections.end(), conn),

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/06 19:12:35 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/07 17:55:24 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ class Server {
 		void _readFromSocket(Connection *conn) throw(ChildProcessNeededException);
 		void _writeToSocket(Connection &conn);
 		void _readFromSource(Connection &conn);
-		void _updateEpoll(int action, int events, Connection *connection, int fd);
+		int _updateEpoll(int action, int events, Connection *connection, int fd);
 		ListeningSocket *_findListeningSocket(int fd);
 
 		void cleanup();

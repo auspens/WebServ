@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/06 18:20:42 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/07 17:12:39 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ class Source {
 		static Source *getNewSource(
 			const ServerConfig &serverConfig,
 			HttpRequest req
-		) throw(ChildProcessNeededException);
+		) throw(SourceException, ChildProcessNeededException);
 
 		int							_bytesToSend;
 		int							_offset;

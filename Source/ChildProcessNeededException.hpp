@@ -6,15 +6,22 @@
 
 class ChildProcessNeededException : std::exception {
 	private:
-		std::string			_cmd;
-		std::vector<char*>	_argv;
-		std::vector<char*>	_envp;
+		std::string					_cmd;
+		std::vector<std::string>	_envp;
+		int							_inputPipe;
+		int							_outputPipe;
 
 	public:
-		ChildProcessNeededException(std::string cmd, std::vector<char*> argv, std::vector<char*> envp) throw();
+		ChildProcessNeededException(
+			std::string cmd,
+			std::vector<std::string> envp,
+			int	inputPipe,
+			int	outputPipe
+		) throw();
 		~ChildProcessNeededException() throw();
-		const char					*what() const throw();
-		const std::string			cmd() const throw();
-		const std::vector<char*>	argv() const throw();
-		const std::vector<char*>	envp() const throw();
+		const char						*what() const throw();
+		const std::string				cmd() const throw();
+		const std::vector<std::string>	envp() const throw();
+		int								inputPipe();
+		int								outputPipe();
 };

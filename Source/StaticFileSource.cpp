@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/28 16:07:47 by wouter           ###   ########.fr       */
+/*   Updated: 2025/06/07 16:29:45 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 StaticFileSource::StaticFileSource(const ServerConfig &serverConfig, Location const *location, HttpRequest req)
 	: Source(serverConfig, location, req)
 	, _generated(false){
+	std::cout << "StaticFileSource constructor called" << std::endl;
 	_location = location;
 	checkIfDirectory();
 	if (!_generated && !checkIfExists(_target)){

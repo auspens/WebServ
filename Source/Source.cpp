@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/06 19:05:33 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/07 17:12:48 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,7 @@ bool Source::_safePath(const std::string &path) const {
 	return true;
 }
 
-Source *Source::getNewSource(const ServerConfig &serverConfig, HttpRequest req) throw(ChildProcessNeededException) {
+Source *Source::getNewSource(const ServerConfig &serverConfig, HttpRequest req) throw(SourceException, ChildProcessNeededException) {
 	const Location *location = _findLocation(req.path, serverConfig);
 	// std::cout << "Location: " << (location? location->getPath():serverConfig.getRootFolder()) << std::endl;
 	// std::cout << "request path:" << req.path << std::endl;
@@ -111,10 +111,7 @@ Source *Source::getNewSource(const ServerConfig &serverConfig, HttpRequest req) 
 	}
 	if (_isCgiRequest(serverConfig, location, req.path)) {
 		CGISource* ptr = new CGISource(serverConfig, location, req);
-		if (ptr->getIfExists() == 1)
 			return ptr;
-		else
-			delete ptr;
 	}
 	return new StaticFileSource(serverConfig, location, req);
 }
