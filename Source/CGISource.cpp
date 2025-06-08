@@ -2,7 +2,8 @@
 
 CGISource::CGISource(const ServerConfig &serverConfig, Location const *location, HttpRequest req)  throw(ChildProcessNeededException)
  : Source(serverConfig, location, req) {
-	std::cout << "CGISource constructor called" << std::endl;
+	std::cout << "Creating CGI Source" << std::endl;
+
 	_location = location;
 	_type = CGI;
 
@@ -45,6 +46,8 @@ void CGISource::forkAndExec()  throw(ChildProcessNeededException) {
 	pipe(_inputPipe.data());
 	pipe(_outputPipe.data());
 
+	std::cout << "_inputPipe = {" << _inputPipe[0] << ", " << _inputPipe[1] << "}, _outputPipe = {" << _outputPipe[0] << ", " << _outputPipe[1] << "}" << std::endl;
+
 	pid = fork();
 	if (pid < 0) {
 		perror("fork");
@@ -68,7 +71,7 @@ void CGISource::forkAndExec()  throw(ChildProcessNeededException) {
 		std::cout << "Child: Throwing ChildProcessNeededException" << std::endl;
 		throw ChildProcessNeededException(_scriptPath, envp, _inputPipe[0], _outputPipe[1]);
 	} else { // PARENT
-		std::cout << "Closing read end of input pipe and write end of output pipe" << std::endl;
+		std::cout << "Closing child pipe ends in parent" << std::endl;
 		close(_inputPipe[0]);
 		close(_outputPipe[1]);
 	}
@@ -79,9 +82,6 @@ void CGISource::readSource() {
 	size_t bytesRead = read(_outputPipe[0], _body.data(), 1024);
 
 	std::cout << "Read " << bytesRead << " bytes from cgi source: " << std::endl << std::endl;
-	for (size_t i = 0; i < bytesRead; i++)
-		std::cout << _body[i];
-	std::cout << std::endl;
 
 	if (bytesRead == 0)
 		_doneReading = true;

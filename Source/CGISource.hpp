@@ -7,6 +7,10 @@
 #include "SystemCallsUtilities.hpp"
 #include "WebServUtils.hpp"
 
+
+#include "TestUtils.hpp"
+
+
 class CGISource : public Source {
 	public:
 		void readSource();
@@ -20,7 +24,6 @@ class CGISource : public Source {
 		int getInputFd() const;
 		int getPipeReadEnd() const;
 		bool getIfExists() const;
-
 
 	private:
 		bool _pathExists;

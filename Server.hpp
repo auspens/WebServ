@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/07 17:55:24 by wouter           ###   ########.fr       */
+/*   Updated: 2025/06/08 16:05:17 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ class Server {
 		const Config						*_config;
 		std::map<int, ListeningSocket *>	_listeningSockets;
 		std::vector<Connection*>			_connections;
+		std::vector<Connection*>			_invalidatedConnections;
 
 		Server();
 		Server(Server const &src);
@@ -51,4 +52,5 @@ class Server {
 		void cleanup();
 		void configureCGI(Connection* conn);
 		void removeConnection(Connection *conn);
+		void cleanInvalidatedConnections();
 };

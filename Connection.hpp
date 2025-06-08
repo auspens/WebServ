@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/06 17:53:04 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/08 15:57:59 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,8 +43,9 @@ class Connection{
 		void				sendHeader();
 		void				sendFromSource();
 		std::string			getRequestBody()const;
-
 		bool				doneReadingSource()const;
+		void				invalidate();
+		int					isInvalidated() const;
 
 
 	private:
@@ -67,4 +68,5 @@ class Connection{
 		Source				*_source;
 		const ServerConfig	*_serverConfig;
 		int					_serverPort;
+		bool				_invalidated;
 };

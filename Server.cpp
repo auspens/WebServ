@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/07 17:59:34 by wouter           ###   ########.fr       */
+/*   Updated: 2025/06/08 16:40:46 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,31 +48,35 @@ void Server::listen() throw(ChildProcessNeededException) {
 	_runEpollLoop();
 }
 
+
+// epoll wait parameters here: fd of epoll instance,
+// pointer to an array of epoll events (first element of the vector),
+// MAX_SIZE is set to the total amount of connections + 1(for listening socket)     // EW: What about CGI?
+// TIMEOUT is set to -1, so the wait blocks until one of monitored fds is ready
 void Server::_runEpollLoop() throw(ChildProcessNeededException) {
-	//epoll wait parameters here: fd of epoll instance,
-	//pointer to an array of epoll events (first element of the vector),
-	//MAX_SIZE is set to the total amount of connections + 1(for listening socket)     // EW: What about CGI?
-	//TIMEOUT is set to -1, so the wait blocks until one of monitored fds is ready
 	std::vector<struct epoll_event>	events;
 	int								size;
 	int								readyFds;
 
 	while (true) {
 		size = _connections.size() + _listeningSockets.size();
-		events.reserve(size);  // EW: is .resize() maybe safer?
+		events.reserve(size);  // Do we really want to do this in the loop? Number of reserve calls if you're tranferring a large amount of data might be too much
 		readyFds = epoll_wait(_epollInstance, &events[0], size, INFINITE_TIMEOUT); // EW: each epoll_event struct records: events on the fd (e.g. EPOLLIN) and data (ptr to connection)
-		// std::cout << "Epoll returned " << readyFds << " ready fds" << std::endl;
+		//std::cout << "Epoll returned " << readyFds << " ready fds" << std::endl;
 		SystemCallsUtilities::check_for_error(readyFds);
 
 		for(int i = 0; i < readyFds; ++i){
-			// std::cout << "Going through ready list, i = " << i << std::endl;
+			//std::cout << "Going through ready list, i = " << i << ", event: " << events[i].events << std::endl;
 			_handleSocketEvent(events[i]);
 		}
+
+		if (_invalidatedConnections.size() > 0)
+			cleanInvalidatedConnections();
 	}
 }
 
-//create an interface that would contain a handleSocketEvent method and implement it for different classes.
-//This would allow to avoid these if-else statements
+// create an interface that would contain a handleSocketEvent method and implement it for different classes.
+// This would allow to avoid these if-else statements
 void Server::_handleSocketEvent(struct epoll_event &event) throw(ChildProcessNeededException) {
 	Connection *conn = static_cast<Connection*>(event.data.ptr);
 	ListeningSocket *listeningSocket;
@@ -82,19 +86,25 @@ void Server::_handleSocketEvent(struct epoll_event &event) throw(ChildProcessNee
 		// std::cout << "epoll returned listening socket with fd " << event.data.fd << std::endl;
 		_handleIncomingConnection(listeningSocket);
 	}
-	else if (event.events & EPOLLIN) {  // EW: maybe one also has to check for EPOLLHUP and EPOLLERR and if so close the connection
-		if (conn->requestReady()) {
-			// std::cout << "EPOLLIN and req is ready, so we read from source.." << std::endl;
-			_readFromSource(*conn);
+	else if (!conn->isInvalidated()) {
+		if (event.events & EPOLLIN || event.events & EPOLLHUP) {  // EW: maybe one also has to check for EPOLLHUP and EPOLLERR and if so close the connection
+			if (!conn->requestReady()) {
+				//std::cout << "EPOLLIN and req is not ready, so we read from socket.." << std::endl;
+				_readFromSocket(conn);
+			}
+			else if (!conn->doneReadingSource()) {
+				//std::cout << "EPOLLIN and req is ready, so we read from source.." << std::endl;
+				_readFromSource(*conn);
+			}
+			else {
+				//std::cout << "EPOLLHUP from socket, clean up connection" << std::endl;
+				removeConnection(conn);
+			}
 		}
-		else {
-			// std::cout << "EPOLLIN and req is not ready, so we read from socket.." << std::endl;
-			_readFromSocket(conn);
+		else if (event.events & EPOLLOUT) {
+			//std::cout << "EPOLLOUT so we write to socket.." << std::endl;
+			_writeToSocket(*conn);
 		}
-	}
-	else if (event.events & EPOLLOUT) {
-		// std::cout << "EPOLLOUT so we write to socket.." << std::endl;
-		_writeToSocket(*conn);
 	}
 }
 
@@ -105,6 +115,8 @@ void Server::_handleIncomingConnection(ListeningSocket *listeningSocket) {
 
 	addr_size = sizeof(inc_addr);
 	new_fd = accept(listeningSocket->getFd(), (struct sockaddr *)&inc_addr, &addr_size);
+
+	std::cout << "Accepting incoming connection with fd " << new_fd << std::endl;
 
 	Connection *inc_conn = new Connection(new_fd, listeningSocket->getPort());
 	_connections.push_back(inc_conn);
@@ -119,10 +131,10 @@ void Server::_readFromSocket(Connection *conn) throw(ChildProcessNeededException
 		//conn->resetParser();
 
 		// finished reading request, create the source and the response
-		std::cout <<"Request body: "<< conn->getRequestBody() <<std::endl;
+		std::cout <<"Request body: "<< conn->getRequestBody() << std::endl << std::endl;
 		try {
 			conn->setupSource(*_config);
-			if (conn->getSource()->getType() == CGI)
+			if (conn->getSource()->getType() == CGI) // Use something like source.isPollable() instead of getType()
 				configureCGI(conn);
 		}
 		catch (Source::SourceException &e){
@@ -154,6 +166,8 @@ void Server::_readFromSource(Connection &conn) {
 	if (!conn.getSource())
 		return;
 	conn.getSource()->readSource();
+	if (conn.doneReadingSource() && conn.getSource()->getType() == CGI) // Use something like source.isPollable() instead of getType()
+		_updateEpoll(EPOLL_CTL_DEL, -1, &conn, conn.getSourceFd());
 }
 
 int Server::_updateEpoll(int action, int events, Connection *connection, int fd) {
@@ -186,40 +200,48 @@ ListeningSocket *Server::_findListeningSocket(int fd) {
 
 void Server::cleanup() {
 	for (std::map<int, ListeningSocket*>::iterator it = _listeningSockets.begin(); it != _listeningSockets.end(); ++it) {
-    	delete it->second;
+		delete it->second;
 	}
-    for (std::vector<Connection*>::iterator it = _connections.begin(); it != _connections.end(); ++it) {
-    	delete (*it);
+	for (std::vector<Connection*>::iterator it = _connections.begin(); it != _connections.end(); ++it) {
+		delete (*it);
 	}
 	close(_epollInstance);
 }
 
-
 // This should probably not be here. Maybe in connection?
 // We cannot write to a pipe without polling. Also, request body can be larged, should be chuncked
 void Server::configureCGI(Connection* conn) {
-	std::cout << "in configure CGI" << std::endl;
 	CGISource *cgiptr = (CGISource *)conn->getSource();
 
-	std::cout << "Add to epoll: fd " << cgiptr->getPipeReadEnd() << std::endl;
-	int result = _updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn, cgiptr->getPipeReadEnd());
-	std::cout << "Result of add: " << result << std::endl;
+	std::cout << "Add cgi to epoll. fd: " << cgiptr->getPipeReadEnd() << std::endl;
+	_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn, cgiptr->getPipeReadEnd());
 	if (conn->getRequest().method == "POST") {
 		int numbytes = write(cgiptr->getInputFd(), conn->getRequest().body.c_str(), conn->getRequest().body.length());
 		std::cout << "method is POST! wrote " << numbytes << " bytes" << std::endl;
 	}
 	if (close(cgiptr->getInputFd()) != -1)
-		std::cout << "Closed write end of input pipe" << std::endl;
+		std::cout << "Closed write end of input pipe: Closing fd " << cgiptr->getInputFd() << std::endl;
 }
 
 void Server::removeConnection(Connection *conn) {
-	std::cout << "Closing connection!" << std::endl;
-	_updateEpoll(EPOLL_CTL_DEL, -1, conn, conn->getSocketFd());
-	if (conn->getSource()->getType() == CGI)
-		_updateEpoll(EPOLL_CTL_DEL, -1, conn, conn->getSourceFd());
-	delete conn;
-	_connections.erase(
-		std::remove(_connections.begin(), _connections.end(), conn),
-		_connections.end()
-	);
+	conn->invalidate();
+	_invalidatedConnections.push_back(conn);
+}
+
+void Server::cleanInvalidatedConnections() {
+	Connection* conn;
+
+	for (size_t i = 0; i < _invalidatedConnections.size(); i++) {
+		conn = _invalidatedConnections[i];
+		std::cout << "Closing connection!" << std::endl;
+		_updateEpoll(EPOLL_CTL_DEL, -1, conn, conn->getSocketFd());
+		if (conn->getSource() && conn->getSource()->getType() == CGI) // Use something like source.isPollable() instead of getType()
+			_updateEpoll(EPOLL_CTL_DEL, -1, conn, conn->getSourceFd());
+		delete conn;
+		_connections.erase(
+			std::remove(_connections.begin(), _connections.end(), conn),
+			_connections.end()
+		);
+	}
+	_invalidatedConnections.clear();
 }

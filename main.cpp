@@ -2,8 +2,25 @@
 #include "Config.hpp"
 #include "Server.hpp"
 #include "TestConfig.hpp"
+#include "TestUtils.hpp"
+#include <signal.h>
+#include <sys/wait.h>
 
-#include <stdexcept>
+static void sigchld_handler(int sig) {
+	int status;
+	pid_t pid;
+
+	(void)sig;
+	pid = waitpid(-1, &status, WNOHANG);
+	while (pid > 0) {
+		if (WIFEXITED(status))
+			std::cout << "Child process pid " << pid
+				<< " exited with status " << WEXITSTATUS(status) << std::endl;
+		else
+			std::cout << "Unexpected signal from child pid " << pid << std::endl;
+		pid = waitpid(-1, &status, WNOHANG);
+	}
+}
 
 void runCGI(
 	const std::string command,
@@ -25,10 +42,12 @@ void runCGI(
 	envp.push_back(NULL);
 
 	std::cout << "Child: Running execve in child process: " << command.c_str() << std::endl;
+
 	dup2(outputPipe, STDOUT_FILENO); // Redirect stdout to output pipe
 	close(outputPipe);
 	dup2(inputPipe, STDIN_FILENO);
 	close(inputPipe);
+
 	execve(command.c_str(), argv.data(), envp.data());
 
 	// If execve fails:
@@ -60,8 +79,9 @@ int main(int argc, char *argv[]) {
 	Config		config;
 
 	readConfig(argc, argv, config);
-	printFullConfig(config);
+	//printFullConfig(config);
 
+	signal(SIGCHLD, sigchld_handler);
 	Server *server = new Server(config);
 	try {
 		server->listen();

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ListeningSocket.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eusatiko <eusatiko@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:44:56 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/23 12:46:33 by eusatiko         ###   ########.fr       */
+/*   Updated: 2025/06/08 13:44:18 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ ListeningSocket::ListeningSocket() : _listeningPort(3490) {
 }
 
 ListeningSocket::~ListeningSocket() {
-	close(_fd);
+	std::cout << "Closing listening socket: ";
 }
 
 ListeningSocket::ListeningSocket(int port) : _listeningPort(port) {

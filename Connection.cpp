@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/07 18:25:29 by wouter           ###   ########.fr       */
+/*   Updated: 2025/06/08 16:27:34 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,21 +17,27 @@ Connection::Connection() {
 	_response = NULL;
 }
 
-Connection::Connection(int fd, int serverPort) : _socket(fd), _serverPort(serverPort) {
-	_source = NULL;
-	_response = NULL;
+Connection::Connection(int fd, int serverPort) :
+	_socket(fd),
+	_response(NULL),
+	_source(NULL),
+	_serverPort(serverPort),
+	_invalidated(false) {
 	// std::cout <<"Create new connection with fd: " << fd << std::endl;
  }
 
-Connection::Connection(int fd, int serverPort, struct addrinfo *addrinfo)
-		: _socket(fd, addrinfo), _serverPort(serverPort) { }
+Connection::Connection(int fd, int serverPort, struct addrinfo *addrinfo) :
+	_socket(fd, addrinfo),
+	_response(NULL),
+	_source(NULL),
+	_serverPort(serverPort),
+	_invalidated(false) { }
 
 Connection::Connection(const Connection &src) {
 	(void)src;
 }
 
 Connection::~Connection() {
-	_socket.close_sock();
 	delete _source ;
 	delete _response;
 }
@@ -88,6 +94,8 @@ void Connection::readFromSocket() {
 	std::cout << "Headers:" << std::endl;
 	for (std::map<std::string, std::string>::iterator it = _request.headers.begin(); it != _request.headers.end(); ++it)
 		std::cout << it->first << " : " << it->second << std::endl;
+
+	std::cout << std::endl;
 }
 
 void Connection::writeToSocket() {
@@ -131,14 +139,12 @@ void Connection::sendHeader() {
 }
 
 void Connection::sendFromSource() {
-	const char	*buf = _source->getBufferToSend();
-	ssize_t 	size = _source->_bytesToSend > READ_BUFFER ? READ_BUFFER : _source->_bytesToSend;
-	ssize_t		bytes_sent;
-
 	if (_source->_bytesToSend > 0) {
+		const char	*buf = _source->getBufferToSend();
+		ssize_t 	size = _source->_bytesToSend > READ_BUFFER ? READ_BUFFER : _source->_bytesToSend;
+		ssize_t		bytes_sent;
+
 		std::cout << ">> Sending to socket. Source type: " << _source->getType() << " Bytes to send: " << _source->_bytesToSend << std::endl;
-		std::cout << "Current buffer: " << std::endl;
-		std::cout << std::string(buf) << std::endl;
 
 		bytes_sent = send(_socket.getFd(), buf, size, 0);
 		if (bytes_sent == -1)
@@ -190,4 +196,12 @@ bool Connection::_matchServerName(std::string host, std::string serverName) cons
 		return hostLength >= nameLength - 1
 			&& host.substr(0, nameLength) == serverName.substr(0, nameLength - 1);
 	return host == serverName;
+}
+
+void	Connection::invalidate() {
+	_invalidated = true;
+}
+
+int		Connection::isInvalidated() const {
+	return _invalidated;
 }
