@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/08 16:27:34 by wouter           ###   ########.fr       */
+/*   Updated: 2025/06/08 16:43:59 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,8 +139,9 @@ void Connection::sendHeader() {
 }
 
 void Connection::sendFromSource() {
+	const char	*buf = _source->getBufferToSend();
+
 	if (_source->_bytesToSend > 0) {
-		const char	*buf = _source->getBufferToSend();
 		ssize_t 	size = _source->_bytesToSend > READ_BUFFER ? READ_BUFFER : _source->_bytesToSend;
 		ssize_t		bytes_sent;
 

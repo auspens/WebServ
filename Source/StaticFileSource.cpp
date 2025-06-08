@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/08 16:19:25 by wouter           ###   ########.fr       */
+/*   Updated: 2025/06/08 16:43:32 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ StaticFileSource::~StaticFileSource(){
 }
 
 void StaticFileSource::readSource(){
-	if (_bytesToSend > 0 || _generated)
+	if (_bytesToSend > 0 || _generated || _doneReading)
 		return;
 	_body.clear();
 	_body.resize(_serverConfig.getBufferSize());
