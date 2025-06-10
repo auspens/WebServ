@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:11:08 by wouter            #+#    #+#             */
-/*   Updated: 2025/06/06 16:25:27 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/10 11:36:11 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,6 @@ bool Config::getAutoIndex(const ServerConfig &serverConfig, const Location *loca
 		return location->getAutoIndex();
 	return serverConfig.getAutoIndex();
 }
-
 
 void Config::_parseConfigFile(const std::string &configFile) throw(ConfigParseException) {
 	std::string token;

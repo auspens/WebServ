@@ -6,18 +6,21 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/06 18:36:51 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/10 11:30:51 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 #include <exception>
 #include <string>
-#include "ServerConfig.hpp"
+#include "ChildProcessNeededException.hpp"
+#include "Config.hpp"
 #include "HttpRequest.hpp"
+#include "ServerConfig.hpp"
 #include <fstream>
 #include <unistd.h>
 #include <sys/stat.h>
+
 
 class StaticFileSource;
 class ErrorPageSource;
@@ -59,7 +62,7 @@ class Source {
 		static Source *getNewSource(
 			const ServerConfig &serverConfig,
 			HttpRequest req
-		);
+		) throw(SourceException, ChildProcessNeededException);
 		static Source *getNewErrorPageSource(
 			const ServerConfig &serverConfig,
 			HttpRequest req,

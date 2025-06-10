@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 15:55:07 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/06 18:11:44 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/10 12:33:02 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,30 +16,39 @@ ErrorPageSource::ErrorPageSource
 		(const ServerConfig &serverConfig,
 		Location const *location,
 		HttpRequest req, int code)
-		:	StaticFileSource(serverConfig, location, req, code){
+		:	StaticFileSource(serverConfig, location, req, code){ //this constructor is specific for ErrorPage and skips all usual checks for static file to avoid looping in error
 	_code = code;
-	getErrorPage(code);
-	//read error page right away to avoid looping in the reading error. If there is error in reading error page, generate one.
 	_body.clear();
+	getErrorPage(code);
 	_body.resize(_size);
 	_offset = 0;
-	ssize_t readSize = read(_fd, _body.data(), _size);
-	if (readSize < 0)
-		generatePage(code);
-	else{
-		_body.resize(readSize);
-		_bytesToSend =readSize;
-	}
+	_bytesToSend = _size;
 	_doneReading = true;
+	std::cout << "Body: \n" << std::endl;
+	WebServUtils::printVector(_body);
 }
 
 void ErrorPageSource::getErrorPage(int code){
 	// doesn't handle cases when error directive uses external URLs, like: error_page 404 https://example.com/notfound.html
 	// I'm not sure if we need to include this feature. Doesn't say anything in the subject
-	if (Config::getErrorPages(_serverConfig, _location).find(code) != Config::getErrorPages(_serverConfig, _location).end())
+	if (Config::getErrorPages(_serverConfig, _location).find(code) != Config::getErrorPages(_serverConfig, _location).end()){
 		_target = Config::getErrorPages(_serverConfig, _location).find(code)->second;
+		_fd = open(_target.c_str(), O_RDONLY);
+		struct stat st;
+		stat(_target.c_str(), &st);
+		_size = st.st_size;
+		_body.resize(_size);
+		ssize_t readSize = read(_fd, _body.data(), _size);
+		std::cout << "Body after read: \n" << std::endl;
+		WebServUtils::printVector(_body);
+		if (readSize < 0)
+			return generatePage(code);
+		defineMimeType();
+	}
 	else
 		generatePage(code);
+	std::cout << "Body in generate page: \n" << std::endl;
+	WebServUtils::printVector(_body);
 }
 
 ErrorPageSource::ErrorPageSource(const ErrorPageSource &src):StaticFileSource(src){

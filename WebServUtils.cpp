@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServUtils.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:15:00 by wouter            #+#    #+#             */
-/*   Updated: 2025/05/28 16:35:40 by wouter           ###   ########.fr       */
+/*   Updated: 2025/06/10 12:26:25 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,4 +60,12 @@ std::string WebServUtils::pathJoin(const std::string& path1, const std::string& 
 	if (slashes == 1)
 		return path1 + path2;
 	return path1 + path2.substr(1);
+}
+
+
+void WebServUtils::printVector(const std::vector<char>& vec) {
+    for (std::vector<char>::const_iterator it = vec.begin(); it != vec.end(); ++it) {
+        std::cout << *it;
+    }
+    std::cout << std::endl;
 }

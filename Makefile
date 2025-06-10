@@ -20,6 +20,7 @@ SRC = 	Config/Config.cpp \
 		Source/ErrorPageSource.cpp \
 		Source/RedirectSource.cpp \
 		Source/CGISource.cpp \
+		Source/ChildProcessNeededException.cpp \
 		Source/StatusCodesInitialiser.cpp \
 		Source/MimeTypeInitialiser.cpp \
 		Connection.cpp \
@@ -30,7 +31,8 @@ SRC = 	Config/Config.cpp \
 		Socket.cpp \
 		SystemCallsUtilities.cpp \
 		WebServUtils.cpp \
-		Tests/TestConfig.cpp
+		Tests/TestConfig.cpp \
+		Tests/TestUtils.cpp
 
 OBJ = $(SRC:src/%.cpp=$(OBJ_DIR)/%.o)
 
@@ -46,7 +48,7 @@ HDR = 	Config/Config.hpp \
 		Source/StaticFileSource.hpp \
 		Source/RedirectSource.hpp \
 		Source/CGISource.hpp \
-		Source/StaticFileSource.hpp \
+		Source/ChildProcessNeededException.hpp \
 		Connection.hpp \
 		ListeningSocket.hpp \
 		RequestParser.hpp \
@@ -56,7 +58,8 @@ HDR = 	Config/Config.hpp \
 		Socket.hpp \
 		SystemCallsUtilities.hpp \
 		WebServUtlis.hpp \
-		Tests/TestConfig.hpp
+		Tests/TestConfig.hpp \
+		Tests/TestUtils.hpp
 
 INCLUDE = -I. -IConfig -ISource -ITests
 

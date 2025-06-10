@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/06 18:37:05 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/10 11:31:50 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,8 @@
 #include "CGISource.hpp"
 #include "ErrorPageSource.hpp"
 
-Source::~Source(){}
+Source::~Source() {}
+
 Source::Source(const ServerConfig &serverConfig, const Location *location, HttpRequest req)
 	throw(SourceException)
 		:_bytesToSend(0)
@@ -155,21 +156,17 @@ bool Source::_safePath(const std::string &path) const {
 	return true;
 }
 
-Source *Source::getNewSource(const ServerConfig &serverConfig, HttpRequest req) {
+Source *Source::getNewSource(const ServerConfig &serverConfig, HttpRequest req) throw(SourceException, ChildProcessNeededException) {
 	const Location *location = _findLocation(req.path, serverConfig);
-
 	// std::cout << "Location: " << (location? location->getPath():serverConfig.getRootFolder()) << std::endl;
 	// std::cout << "request path:" << req.path << std::endl;
 	if (location && location->isRedirect()) {
 		return new RedirectSource(serverConfig, *location, req);
 	}
 	if (_isCgiRequest(serverConfig, location, req.path)) {
-			CGISource* ptr = new CGISource(serverConfig, location, req);
-			if (ptr->getIfExists() == 1)
-				return ptr;
-			else
-				delete ptr;
-		}
+		CGISource* ptr = new CGISource(serverConfig, location, req);
+			return ptr;
+	}
 	return new StaticFileSource(serverConfig, location, req);
 }
 

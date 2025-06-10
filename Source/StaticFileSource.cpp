@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/06 17:42:23 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/10 11:31:59 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 StaticFileSource::StaticFileSource(const ServerConfig &serverConfig, Location const *location, HttpRequest req)
 	: Source(serverConfig, location, req)
 	, _generated(false){
+	std::cout << "Creating Static File Source" << std::endl;
 	_location = location;
 	checkIfDirectory();
 	if (!_generated && !checkIfExists(_target))
@@ -48,7 +49,7 @@ StaticFileSource::~StaticFileSource(){
 }
 
 void StaticFileSource::readSource(){
-	if (_bytesToSend > 0 || _generated)
+	if (_bytesToSend > 0 || _generated || _doneReading)
 		return;
 	_body.clear();
 	_body.resize(_serverConfig.getBufferSize());

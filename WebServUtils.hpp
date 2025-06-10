@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServUtils.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 14:38:47 by wouter            #+#    #+#             */
-/*   Updated: 2025/05/28 16:35:12 by wouter           ###   ########.fr       */
+/*   Updated: 2025/06/10 12:27:18 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <sstream>
 #include <string>
 #include <dirent.h>
+#include <vector>
 
 class WebServUtils {
 public:
@@ -33,7 +34,8 @@ public:
 	static bool folderExists(const std::string &dname);
 	static bool isin(const std::string haystack, char needle);
 	static std::string pathJoin(const std::string& path1, const std::string& path2);
-	static bool strEndsWith(const std::string& str, const std::string& suffix);
+	static bool strEndsWith(const std::string& str, const std::string& end);
+	static void printVector(const std::vector<char>& vec);
 
 
 	template <typename T, size_t N>

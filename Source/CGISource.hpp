@@ -1,21 +1,23 @@
 #pragma once
-#include "Source.hpp"
-#include "../SystemCallsUtilities.hpp"
-#include "../WebServUtils.hpp"
+
 #include <dirent.h>
-
 #include <sys/wait.h>
+#include "ChildProcessNeededException.hpp"
+#include "Source.hpp"
+#include "SystemCallsUtilities.hpp"
+#include "WebServUtils.hpp"
 
-typedef void (*CleanupFunc)(void* ctx); // a ptr to void returning function, that takes a ptr that will provide context (ctx)
+
+#include "TestUtils.hpp"
+
 
 class CGISource : public Source {
 	public:
-		void setPreExecCleanup(CleanupFunc func, void* ctx);
 		void readSource();
 		char* getBufferToSend();
-		void forkAndExec();
+		void forkAndExec() throw(ChildProcessNeededException);
 
-		CGISource(const ServerConfig &serverConfig, const Location *location, HttpRequest req);
+		CGISource(const ServerConfig &serverConfig, const Location *location, HttpRequest req)  throw(ChildProcessNeededException);
 		//copy construct missing
 		~CGISource();
 
@@ -23,17 +25,14 @@ class CGISource : public Source {
 		int getPipeReadEnd() const;
 		bool getIfExists() const;
 
-
 	private:
-		bool	_pathExists;
-        int _pipefd[2];
-		int _inputPipe[2];
+		bool _pathExists;
+        std::vector<int> _outputPipe;
+		std::vector<int> _inputPipe;
         std::string _scriptPath;
         std::string _queryString;
         std::string _pathInfo;
 
 		bool checkIfExists();
 		CGISource(); //default constructor that is never used
-		CleanupFunc _cleanupFunc; //this function and its argument will be provided by server
-    	void* _cleanupCtx; //will be passed as argument to cleanupFunc_
 };
