@@ -1,29 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Request.cpp                                        :+:      :+:    :+:   */
+/*   SourceAndRequestException.hpp                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/25 14:09:57 by wouter            #+#    #+#             */
-/*   Updated: 2025/04/29 10:27:21 by auspensk         ###   ########.fr       */
+/*   Created: 2025/06/11 10:23:47 by auspensk          #+#    #+#             */
+/*   Updated: 2025/06/11 10:25:09 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Request.hpp"
+#pragma once
+#include <string>
+#include <exception>
 
-Request::Request() : _requestType("GET"), _target("/index.html"), _isReady(true) {}
-
-Request::~Request() {}
-
-bool Request::isReady() const {
-	return _isReady;
-}
-
-void Request::read(int fd, int buffer_size) {
-	(void)fd;
-	(void)buffer_size;
-	_isReady = true;
-}
-
-const std::string &Request::getTarget()const { return _target;}
+class SourceAndRequestException : std::exception{
+				std::string _error;
+				int			_code;
+			public:
+				SourceAndRequestException(std::string error, int code) throw();
+				const char *what() const throw();
+				int errorCode() const throw();
+				~SourceAndRequestException()throw();
+		};

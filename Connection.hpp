@@ -6,18 +6,17 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/10 11:33:10 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/11 16:08:00 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "Config.hpp"
-#include "ChildProcessNeededException.hpp"
+#include "Source/SourceFactory.hpp"
 #include "RequestParser.hpp"
 #include "Response.hpp"
 #include "Socket.hpp"
-#include "StaticFileSource.hpp"
 #include "SystemCallsUtilities.hpp"
 #include <sstream>
 #include <vector>
@@ -38,7 +37,7 @@ class Connection{
 		void				resetParser();
 		const std::string&	getTarget() const;
 		Source				*getSource() const;
-		void				setupSource(const Config &config) throw(Source::SourceException, ChildProcessNeededException);
+		void				setupSource(const Config &config) throw(SourceAndRequestException, ChildProcessNeededException);
 		void				setupErrorPageSource(const Config &config, int code)throw();
 		void				sendHeader();
 		void				sendFromSource();

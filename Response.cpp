@@ -6,34 +6,11 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 10:33:18 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/06 18:31:26 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/11 11:33:18 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
-
-// std::map<int, std::string> Response::_statusCodesAndTexts;
-
-// struct ResponseStatusInitializer {
-//     ResponseStatusInitializer() {
-//         Response::_statusCodesAndTexts[200] = "OK";
-//         Response::_statusCodesAndTexts[201] = "Created";
-//         Response::_statusCodesAndTexts[204] = "No Content";
-// 		Response::_statusCodesAndTexts[301] = "Moved Permanently";
-//         Response::_statusCodesAndTexts[302] = "Found";
-//         Response::_statusCodesAndTexts[307] = "Temporary Redirect";
-//         Response::_statusCodesAndTexts[308] = "Permanent Redirect";
-//         Response::_statusCodesAndTexts[400] = "Bad Request";
-//         Response::_statusCodesAndTexts[401] = "Unauthorized";
-//         Response::_statusCodesAndTexts[403] = "Forbidden";
-//         Response::_statusCodesAndTexts[404] = "Not Found";
-//         Response::_statusCodesAndTexts[500] = "Internal Server Error";
-//         Response::_statusCodesAndTexts[502] = "Bad Gateway";
-//         Response::_statusCodesAndTexts[503] = "Service Unavailable";
-//     }
-// };
-
-// static ResponseStatusInitializer _responseStatusInitializer;
 
 Response::Response()
 	: _header("")
@@ -45,7 +22,7 @@ Response::Response (const Source *source)
 	, _chunked(false)
 	, _offset(0)
 	, _headerSent(false){
-	_header += std::string(PROTOCOL) + " " + num_to_str(source->getCode()) + " " + Source::_statusCodes.find(source->getCode())->second.description + "\r\n";
+	_header += std::string(PROTOCOL) + " " + num_to_str(source->getCode()) + " " + Source::_statusCodes.find(source->getCode())->second.message + "\r\n";
 	switch(source->getType())
 	{
 		case STATIC:

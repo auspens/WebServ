@@ -27,7 +27,7 @@ CGISource::CGISource(const ServerConfig &serverConfig, Location const *location,
 	if (checkIfExists())
 		forkAndExec();
 	else
-		throw SourceException("Url not found", 404);
+		throw SourceAndRequestException("Url not found", 404);
 }
 
 CGISource::~CGISource(){
@@ -79,7 +79,6 @@ void CGISource::forkAndExec()  throw(ChildProcessNeededException) {
 
 void CGISource::readSource() {
 	_body.resize(_serverConfig.getBufferSize()); // This resize seems wrong - that's because it is, fixed now.
-	// And if we save the whole file to buffer and the send it, the logic needs to bie fixed accordingly
 	size_t bytesRead = read(_outputPipe[0], _body.data(), _serverConfig.getBufferSize());
 
 	std::cout << "Read " << bytesRead << " bytes from cgi source: " << std::endl << std::endl;

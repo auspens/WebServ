@@ -3,8 +3,11 @@
 #include "HttpRequest.hpp"
 #include <string>
 #include <sstream>
+#include "Source/SourceAndRequestException.hpp"
 
 #include <stdlib.h>     /* atoi */
+
+#define MAX_UPLOAD_SIZE 2 * 1024*1024 //2 MB
 
 class RequestParser {
     public:
@@ -21,7 +24,7 @@ class RequestParser {
             BAD
         };
         RequestParser();
-        ParseResult parse(const char* data, size_t len);
+        ParseResult parse(const char* data, size_t len) throw (SourceAndRequestException);
         bool isDone() const;
         const HttpRequest getRequest() const;
         void reset();
@@ -33,8 +36,12 @@ class RequestParser {
 
         bool parseStartLine();
         bool parseHeaders();
-        bool parseBody(); //does not matter for GET, on which we focus for now
+        bool parseBody();
 		void _parseUrl();
+		bool _handleChunkedInput();
+		void _parseChunkSize(const std::string& hexStr);
+		void _checkContentLength(std::map<std::string, std::string>::iterator it);
 
-        size_t contentLength;
+        unsigned long contentLength;
+		unsigned long chunkSize;
     };

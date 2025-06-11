@@ -23,6 +23,8 @@ SRC = 	Config/Config.cpp \
 		Source/ChildProcessNeededException.cpp \
 		Source/StatusCodesInitialiser.cpp \
 		Source/MimeTypeInitialiser.cpp \
+		Source/SourceAndRequestException.cpp \
+		Source/SourceFactory.cpp \
 		Connection.cpp \
 		ListeningSocket.cpp \
 		main.cpp \
@@ -49,6 +51,8 @@ HDR = 	Config/Config.hpp \
 		Source/RedirectSource.hpp \
 		Source/CGISource.hpp \
 		Source/ChildProcessNeededException.hpp \
+		Source/SourceAndRequestException.hpp \
+		Source/SourceFactory.hpp \
 		Connection.hpp \
 		ListeningSocket.hpp \
 		RequestParser.hpp \

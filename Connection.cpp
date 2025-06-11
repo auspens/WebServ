@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/10 13:04:09 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/11 16:07:26 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,14 +67,12 @@ std::string Connection::getRequestBody()const{
 	return _request.body;
 }
 
-void Connection::setupSource(const Config &config) throw(Source::SourceException, ChildProcessNeededException) {
+void Connection::setupSource(const Config &config) throw(SourceAndRequestException, ChildProcessNeededException) {
 	if (_source)
 		delete(_source);
 
 	_serverConfig = _findServerConfig(_serverPort, _request.hostname, config);
-	// if (!_serverConfig)
-	// 	throw Source::SourceException("No matching server found", 404); //Should this be a different exception type?
-	_source = Source::getNewSource(*_serverConfig, _request);
+	_source = SourceFactory::getNewSource(*_serverConfig, _request);
 }
 
 void Connection::setupErrorPageSource(const Config &config, int code) throw() {
@@ -82,7 +80,7 @@ void Connection::setupErrorPageSource(const Config &config, int code) throw() {
 		delete(_source);
 
 	_serverConfig = _findServerConfig(_serverPort, _request.hostname, config);
-	_source = Source::getNewErrorPageSource(*_serverConfig, _request, code);
+	_source = SourceFactory::getNewErrorPageSource(*_serverConfig, _request, code);
 }
 
 void Connection::setResponse() {
