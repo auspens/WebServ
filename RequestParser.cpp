@@ -1,12 +1,15 @@
 #include "RequestParser.hpp"
 
-RequestParser::RequestParser() : state(START_LINE), contentLength(0), chunkSize(0) {}
+RequestParser::RequestParser() : state(START_LINE), contentLength(0), chunkSize(0), _location(NULL), _serverConfig(NULL), maxBodySize(0){}
 
 void RequestParser::reset() {
     state = START_LINE;
     request = HttpRequest();
     buffer.clear();
     contentLength = 0;
+	_location = NULL;
+	_serverConfig = NULL;
+	maxBodySize = 0;
 }
 
 bool RequestParser::isDone() const {
@@ -15,6 +18,16 @@ bool RequestParser::isDone() const {
 
 const HttpRequest RequestParser::getRequest() const {
     return request;
+}
+
+void RequestParser::setLocation (const Location *location){
+	_location = location;
+}
+void RequestParser::setServerConfig(const ServerConfig *serverConfig){
+	_serverConfig = serverConfig;
+}
+const ServerConfig *RequestParser::getServerConfig(){
+	return _serverConfig;
 }
 
 RequestParser::ParseResult RequestParser::parse(const char* data, size_t len) throw (SourceAndRequestException){
@@ -27,7 +40,7 @@ RequestParser::ParseResult RequestParser::parse(const char* data, size_t len) th
                 if (!parseStartLine()) return INCOMPLETE;
 				_parseUrl();
                 state = HEADERS;
-                break;
+				return GET_CONFIGS;
 
             case HEADERS:
                 if (!parseHeaders()) return INCOMPLETE;
@@ -84,6 +97,8 @@ bool RequestParser::parseHeaders() {
 bool RequestParser::parseBody() {
     if (request.method != "POST") return true;
 
+	if (maxBodySize == 0)
+		getMaxBodySize();
 	std::map<std::string, std::string>::iterator it = request.headers.find("Transfer-Encoding");
 	if (it != request.headers.end() && it->second == "chunked") {
 		if (!_handleChunkedInput())
@@ -112,7 +127,7 @@ void RequestParser::_checkContentLength(std::map<std::string, std::string>::iter
 		}
 	}
 	contentLength = atoi(it->second.c_str());
-	if (contentLength > MAX_UPLOAD_SIZE){
+	if (contentLength > maxBodySize){
 		state = DONE;
 		throw (SourceAndRequestException("Body size exceeds allowed maximum", 403));
 	}
@@ -158,7 +173,7 @@ void RequestParser::_parseChunkSize(const std::string& hexStr){
 		}
 	}
     chunkSize = strtol(hexStr.c_str(), NULL, 16);
-	if (request.body.size() + chunkSize > MAX_UPLOAD_SIZE){
+	if (request.body.size() + chunkSize > maxBodySize){
 		state = DONE;
 		throw SourceAndRequestException("Body size exceeds allowed maximum", 403);
 	}
@@ -185,4 +200,8 @@ void RequestParser::_parseUrl() {
 	request.path = url.substr(hostEnd, pathEnd - hostEnd);
 	if (request.path == "")
 		request.path = "/";
+}
+
+void RequestParser::getMaxBodySize(){
+	maxBodySize = Config::getClientMaxBodySize(*_serverConfig, _location);
 }

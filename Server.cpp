@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/11 12:19:20 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/13 16:10:27 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,7 +127,7 @@ void Server::_handleIncomingConnection(ListeningSocket *listeningSocket) {
 
 void Server::_readFromSocket(Connection *conn) throw(ChildProcessNeededException) {
 	try{
-		conn->readFromSocket();
+		conn->readFromSocket(*_config);
 		if (conn->requestReady())
 		{
 			std::cout <<"Request body: "<< conn->getRequestBody() << std::endl << std::endl;
@@ -204,7 +204,7 @@ void Server::cleanup() {
 }
 
 // This should probably not be here. Maybe in connection?
-// We cannot write to a pipe without polling. Also, request body can be larged, should be chuncked
+// We cannot write to a pipe without polling. Also, request body can be larged, should be chunked
 void Server::configureCGI(Connection* conn) {
 	CGISource *cgiptr = (CGISource *)conn->getSource();
 

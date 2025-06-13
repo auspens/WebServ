@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 16:03:12 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/11 16:59:45 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/13 10:24:57 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,10 @@
 
 Source *SourceFactory::getNewSource(const ServerConfig &serverConfig, HttpRequest req) throw(SourceAndRequestException, ChildProcessNeededException) {
 	const Location *location = _findLocation(req.path, serverConfig);
-	// std::cout << "Location: " << (location? location->getPath():serverConfig.getRootFolder()) << std::endl;
-	// std::cout << "request path:" << req.path << std::endl;
-	// std::cout << "POST allowed: " << (Config::getAcceptMethod(serverConfig, location) & METHOD_POST) << std::endl;
-	// std::cout << "Upload pass: " << location->isUploadPass() << std::endl;
+	std::cout << "Location: " << (location? location->getPath():serverConfig.getRootFolder()) << std::endl;
+	std::cout << "request path:" << req.path << std::endl;
+	std::cout << std::boolalpha << "POST allowed: " << (Config::getAcceptMethod(serverConfig, location) & METHOD_POST) << std::endl;
+	std::cout << std::boolalpha << "Upload pass: " << (location? location->isUploadPass() : false) << std::endl;
 
 	if (location && location->isRedirect()) {
 		return new RedirectSource(serverConfig, *location, req);

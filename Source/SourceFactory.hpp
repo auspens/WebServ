@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 16:00:07 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/11 16:05:47 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/13 15:33:18 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,10 +30,11 @@ class SourceFactory {
 			HttpRequest req,
 			int code
 		);
-	private:
 		static const Location *_findLocation (
 			const std::string &target,
 			const ServerConfig &serverConfig
 		);
+	private:
+
 		static bool _isCgiRequest(const ServerConfig &serverConfig, const Location *location, const std::string &path);
 };

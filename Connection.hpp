@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/11 16:08:00 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/13 16:01:17 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ class Connection{
 		int					getSocketFd() const;
 		bool				requestReady() const;
 		HttpRequest			getRequest() const;
-		void				readFromSocket();
+		void				readFromSocket(const Config &config);
 		void				writeToSocket();
 		void				setResponse();
 		void				resetParser();

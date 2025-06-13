@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/11 16:07:26 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/13 16:27:32 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,11 +89,17 @@ void Connection::setResponse() {
 	_response = new Response(_source);
 }
 
-void Connection::readFromSocket() {
+void Connection::readFromSocket(const Config &config) {
 	std::vector<char> buffer;
 	buffer.reserve(READ_BUFFER);
 	int valread = read(_socket.getFd(), buffer.data(), READ_BUFFER);
-	if (_parser.parse(buffer.data(), valread) != RequestParser::COMPLETE)
+	RequestParser::ParseResult result = _parser.parse(buffer.data(), valread);
+	if (result == RequestParser::GET_CONFIGS){
+		_parser.setServerConfig(_findServerConfig(_serverPort, _request.hostname, config));
+		_parser.setLocation(SourceFactory::_findLocation(_request.path, *(_parser.getServerConfig())));
+		result = _parser.parse(buffer.data(), valread);
+	}
+	if (result != RequestParser::COMPLETE)
 		return ;
 	_request = _parser.getRequest();
 
@@ -151,13 +157,13 @@ void Connection::sendFromSource() {
 		ssize_t 	size = _source->_bytesToSend > READ_BUFFER ? READ_BUFFER : _source->_bytesToSend;
 		ssize_t		bytes_sent;
 
-		std::cout << ">> Sending to socket. Source type: " << _source->getType() << " Bytes to send: " << _source->_bytesToSend << std::endl;
+		// std::cout << ">> Sending to socket. Source type: " << _source->getType() << " Bytes to send: " << _source->_bytesToSend << std::endl;
 
 		bytes_sent = send(_socket.getFd(), buf, size, 0);
 		if (bytes_sent == -1)
 			throw (std::runtime_error("Error sending body")); // This should probably be a different type of exception. Also needs to be caught in Server or program will crash
 
-		std::cout << "Sent " << bytes_sent << " bytes" << std::endl;
+		// std::cout << "Sent " << bytes_sent << " bytes" << std::endl;
 
 		_source->_bytesToSend -= bytes_sent;
 		_source->_offset += bytes_sent;
