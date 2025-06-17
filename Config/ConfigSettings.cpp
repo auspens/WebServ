@@ -141,7 +141,7 @@ void ConfigSettings::parseErrorPage(std::ifstream &infile) throw(ConfigParseExce
 	if (errorCodes.size() == 0)
 		throw ConfigParseException("Invalid value for error page");
 	if (!WebServUtils::fileExists(token))
-		throw ConfigParseException("Error page file does not exist");
+		throw ConfigParseException("Error page file does not exist: " + token);
 
 	for (unsigned int i = 0; i < errorCodes.size(); i++) {
 		if (_errorPages.find(errorCodes[i]) != _errorPages.end())

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/10 15:04:11 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/17 16:20:13 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -206,7 +206,7 @@ void Server::cleanup() {
 }
 
 // This should probably not be here. Maybe in connection?
-// We cannot write to a pipe without polling. Also, request body can be larged, should be chuncked
+// We cannot write to a pipe without polling. Also, request body can be large, should be chuncked
 void Server::configureCGI(Connection* conn) {
 	CGISource *cgiptr = (CGISource *)conn->getSource();
 

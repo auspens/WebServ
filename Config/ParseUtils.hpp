@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 16:03:05 by wpepping          #+#    #+#             */
-/*   Updated: 2025/05/23 16:58:08 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/17 16:19:36 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 
 class ParseUtils {
 public:
-	static bool expectChar(std::ifstream &infile, char c) throw(ConfigParseException);
+	static void expectChar(std::ifstream &infile, char c) throw(ConfigParseException);
 	static std::string parseToken(std::ifstream &infile) throw(ConfigParseException);
 	static void expectWhitespace(std::ifstream &infile) throw(ConfigParseException);
 	static void skipWhitespace(std::ifstream &infile) throw(ConfigParseException);

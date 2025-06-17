@@ -70,7 +70,7 @@ void readConfig(int argc, char *argv[], Config &config) {
 	try {
 		config.parse(config_file);
 	} catch (ConfigParseException &e) {
-		std::cout << e.what() << std::endl;
+		std::cout << "Error parsing config file: " << e.what() << std::endl;
 		std::exit(1);
 	}
 }

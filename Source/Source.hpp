@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/10 11:30:51 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/17 16:13:33 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ class Source {
 			int code
 		);
 
-		int							_bytesToSend;
+		size_t						_bytesToSend;
 		int							_offset;
 		bool						_doneReading;
 		static std::map<std::string, std::string> _mimeTypes;

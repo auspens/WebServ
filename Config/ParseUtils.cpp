@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 16:03:09 by wpepping          #+#    #+#             */
-/*   Updated: 2025/05/23 18:02:15 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/17 16:23:32 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,15 +39,14 @@ void ParseUtils::skipWhitespace(std::ifstream &infile) throw(ConfigParseExceptio
 	}
 }
 
-bool ParseUtils::expectChar(std::ifstream &infile, char c) throw(ConfigParseException) {
+void ParseUtils::expectChar(std::ifstream &infile, char c) throw(ConfigParseException) {
 	char d;
 
 	infile >> d;
 	if (infile.fail())
 		throw ConfigParseException("Error reading from file");
 	if (infile.eof() || infile.fail() || d != c)
-		return false;
-	return true;
+		throw ConfigParseException(std::string("Expected ") + std::string(1, c));
 }
 
 std::string ParseUtils::parseToken(std::ifstream &infile) throw(ConfigParseException) {

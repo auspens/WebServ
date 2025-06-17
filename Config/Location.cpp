@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 12:40:08 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/28 15:13:33 by wouter           ###   ########.fr       */
+/*   Updated: 2025/06/17 15:26:15 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,9 @@ const std::string &Location::getIndex() const {
 }
 
 const std::string &Location::getRootFolder() const {
-	return _rootFolder;
+	if (_rootFolder != "")
+		return _rootFolder;
+	return _serverConfig->getRootFolder();
 }
 
 bool Location::autoindexOn() const {
@@ -172,8 +174,12 @@ void Location::_parseRoot(std::ifstream &infile) throw(ConfigParseException) {
 	token = ParseUtils::parseValue(infile);
 	ParseUtils::expectChar(infile, ';');
 
-	if (!WebServUtils::folderExists(token))
-		throw ConfigParseException("Root folder does not exist");
+	if (_rootFolder != "")
+		throw ConfigParseException("Location: " + _path + ": Root folder already set");
+	else if (_isRedirect)
+		throw ConfigParseException("Location: " + _path + ": Cannot have root folder for redirect");
+	else if (!WebServUtils::folderExists(token))
+		throw ConfigParseException("Location: " + _path + ": Root folder " + token + " does not exist");
 
 	_rootFolder = token;
 }
@@ -191,8 +197,10 @@ void Location::_parseRedirect(std::ifstream &infile) throw(ConfigParseException)
 	_isRedirect = true;
 
 	_redirect.path = ParseUtils::parseValue(infile);
+	if (_rootFolder != "")
+		throw ConfigParseException("Location: " + _path + ": Cannot have root folder for redirect");
 	if (_redirect.path == "")
-		throw ConfigParseException("Missing path for redirect");
+		throw ConfigParseException("Location: " + _path + ": Missing path for redirect");
 
 	ParseUtils::expectChar(infile, ';');
 }

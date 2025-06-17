@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/10 13:04:09 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/17 16:13:34 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,8 +93,8 @@ void Connection::setResponse() {
 
 void Connection::readFromSocket() {
 	std::vector<char> buffer;
-	buffer.reserve(READ_BUFFER);
-	int valread = read(_socket.getFd(), buffer.data(), READ_BUFFER);
+	buffer.reserve(_serverConfig->getBufferSize());
+	int valread = read(_socket.getFd(), buffer.data(), _serverConfig->getBufferSize());
 	if (_parser.parse(buffer.data(), valread) != RequestParser::COMPLETE)
 		return ;
 	_request = _parser.getRequest();
@@ -134,7 +134,7 @@ const std::string& Connection::getTarget() const {
 
 void Connection::sendHeader() {
 	const char	*buf = _response->getHeader() + _response->getOffset();
-	ssize_t		size = std::strlen(buf) > READ_BUFFER ? READ_BUFFER : std::strlen(buf);
+	ssize_t		size = std::min(std::strlen(buf), _serverConfig->getBufferSize());
 	ssize_t		bytes_sent = send(_socket.getFd(), buf, size, 0);
 
 	std::cout << std::string(buf) << std::endl;
@@ -150,7 +150,7 @@ void Connection::sendFromSource() {
 	const char	*buf = _source->getBufferToSend();
 
 	if (_source->_bytesToSend > 0) {
-		ssize_t 	size = _source->_bytesToSend > READ_BUFFER ? READ_BUFFER : _source->_bytesToSend;
+		ssize_t 	size = std::min(_source->_bytesToSend, _serverConfig->getBufferSize());
 		ssize_t		bytes_sent;
 
 		std::cout << ">> Sending to socket. Source type: " << _source->getType() << " Bytes to send: " << _source->_bytesToSend << std::endl;
