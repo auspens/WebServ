@@ -2,7 +2,7 @@
 
 CGISource::CGISource(const ServerConfig &serverConfig, Location const *location, HttpRequest req)  throw(ChildProcessNeededException)
  : Source(serverConfig, location, req) {
-	std::cout << "Creating CGI Source" << std::endl;
+	Logger::debug() << "Creating CGI Source" << std::endl;
 
 	_location = location;
 	_type = CGI;
@@ -31,13 +31,13 @@ CGISource::CGISource(const ServerConfig &serverConfig, Location const *location,
 }
 
 CGISource::~CGISource(){
-	std::cout << "CGISource destructor called" << std::endl;
+	Logger::debug() << "CGISource destructor called" << std::endl;
 	close(_inputPipe[1]);
 	close(_outputPipe[0]);
 }
 
 void CGISource::forkAndExec()  throw(ChildProcessNeededException) {
-	std::cout << "in forkAndExec()" << std::endl;
+	Logger::debug() << "in forkAndExec()" << std::endl;
 	std::vector<std::string> envp;
 	pid_t pid;
 
@@ -46,13 +46,13 @@ void CGISource::forkAndExec()  throw(ChildProcessNeededException) {
 	pipe(_inputPipe.data());
 	pipe(_outputPipe.data());
 
-	std::cout << "_inputPipe = {" << _inputPipe[0] << ", " << _inputPipe[1] << "}, _outputPipe = {" << _outputPipe[0] << ", " << _outputPipe[1] << "}" << std::endl;
+	Logger::debug() << "_inputPipe = {" << _inputPipe[0] << ", " << _inputPipe[1] << "}, _outputPipe = {" << _outputPipe[0] << ", " << _outputPipe[1] << "}" << std::endl;
 
 	pid = fork();
 	if (pid < 0) {
 		perror("fork");
 	} else if (pid == 0) { //CHILD
-		std::cout << "Child: in child!" << std::endl;
+		Logger::debug() << "Child: in child!" << std::endl;
 
 		// Build environment variables
 		if (_pathInfo.length())
@@ -68,10 +68,10 @@ void CGISource::forkAndExec()  throw(ChildProcessNeededException) {
 		close(_inputPipe[1]);
 		close(_outputPipe[0]);
 
-		std::cout << "Child: Throwing ChildProcessNeededException" << std::endl;
+		Logger::debug() << "Child: Throwing ChildProcessNeededException" << std::endl;
 		throw ChildProcessNeededException(_scriptPath, envp, _inputPipe[0], _outputPipe[1]);
 	} else { // PARENT
-		std::cout << "Closing child pipe ends in parent" << std::endl;
+		Logger::debug() << "Closing child pipe ends in parent" << std::endl;
 		close(_inputPipe[0]);
 		close(_outputPipe[1]);
 	}
@@ -82,7 +82,7 @@ void CGISource::readSource() {
 	// And if we save the whole file to buffer and the send it, the logic needs to bie fixed accordingly
 	size_t bytesRead = read(_outputPipe[0], _body.data(), _serverConfig.getBufferSize());
 
-	std::cout << "Read " << bytesRead << " bytes from cgi source: " << std::endl << std::endl;
+	Logger::debug() << "Read " << bytesRead << " bytes from cgi source: " << std::endl << std::endl;
 
 	if (bytesRead == 0)
 		_doneReading = true;
@@ -102,7 +102,7 @@ bool CGISource::checkIfExists(){
 	closedir(dir);
 	if (access(_scriptPath.c_str(), X_OK) == -1)
 		return (0);
-	std::cout << _scriptPath << " exists and is executable" << std::endl;
+	Logger::debug() << _scriptPath << " exists and is executable" << std::endl;
 	return (1);
 }
 

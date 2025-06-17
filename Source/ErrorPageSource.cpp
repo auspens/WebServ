@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ErrorPageSource.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 15:55:07 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/10 12:33:02 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/17 19:04:30 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ ErrorPageSource::ErrorPageSource
 	_offset = 0;
 	_bytesToSend = _size;
 	_doneReading = true;
-	std::cout << "Body: \n" << std::endl;
+	Logger::debug() << "Body: \n" << std::endl;
 	WebServUtils::printVector(_body);
 }
 
@@ -39,7 +39,7 @@ void ErrorPageSource::getErrorPage(int code){
 		_size = st.st_size;
 		_body.resize(_size);
 		ssize_t readSize = read(_fd, _body.data(), _size);
-		std::cout << "Body after read: \n" << std::endl;
+		Logger::debug() << "Body after read: \n" << std::endl;
 		WebServUtils::printVector(_body);
 		if (readSize < 0)
 			return generatePage(code);
@@ -47,7 +47,7 @@ void ErrorPageSource::getErrorPage(int code){
 	}
 	else
 		generatePage(code);
-	std::cout << "Body in generate page: \n" << std::endl;
+	Logger::debug() << "Body in generate page: \n" << std::endl;
 	WebServUtils::printVector(_body);
 }
 

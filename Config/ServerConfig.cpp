@@ -6,14 +6,14 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 12:55:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/06/17 16:10:04 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/17 19:18:01 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Config.hpp"
 #include "ServerConfig.hpp"
 
-ServerConfig::ServerConfig() : _port(0) { }
+ServerConfig::ServerConfig() { }
 
 ServerConfig::ServerConfig(const Config &config) : _port(0), _config(&config) { }
 

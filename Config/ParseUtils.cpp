@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 16:03:09 by wpepping          #+#    #+#             */
-/*   Updated: 2025/06/17 16:23:32 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/17 18:00:14 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,9 +43,11 @@ void ParseUtils::expectChar(std::ifstream &infile, char c) throw(ConfigParseExce
 	char d;
 
 	infile >> d;
+	if (infile.eof())
+		throw ConfigParseException(std::string("Expected ") + std::string(1, c));
 	if (infile.fail())
 		throw ConfigParseException("Error reading from file");
-	if (infile.eof() || infile.fail() || d != c)
+	if (d != c)
 		throw ConfigParseException(std::string("Expected ") + std::string(1, c));
 }
 

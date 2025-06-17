@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 12:40:08 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/17 15:26:15 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/17 19:01:24 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,15 +83,6 @@ void Location::parse(std::ifstream &infile) throw(ConfigParseException) {
 
 const std::string &Location::getPath() const {
 	return _path;
-}
-
-const std::string &Location::getIndex() const {
-	static std::string empty_string = "";
-
-	std::cout << "getIndex() should be removed, use getIndexPages() instead" << std::endl;
-	if (getIndexPages().size() > 0)
-		return getIndexPages()[0];
-	return empty_string;
 }
 
 const std::string &Location::getRootFolder() const {

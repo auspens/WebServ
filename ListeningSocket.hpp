@@ -6,11 +6,13 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:42:21 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/18 18:48:07 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/17 18:48:15 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+
+#include "Logger.hpp"
 #include "Socket.hpp"
 #include "WebServUtils.hpp"
 

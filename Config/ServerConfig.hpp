@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 17:00:59 by wpepping          #+#    #+#             */
-/*   Updated: 2025/06/17 16:10:16 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/17 19:17:44 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ class Config;
 
 class ServerConfig {
 public:
-	ServerConfig();
 	ServerConfig(const Config &config);
 	ServerConfig(const Config &config, int port, std::string host);
 	ServerConfig(const ServerConfig &src);
@@ -57,6 +56,8 @@ private:
 	std::vector<std::string>	_serverNames;
 	ConfigSettings				_configSettings;
 	const Config				*_config;
+
+	ServerConfig();
 
 	void _parseServerNames(std::ifstream &file) throw(ConfigParseException);
 	void _parsePort(std::ifstream &file) throw(ConfigParseException);

@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   WebServUtils.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:15:00 by wouter            #+#    #+#             */
-/*   Updated: 2025/06/10 12:26:25 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/17 19:00:35 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "WebServUtils.hpp"
 
 void WebServUtils::printErrorAndExit(std::string message, int exit_status) {
-	std::cout << message << std::endl;
+	Logger::error() << message << std::endl;
 	std::exit(exit_status);
 }
 
@@ -64,8 +64,8 @@ std::string WebServUtils::pathJoin(const std::string& path1, const std::string& 
 
 
 void WebServUtils::printVector(const std::vector<char>& vec) {
-    for (std::vector<char>::const_iterator it = vec.begin(); it != vec.end(); ++it) {
-        std::cout << *it;
-    }
-    std::cout << std::endl;
+	for (std::vector<char>::const_iterator it = vec.begin(); it != vec.end(); ++it) {
+		std::cout << *it;
+	}
+	std::cout << std::endl;
 }

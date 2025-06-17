@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/17 16:20:13 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/17 19:32:12 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ Server::Server() { }
 Server::Server(const Config &config) : _config(&config) { }
 
 Server::~Server(){
-	std::cout << "Cleaning up server" << std::endl;
+	Logger::debug() << "Cleaning up server" << std::endl;
 	cleanup();
 }
 
@@ -64,11 +64,11 @@ void Server::_runEpollLoop() throw(ChildProcessNeededException) {
   			events.reserve(size); //we can check if the current capacity is enough and reserve if not. Other option can be reserving at init and capping to configured size
 		}
 		readyFds = epoll_wait(_epollInstance, &events[0], size, INFINITE_TIMEOUT); // EW: each epoll_event struct records: events on the fd (e.g. EPOLLIN) and data (ptr to connection)
-		//std::cout << "Epoll returned " << readyFds << " ready fds" << std::endl;
+		Logger::detail() << "Epoll returned " << readyFds << " ready fds" << std::endl;
 		SystemCallsUtilities::check_for_error(readyFds);
 
 		for(int i = 0; i < readyFds; ++i){
-			//std::cout << "Going through ready list, i = " << i << ", event: " << events[i].events << std::endl;
+			Logger::detail() << "Going through ready list, i = " << i << ", event: " << events[i].events << std::endl;
 			_handleSocketEvent(events[i]);
 		}
 
@@ -85,26 +85,26 @@ void Server::_handleSocketEvent(struct epoll_event &event) throw(ChildProcessNee
 
 	listeningSocket = _findListeningSocket(event.data.fd);
 	if (listeningSocket) {
-		// std::cout << "epoll returned listening socket with fd " << event.data.fd << std::endl;
+		Logger::debug() << "epoll returned listening socket with fd " << event.data.fd << std::endl;
 		_handleIncomingConnection(listeningSocket);
 	}
 	else if (!conn->isInvalidated()) {
 		if (event.events & EPOLLIN || event.events & EPOLLHUP) {  // EW: maybe one also has to check for EPOLLHUP and EPOLLERR and if so close the connection
 			if (!conn->requestReady()) {
-				//std::cout << "EPOLLIN and req is not ready, so we read from socket.." << std::endl;
+				Logger::detail() << "EPOLLIN and req is not ready, so we read from socket.." << std::endl;
 				_readFromSocket(conn);
 			}
 			else if (!conn->doneReadingSource()) {
-				//std::cout << "EPOLLIN and req is ready, so we read from source.." << std::endl;
+				Logger::detail() << "EPOLLIN and req is ready, so we read from source.." << std::endl;
 				_readFromSource(*conn);
 			}
 			else {
-				//std::cout << "EPOLLHUP from socket, clean up connection" << std::endl;
+				Logger::detail() << "EPOLLHUP from socket, clean up connection" << std::endl;
 				removeConnection(conn);
 			}
 		}
 		else if (event.events & EPOLLOUT) {
-			//std::cout << "EPOLLOUT so we write to socket.." << std::endl;
+			Logger::detail() << "EPOLLOUT so we write to socket.." << std::endl;
 			_writeToSocket(*conn);
 		}
 	}
@@ -118,7 +118,7 @@ void Server::_handleIncomingConnection(ListeningSocket *listeningSocket) {
 	addr_size = sizeof(inc_addr);
 	new_fd = accept(listeningSocket->getFd(), (struct sockaddr *)&inc_addr, &addr_size);
 
-	std::cout << "Accepting incoming connection with fd " << new_fd << std::endl;
+	Logger::info() << "Accepting incoming connection with fd " << new_fd << std::endl;
 
 	Connection *inc_conn = new Connection(new_fd, listeningSocket->getPort());
 	_connections.push_back(inc_conn);
@@ -126,11 +126,11 @@ void Server::_handleIncomingConnection(ListeningSocket *listeningSocket) {
 }
 
 void Server::_readFromSocket(Connection *conn) throw(ChildProcessNeededException) {
-	conn->readFromSocket();
+	conn->readFromSocket(_config->getBufferSize());
 	if (conn->requestReady())
 	{
 		// finished reading request, create the source and the response
-		std::cout <<"Request body: "<< conn->getRequestBody() << std::endl << std::endl;
+		Logger::debug() <<"Request body: "<< conn->getRequestBody() << std::endl << std::endl;
 		try {
 			conn->setupSource(*_config);
 			if (conn->getSource()->getType() == CGI) // Use something like source.isPollable() instead of getType()
@@ -159,7 +159,7 @@ void Server::_writeToSocket(Connection &conn) {
 }
 
 void Server::_readFromSource(Connection &conn) {
-	std::cout << "Server::readFromSource" << std::endl;
+	Logger::debug() << "Server::readFromSource" << std::endl;
 	if (!conn.getSource())
 		return;
 	conn.getSource()->readSource();
@@ -210,14 +210,14 @@ void Server::cleanup() {
 void Server::configureCGI(Connection* conn) {
 	CGISource *cgiptr = (CGISource *)conn->getSource();
 
-	std::cout << "Add cgi to epoll. fd: " << cgiptr->getPipeReadEnd() << std::endl;
+	Logger::debug() << "Add cgi to epoll. fd: " << cgiptr->getPipeReadEnd() << std::endl;
 	_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn, cgiptr->getPipeReadEnd());
 	if (conn->getRequest().method == "POST") {
 		int numbytes = write(cgiptr->getInputFd(), conn->getRequest().body.c_str(), conn->getRequest().body.length());
-		std::cout << "method is POST! wrote " << numbytes << " bytes" << std::endl;
+		Logger::debug() << "method is POST! wrote " << numbytes << " bytes" << std::endl;
 	}
 	if (close(cgiptr->getInputFd()) != -1)
-		std::cout << "Closed write end of input pipe: Closing fd " << cgiptr->getInputFd() << std::endl;
+		Logger::debug() << "Closed write end of input pipe: Closing fd " << cgiptr->getInputFd() << std::endl;
 }
 
 void Server::removeConnection(Connection *conn) {
@@ -230,7 +230,7 @@ void Server::cleanInvalidatedConnections() {
 
 	for (size_t i = 0; i < _invalidatedConnections.size(); i++) {
 		conn = _invalidatedConnections[i];
-		std::cout << "Closing connection!" << std::endl;
+		Logger::debug() << "Closing connection!" << std::endl;
 		_updateEpoll(EPOLL_CTL_DEL, -1, conn, conn->getSocketFd());
 		if (conn->getSource() && conn->getSource()->getType() == CGI) // Use something like source.isPollable() instead of getType()
 			_updateEpoll(EPOLL_CTL_DEL, -1, conn, conn->getSourceFd());

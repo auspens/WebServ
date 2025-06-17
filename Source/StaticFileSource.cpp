@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/10 11:31:59 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/17 19:04:28 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 StaticFileSource::StaticFileSource(const ServerConfig &serverConfig, Location const *location, HttpRequest req)
 	: Source(serverConfig, location, req)
 	, _generated(false){
-	std::cout << "Creating Static File Source" << std::endl;
+	Logger::debug() << "Creating Static File Source" << std::endl;
 	_location = location;
 	checkIfDirectory();
 	if (!_generated && !checkIfExists(_target))
@@ -115,7 +115,7 @@ void StaticFileSource::defineMimeType(){
 }
 
 bool StaticFileSource::readDirectories(std::vector<DirEntry> &entries){
-	std::cout << "Target: " << _target << std::endl;
+	Logger::debug() << "Target: " << _target << std::endl;
 	DIR *dir = opendir(_target.c_str());
 	if (!dir)
 		return false;

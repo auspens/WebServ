@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/22 11:16:20 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/08 13:41:17 by wouter           ###   ########.fr       */
+/*   Updated: 2025/06/17 18:59:16 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ Socket::Socket(int fd, struct addrinfo *addrinfo) : _fd(fd), _addrinfo(addrinfo)
 Socket::Socket(int fd) : _fd(fd), _addrinfo(NULL) { }
 
 Socket::~Socket() {
-	std::cout << "Closing socket fd " << _fd << std::endl;
+	Logger::debug() << "Closing socket fd " << _fd << std::endl;
 	freeaddrinfo(_addrinfo);
 	close(_fd);
 }

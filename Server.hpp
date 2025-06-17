@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/08 16:05:17 by wouter           ###   ########.fr       */
+/*   Updated: 2025/06/17 18:46:39 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,10 @@
 #include <map>
 #include <vector>
 #include "ChildProcessNeededException.hpp"
+#include "Config.hpp"
 #include "Connection.hpp"
 #include "ListeningSocket.hpp"
-#include "Config.hpp"
+#include "Logger.hpp"
 
 #define INFINITE_TIMEOUT -1
 

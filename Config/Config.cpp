@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:11:08 by wouter            #+#    #+#             */
-/*   Updated: 2025/06/17 16:17:18 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/17 19:10:56 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,8 @@ Config::Config(const Config &src) {
 }
 
 Config &Config::operator=(const Config &src) {
-	if (this != &src)
-	{
+	if (this != &src) {
+		_chunkSize = src._chunkSize;
 		_serverConfigs = src._serverConfigs;
 	}
 	return *this;
@@ -144,6 +144,9 @@ void Config::_parseConfigFile(const std::string &configFile) throw(ConfigParseEx
 }
 
 void Config::_validateConfig() const throw(ConfigParseException) {
+	if (_serverConfigs.empty())
+		throw ConfigParseException("No servers configured");
+
 	for (size_t i = 0; i < _serverConfigs.size(); i++)
 		_validateServerConfig(*_serverConfigs[i]);
 }
@@ -153,6 +156,8 @@ void Config::_validateServerConfig(ServerConfig &serverConfig) const throw(Confi
 
 	if (!serverConfig.getPort())
 		throw ConfigParseException("Missing listen port for server");
+	if (serverConfig.getRootFolder() == "" && locations.empty())
+		throw ConfigParseException("Missing root folder and no locations configured for server");
 
 	for (size_t i = 0; i < locations.size(); i++)
 		_validateLocation(*locations[i]);
@@ -176,6 +181,7 @@ void Config::_parseChunkSize(std::ifstream &infile) throw(ConfigParseException) 
 	std::string chunkSize;
 
 	chunkSize = ParseUtils::parseValue(infile);
+	Logger::debug() << "chunkSize: " << chunkSize << std::endl;
 	_chunkSize = ParseUtils::parseInt(chunkSize, 1, std::numeric_limits<int>::max());
 
 	ParseUtils::expectChar(infile, ';');

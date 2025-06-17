@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ListeningSocket.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:44:56 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/08 13:44:18 by wouter           ###   ########.fr       */
+/*   Updated: 2025/06/17 18:58:28 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ ListeningSocket::ListeningSocket() : _listeningPort(3490) {
 }
 
 ListeningSocket::~ListeningSocket() {
-	std::cout << "Closing listening socket: ";
+	Logger::info() << "Closing listening socket: ";
 }
 
 ListeningSocket::ListeningSocket(int port) : _listeningPort(port) {
@@ -36,7 +36,7 @@ void ListeningSocket::init() {
 	result = getaddrinfo(NULL, WebServUtils::to_string(_listeningPort).c_str(), &_hints, &_addrinfo);
 
 	if (result != 0){
-		std::cout << gai_strerror(result) <<std::endl;
+		Logger::error() << gai_strerror(result) <<std::endl;
 		std::exit(EXIT_FAILURE);
 	}
 
@@ -56,7 +56,7 @@ void ListeningSocket::startListening() {
 	//listen
 	SystemCallsUtilities::check_for_error(listen(_fd, BACKLOG));
 
-	std::cout <<"Listening on port " << _listeningPort << std::endl;
+	Logger::info() << "Listening on port " << _listeningPort << std::endl;
 }
 
 int ListeningSocket::getPort() {

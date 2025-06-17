@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/17 16:11:47 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/17 19:27:46 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 #include "Config.hpp"
 #include "ChildProcessNeededException.hpp"
+#include "Logger.hpp"
 #include "RequestParser.hpp"
 #include "Response.hpp"
 #include "Socket.hpp"
@@ -33,7 +34,7 @@ class Connection{
 		int					getSocketFd() const;
 		bool				requestReady() const;
 		HttpRequest			getRequest() const;
-		void				readFromSocket();
+		void				readFromSocket(size_t bufferSize);
 		void				writeToSocket();
 		void				setResponse();
 		void				resetParser();

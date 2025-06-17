@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/10 11:31:50 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/17 18:49:14 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,8 +158,8 @@ bool Source::_safePath(const std::string &path) const {
 
 Source *Source::getNewSource(const ServerConfig &serverConfig, HttpRequest req) throw(SourceException, ChildProcessNeededException) {
 	const Location *location = _findLocation(req.path, serverConfig);
-	// std::cout << "Location: " << (location? location->getPath():serverConfig.getRootFolder()) << std::endl;
-	// std::cout << "request path:" << req.path << std::endl;
+	Logger::debug() << "Location: " << (location? location->getPath():serverConfig.getRootFolder()) << std::endl;
+	Logger::debug() << "request path:" << req.path << std::endl;
 	if (location && location->isRedirect()) {
 		return new RedirectSource(serverConfig, *location, req);
 	}

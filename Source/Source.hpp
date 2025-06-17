@@ -6,18 +6,20 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/17 16:13:33 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/17 18:49:37 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+
 #include <exception>
+#include <fstream>
 #include <string>
 #include "ChildProcessNeededException.hpp"
 #include "Config.hpp"
+#include "Logger.hpp"
 #include "HttpRequest.hpp"
 #include "ServerConfig.hpp"
-#include <fstream>
 #include <unistd.h>
 #include <sys/stat.h>
 

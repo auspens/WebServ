@@ -183,7 +183,7 @@ void ConfigSettings::parseAcceptCgi(std::ifstream &infile) throw(ConfigParseExce
 
 	while (token != "") {
 		if (!WebServUtils::isin(CGI_EXTENSIONS, token))
-			throw ConfigParseException("Invalid value for accept cgi");
+			throw ConfigParseException("Invalid value for accept cgi: " + token);
 		_acceptCgi.push_back(token);
 		token = ParseUtils::parseValue(infile);
 	}
@@ -197,25 +197,23 @@ void ConfigSettings::parseAcceptMethod(std::ifstream &infile) throw(ConfigParseE
 	if (_acceptMethod != 0)
 		throw  ConfigParseException("accept method already set");
 
-	ParseUtils::skipWhitespace(infile);
-	while (infile.peek() != ';') {
+	method = ParseUtils::parseValue(infile);
+	while (method != "") {
 		if (infile.fail())
 			throw ConfigParseException("Error reading from file");
 		if (infile.eof())
 			throw ConfigParseException("Expected ';'");
 
-		method = ParseUtils::parseValue(infile);
-
 		if (method == "GET")
 			_acceptMethod |= METHOD_GET;
-		else if (method != "POST")
+		else if (method == "POST")
 			_acceptMethod |= METHOD_POST;
-		else if (method != "DELETE")
+		else if (method == "DELETE")
 			_acceptMethod |= METHOD_DELETE;
 		else
-			throw ConfigParseException("Invalid value for accept method");
+			throw ConfigParseException("Invalid value for accept method: " + method);
 
-		ParseUtils::skipWhitespace(infile);
+		method = ParseUtils::parseValue(infile);
 	}
 	ParseUtils::expectChar(infile, ';');
 }

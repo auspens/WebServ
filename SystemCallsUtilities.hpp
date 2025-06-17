@@ -1,4 +1,5 @@
 #pragma once
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <stdexcept>
@@ -10,6 +11,7 @@
 #include <errno.h>
 #include <sys/epoll.h>
 #include <fcntl.h>
+#include "Logger.hpp"
 
 
 class SystemCallsUtilities{

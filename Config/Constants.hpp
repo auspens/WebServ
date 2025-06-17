@@ -6,11 +6,13 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 14:52:12 by wouter            #+#    #+#             */
-/*   Updated: 2025/06/17 15:45:30 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/17 19:32:57 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+
+#include <string>
 
 enum eHttpMethod {
 		METHOD_NONE   = 0,
@@ -29,3 +31,13 @@ const std::string CGI_EXTENSIONS[] = {
 	".py",
 	".php"
 };
+
+enum LogLevel {
+	LOG_DETAIL,
+	LOG_DEBUG,
+	LOG_INFO,
+	LOG_WARNING,
+	LOG_ERROR
+};
+
+#define LOG_LEVEL LOG_INFO
