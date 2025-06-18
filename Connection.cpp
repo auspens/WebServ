@@ -3,10 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
+<<<<<<< HEAD
 /*   Updated: 2025/06/13 16:27:32 by auspensk         ###   ########.fr       */
+=======
+/*   Updated: 2025/06/17 19:28:24 by wpepping         ###   ########.fr       */
+>>>>>>> e6b747404726033e3cd51df4848054da236c56e1
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +27,7 @@ Connection::Connection(int fd, int serverPort) :
 	_source(NULL),
 	_serverPort(serverPort),
 	_invalidated(false) {
-	// std::cout <<"Create new connection with fd: " << fd << std::endl;
+	Logger::debug() << "Create new connection with fd: " << fd << std::endl;
  }
 
 Connection::Connection(int fd, int serverPort, struct addrinfo *addrinfo) :
@@ -89,6 +93,7 @@ void Connection::setResponse() {
 	_response = new Response(_source);
 }
 
+<<<<<<< HEAD
 void Connection::readFromSocket(const Config &config) {
 	std::vector<char> buffer;
 	buffer.reserve(READ_BUFFER);
@@ -100,20 +105,27 @@ void Connection::readFromSocket(const Config &config) {
 		result = _parser.parse(buffer.data(), valread);
 	}
 	if (result != RequestParser::COMPLETE)
+=======
+void Connection::readFromSocket(size_t bufferSize) {
+	std::vector<char> buffer;
+	buffer.reserve(bufferSize);
+	int valread = read(_socket.getFd(), buffer.data(), bufferSize);
+	if (_parser.parse(buffer.data(), valread) != RequestParser::COMPLETE)
+>>>>>>> e6b747404726033e3cd51df4848054da236c56e1
 		return ;
 	_request = _parser.getRequest();
 
-	std::cout << "Headers:" << std::endl;
+	Logger::debug() << "Headers:" << std::endl;
 	for (std::map<std::string, std::string>::iterator it = _request.headers.begin(); it != _request.headers.end(); ++it)
-		std::cout << it->first << " : " << it->second << std::endl;
+		Logger::debug() << it->first << " : " << it->second << std::endl;
 
-	std::cout << std::endl;
+	Logger::debug() << std::endl;
 }
 
 void Connection::writeToSocket() {
 	if (!_response->headerSent())
 	{
-		std::cout << "Header to be sent:" << std::endl;
+		Logger::debug() << "Header to be sent:" << std::endl;
 		sendHeader();
 	}
 	else if (_source->getType() != REDIRECT) // ideally the connection is not aware of different source types, redirect could just have _bytesToSend = 0
@@ -138,10 +150,10 @@ const std::string& Connection::getTarget() const {
 
 void Connection::sendHeader() {
 	const char	*buf = _response->getHeader() + _response->getOffset();
-	ssize_t		size = std::strlen(buf) > READ_BUFFER ? READ_BUFFER : std::strlen(buf);
+	ssize_t		size = std::min(std::strlen(buf), _serverConfig->getBufferSize());
 	ssize_t		bytes_sent = send(_socket.getFd(), buf, size, 0);
 
-	std::cout << std::string(buf) << std::endl;
+	Logger::debug() << std::string(buf) << std::endl;
 
 	if (bytes_sent == -1)
 		throw (std::runtime_error("Error sending header"));
@@ -154,16 +166,24 @@ void Connection::sendFromSource() {
 	const char	*buf = _source->getBufferToSend();
 
 	if (_source->_bytesToSend > 0) {
-		ssize_t 	size = _source->_bytesToSend > READ_BUFFER ? READ_BUFFER : _source->_bytesToSend;
+		ssize_t 	size = std::min(_source->_bytesToSend, _serverConfig->getBufferSize());
 		ssize_t		bytes_sent;
 
+<<<<<<< HEAD
 		// std::cout << ">> Sending to socket. Source type: " << _source->getType() << " Bytes to send: " << _source->_bytesToSend << std::endl;
+=======
+		Logger::debug() << ">> Sending to socket. Source type: " << _source->getType() << " Bytes to send: " << _source->_bytesToSend << std::endl;
+>>>>>>> e6b747404726033e3cd51df4848054da236c56e1
 
 		bytes_sent = send(_socket.getFd(), buf, size, 0);
 		if (bytes_sent == -1)
 			throw (std::runtime_error("Error sending body")); // This should probably be a different type of exception. Also needs to be caught in Server or program will crash
 
+<<<<<<< HEAD
 		// std::cout << "Sent " << bytes_sent << " bytes" << std::endl;
+=======
+		Logger::debug() << "Sent " << bytes_sent << " bytes" << std::endl;
+>>>>>>> e6b747404726033e3cd51df4848054da236c56e1
 
 		_source->_bytesToSend -= bytes_sent;
 		_source->_offset += bytes_sent;

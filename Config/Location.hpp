@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 11:41:02 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/23 17:36:50 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/17 19:01:34 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,6 @@ public:
 	int getRedirectCode() const;
 	const std::string &getRedirectPath() const;
 	const std::string &getPath() const;
-	const std::string &getIndex() const;
 	const std::string &getRootFolder() const;
 	size_t getClientMaxBodySize() const;
 	const std::map<int, std::string>& getErrorPages() const;

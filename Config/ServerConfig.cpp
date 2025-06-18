@@ -6,14 +6,14 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 12:55:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/05/23 18:59:28 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/17 19:18:01 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Config.hpp"
 #include "ServerConfig.hpp"
 
-ServerConfig::ServerConfig() : _port(0) { }
+ServerConfig::ServerConfig() { }
 
 ServerConfig::ServerConfig(const Config &config) : _port(0), _config(&config) { }
 
@@ -63,11 +63,11 @@ void ServerConfig::_parseServerNames(std::ifstream &infile) throw(ConfigParseExc
 
 	server_name = ParseUtils::parseValue(infile);
 	if (server_name == "")
-		throw ConfigParseException("Invalid value for server name");
+		throw ConfigParseException("Empty value for server name");
 
 	while (server_name != "") {
 		if (server_name.length() > 255)
-			throw ConfigParseException("Invalid value for server name");
+			throw ConfigParseException("Value for server name too long: " + server_name);
 		_serverNames.push_back(server_name);
 		server_name = ParseUtils::parseValue(infile);
 	}
@@ -100,22 +100,12 @@ void ServerConfig::_parseRoot(std::ifstream &infile) throw(ConfigParseException)
 	token = ParseUtils::parseValue(infile);
 	ParseUtils::expectChar(infile, ';');
 
-	if (!WebServUtils::folderExists(token))
+	if (_rootFolder != "")
+		throw ConfigParseException("Server config: Root folder already set");
+	else if (!WebServUtils::folderExists(token))
 		throw ConfigParseException("Root folder does not exist");
 
 	_rootFolder = token;
-}
-
-void ServerConfig::_parseUploadPass(std::ifstream &infile) throw(ConfigParseException) {
-	_uploadPass = 1;
-	try {
-		_parseRoot(infile);
-	} catch (ConfigParseException &e) {
-		if (std::string(e.what()) == "Root folder does not exist")
-			throw ConfigParseException("Upload pass folder does not exist");
-		else
-			throw;
-	}
 }
 
 int ServerConfig::getPort() const {
@@ -124,22 +114,14 @@ int ServerConfig::getPort() const {
 	return DEFAULT_PORT;
 }
 
-const std::string *ServerConfig::getHost() const { // Should be removed
-	#include <iostream>
-	std::cout << "getHost() should be removed, use getServerNames() instead" << std::endl;
-
-	if (_serverNames.size() > 0)
-		return &_serverNames[0];
-	else
-		return NULL;
-}
-
 const std::vector<std::string> &ServerConfig::getServerNames() const {
 	return _serverNames;
 }
 
-int ServerConfig::getBufferSize() const {
-	return READ_BUFFER;
+size_t ServerConfig::getBufferSize() const {
+	if (_config->getBufferSize())
+		return _config->getBufferSize();
+	return DEFAULT_CHUNK_SIZE;
 }
 
 const std::vector<Location *> &ServerConfig::getLocations() const{

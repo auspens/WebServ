@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/11 16:08:39 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/18 16:03:54 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,25 @@ bool Source::_safePath(const std::string &path) const {
 		path.find("\\") != std::string::npos)
 		return false;
 	return true;
+}
+
+Source *Source::getNewSource(const ServerConfig &serverConfig, HttpRequest req) throw(SourceException, ChildProcessNeededException) {
+	const Location *location = _findLocation(req.path, serverConfig);
+	Logger::debug() << "Location: " << (location? location->getPath():serverConfig.getRootFolder()) << std::endl;
+	Logger::debug() << "request path:" << req.path << std::endl;
+	if (location && location->isRedirect()) {
+		return new RedirectSource(serverConfig, *location, req);
+	}
+	if (_isCgiRequest(serverConfig, location, req.path)) {
+		CGISource* ptr = new CGISource(serverConfig, location, req);
+			return ptr;
+	}
+	return new StaticFileSource(serverConfig, location, req);
+}
+
+Source *Source::getNewErrorPageSource(const ServerConfig &serverConfig, HttpRequest req, int code) {
+	const Location *location = _findLocation(req.path, serverConfig);
+	return new ErrorPageSource(serverConfig, location, req, code);
 }
 
 char *Source::readFromBuffer(){

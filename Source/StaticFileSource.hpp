@@ -3,20 +3,22 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:08:43 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/06 16:49:37 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/17 19:03:39 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+
+#include "Config.hpp"
+#include "Logger.hpp"
 #include "Source.hpp"
 #include "SystemCallsUtilities.hpp"
 #include "WebServUtils.hpp"
 #include "ServerConfig.hpp"
 #include <dirent.h>
-#include "../Config/Config.hpp"
 
 struct DirEntry {
     std::string name;

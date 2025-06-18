@@ -3,6 +3,7 @@
 #include <dirent.h>
 #include <sys/wait.h>
 #include "ChildProcessNeededException.hpp"
+#include "Logger.hpp"
 #include "Source.hpp"
 #include "SystemCallsUtilities.hpp"
 #include "WebServUtils.hpp"

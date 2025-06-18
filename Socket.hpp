@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/22 10:42:49 by auspensk          #+#    #+#             */
-/*   Updated: 2025/04/26 17:54:12 by wouter           ###   ########.fr       */
+/*   Updated: 2025/06/17 18:59:31 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
+#include "Logger.hpp"
 #include "SystemCallsUtilities.hpp"
-
 
 class Socket {
 	protected:

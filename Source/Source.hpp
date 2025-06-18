@@ -6,19 +6,21 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/11 16:09:19 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/18 16:03:30 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+
 #include <exception>
+#include <fstream>
 #include <string>
 #include "ChildProcessNeededException.hpp"
 #include "SourceAndRequestException.hpp"
 #include "Config.hpp"
+#include "Logger.hpp"
 #include "HttpRequest.hpp"
 #include "ServerConfig.hpp"
-#include <fstream>
 #include <unistd.h>
 #include <sys/stat.h>
 
@@ -58,7 +60,7 @@ class Source {
 			int code
 		);
 
-		int							_bytesToSend;
+		size_t						_bytesToSend;
 		int							_offset;
 		bool						_doneReading;
 		static std::map<std::string, std::string> _mimeTypes;

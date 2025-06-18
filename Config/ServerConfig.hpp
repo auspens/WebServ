@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 17:00:59 by wpepping          #+#    #+#             */
-/*   Updated: 2025/05/26 16:51:43 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/17 19:17:44 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ class Config;
 
 class ServerConfig {
 public:
-	ServerConfig();
 	ServerConfig(const Config &config);
 	ServerConfig(const Config &config, int port, std::string host);
 	ServerConfig(const ServerConfig &src);
@@ -39,9 +38,8 @@ public:
 	void parse(std::ifstream &file) throw(ConfigParseException);
 
 	int									getPort() const;
-	const std::string					*getHost() const;
 	const std::vector<std::string>		&getServerNames() const;
-	int									getBufferSize() const;
+	size_t								getBufferSize() const;
 	const std::string 					&getRootFolder() const;
 	const std::map<int, std::string>	&getErrorPages() const;
 	const std::vector<Location *>		&getLocations() const;
@@ -50,20 +48,19 @@ public:
 	const std::vector<std::string>		&getAcceptCgi() const;
 	int									getAcceptMethod() const;
 	bool								getAutoIndex() const;
-	bool								autoIndexIsSet() const;//not defined!
 
 private:
 	int							_port;
-	bool						_uploadPass;
 	std::string 				_rootFolder;
 	std::vector<Location *>		_locations;
 	std::vector<std::string>	_serverNames;
 	ConfigSettings				_configSettings;
 	const Config				*_config;
 
+	ServerConfig();
+
 	void _parseServerNames(std::ifstream &file) throw(ConfigParseException);
 	void _parsePort(std::ifstream &file) throw(ConfigParseException);
 	Location *_parseLocation(std::ifstream &file) throw(ConfigParseException);
 	void _parseRoot(std::ifstream &file) throw(ConfigParseException);
-	void _parseUploadPass(std::ifstream &file) throw(ConfigParseException);
 };

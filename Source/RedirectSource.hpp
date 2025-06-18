@@ -3,14 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   RedirectSource.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/06 16:37:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/28 16:14:09 by wouter           ###   ########.fr       */
+/*   Updated: 2025/06/17 19:03:09 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+
+#include "Logger.hpp"
 #include "Source.hpp"
 
 class RedirectSource : public Source

@@ -14,6 +14,8 @@ SRC = 	Config/Config.cpp \
 		Config/ParseUtils.cpp \
 		Config/ConfigSettings.cpp \
 		Config/ConfigParseException.cpp \
+		Logger/Logger.cpp \
+		Logger/LogStream.cpp \
 		Response.cpp \
 		Source/Source.cpp \
 		Source/StaticFileSource.cpp \
@@ -45,6 +47,8 @@ HDR = 	Config/Config.hpp \
 		Config/Constants.hpp \
 		Config/ConfigSettings.hpp \
 		Config/ConfigParseException.hpp \
+		Logger/Logger.hpp \
+		Logger/LogStream.hpp \
 		Response.hpp \
 		Source/Source.hpp \
 		Source/StaticFileSource.hpp \
@@ -65,7 +69,7 @@ HDR = 	Config/Config.hpp \
 		Tests/TestConfig.hpp \
 		Tests/TestUtils.hpp
 
-INCLUDE = -I. -IConfig -ISource -ITests
+INCLUDE = -I. -IConfig -ISource -ITests -ILogger
 
 all: $(NAME)
 

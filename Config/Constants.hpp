@@ -6,11 +6,13 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 14:52:12 by wouter            #+#    #+#             */
-/*   Updated: 2025/05/23 18:14:52 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/17 19:32:57 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+
+#include <string>
 
 enum eHttpMethod {
 		METHOD_NONE   = 0,
@@ -23,9 +25,19 @@ enum eHttpMethod {
 #define DEFAULT_AUTO_INDEX false
 #define DEFAULT_CLIENT_MAX_BODY_SIZE 10ULL*1024*1024*1024
 #define DEFAULT_ACCEPT_METHOD METHOD_GET
-#define READ_BUFFER 1024
+#define DEFAULT_CHUNK_SIZE 1024
 
 const std::string CGI_EXTENSIONS[] = {
 	".py",
 	".php"
 };
+
+enum LogLevel {
+	LOG_DETAIL,
+	LOG_DEBUG,
+	LOG_INFO,
+	LOG_WARNING,
+	LOG_ERROR
+};
+
+#define LOG_LEVEL LOG_INFO

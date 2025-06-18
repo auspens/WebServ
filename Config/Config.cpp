@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:11:08 by wouter            #+#    #+#             */
-/*   Updated: 2025/06/10 11:36:11 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/17 19:10:56 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 #include <fstream>
 #include <iostream>
 
-Config::Config() {}
+Config::Config() : _chunkSize(0) {}
 
-Config::Config(std::string &configFile) {
+Config::Config(std::string &configFile) : _chunkSize(0) {
 	_parseConfigFile(configFile);
 }
 
@@ -24,11 +24,12 @@ Config::~Config() {}
 
 Config::Config(const Config &src) {
 	_serverConfigs = src._serverConfigs;
+	_chunkSize = src._chunkSize;
 }
 
 Config &Config::operator=(const Config &src) {
-	if (this != &src)
-	{
+	if (this != &src) {
+		_chunkSize = src._chunkSize;
 		_serverConfigs = src._serverConfigs;
 	}
 	return *this;
@@ -36,6 +37,7 @@ Config &Config::operator=(const Config &src) {
 
 void Config::parse(const std::string &configFile) throw(ConfigParseException) {
 	_parseConfigFile(configFile);
+	_validateConfig();
 }
 
 const std::vector<ServerConfig *> &Config::getServerConfigs() const {
@@ -70,6 +72,12 @@ bool Config::getAutoIndex() const {
 	if (_configSettings.autoIndexIsSet())
 		return _configSettings.getAutoIndex();
 	return DEFAULT_AUTO_INDEX;
+}
+
+size_t Config::getBufferSize() const {
+	if (_chunkSize)
+		return _chunkSize;
+	return DEFAULT_CHUNK_SIZE;
 }
 
 size_t Config::getClientMaxBodySize(const ServerConfig &serverConfig, const Location *location) {
@@ -125,12 +133,39 @@ void Config::_parseConfigFile(const std::string &configFile) throw(ConfigParseEx
 			_configSettings.parseConfigSetting(file, token);
 		else if (token == "server")
 			_serverConfigs.push_back(_parseServerConfig(file));
+		else if (token == "chunk_size")
+			_parseChunkSize(file);
 		else
 			throw ConfigParseException("Unexpected keyword: " + token);
 		ParseUtils::skipWhitespace(file);
 	}
 
 	file.close();
+}
+
+void Config::_validateConfig() const throw(ConfigParseException) {
+	if (_serverConfigs.empty())
+		throw ConfigParseException("No servers configured");
+
+	for (size_t i = 0; i < _serverConfigs.size(); i++)
+		_validateServerConfig(*_serverConfigs[i]);
+}
+
+void Config::_validateServerConfig(ServerConfig &serverConfig) const throw(ConfigParseException) {
+	std::vector<Location *> locations = serverConfig.getLocations();
+
+	if (!serverConfig.getPort())
+		throw ConfigParseException("Missing listen port for server");
+	if (serverConfig.getRootFolder() == "" && locations.empty())
+		throw ConfigParseException("Missing root folder and no locations configured for server");
+
+	for (size_t i = 0; i < locations.size(); i++)
+		_validateLocation(*locations[i]);
+}
+
+void Config::_validateLocation(Location &location) const throw(ConfigParseException) {
+	if (location.getRootFolder() == "")
+		throw ConfigParseException("Missing root folder for location: " + location.getPath());
 }
 
 ServerConfig *Config::_parseServerConfig(std::ifstream &configFile) throw(ConfigParseException) {
@@ -140,4 +175,14 @@ ServerConfig *Config::_parseServerConfig(std::ifstream &configFile) throw(Config
 	config->parse(configFile);
 
 	return config;
+}
+
+void Config::_parseChunkSize(std::ifstream &infile) throw(ConfigParseException) {
+	std::string chunkSize;
+
+	chunkSize = ParseUtils::parseValue(infile);
+	Logger::debug() << "chunkSize: " << chunkSize << std::endl;
+	_chunkSize = ParseUtils::parseInt(chunkSize, 1, std::numeric_limits<int>::max());
+
+	ParseUtils::expectChar(infile, ';');
 }
