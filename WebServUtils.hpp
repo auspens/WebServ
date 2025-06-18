@@ -3,14 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServUtils.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 14:38:47 by wouter            #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2025/06/17 18:59:51 by wpepping         ###   ########.fr       */
-=======
-/*   Updated: 2025/06/18 15:48:03 by auspensk         ###   ########.fr       */
->>>>>>> auspens
+/*   Updated: 2025/06/18 16:17:58 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
