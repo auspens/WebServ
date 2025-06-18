@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 16:00:07 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/13 15:33:18 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/17 12:22:26 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,6 @@ class SourceFactory {
 			const ServerConfig &serverConfig
 		);
 	private:
-
 		static bool _isCgiRequest(const ServerConfig &serverConfig, const Location *location, const std::string &path);
+		static bool _isUploadRequest(const ServerConfig &serverConfig, const Location *location, const HttpRequest &request);
 };

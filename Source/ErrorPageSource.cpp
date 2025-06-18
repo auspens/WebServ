@@ -6,11 +6,33 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 15:55:07 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/10 12:33:02 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/17 15:01:49 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ErrorPageSource.hpp"
+
+// Source *source;
+
+// try {
+// 	source = new StaticFileSource(serverConfig, location, req, path);
+// } catch (SomethingException &e) {
+// 	source = new GeneratedSource(serverConfig, location, req, body);
+// 	source->generatePage();
+// }
+
+// UploadSource() : source(NULL) {
+
+// }
+
+
+// source = new GeneratedSource(serverConfig, location, req, body);
+// source->generatePage();
+
+// void readFromSource() {
+// 	if (source)
+// 		source->readFromSource();
+// }
 
 ErrorPageSource::ErrorPageSource
 		(const ServerConfig &serverConfig,

@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/13 13:05:14 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/17 16:14:43 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,7 +181,7 @@ void StaticFileSource::generatePage(int code){
 	html += "<body><h1>" + _statusCodes.at(code).code + "</h1><hr><ul>";
 	html += "<body><h1>" + _statusCodes.at(code).message + "</h1><hr><ul>";
 	html += "<body><h2>" + _statusCodes.at(code).description + "</h2><hr><ul>";
-	html += "<body><h3> this page is generated automatically be the webserver</h3><hr><ul>";
+	html += "<body><h3> this page is generated automatically by the webserver</h3><hr><ul>";
 	html += "</ul><hr></body></html>";
 	_body.assign(html.begin(), html.end());
 	_generated = true;

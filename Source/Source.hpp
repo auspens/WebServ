@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/11 16:09:19 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/18 13:23:07 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 
 
-enum SourceType {STATIC, REDIRECT, CGI};
+enum SourceType {STATIC, REDIRECT, CGI, UPLOAD};
 struct HTTPStatusCode{
 	std::string code;
 	std::string message;
