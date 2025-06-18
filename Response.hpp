@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 10:15:00 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/06 18:31:35 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/18 15:51:07 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,6 @@ class Response {
 	private:
 		std::string					_header;
 		bool						_chunked;
-		static std::string num_to_str(size_t num);
 		size_t						_offset;
 		bool						_headerSent;
 };

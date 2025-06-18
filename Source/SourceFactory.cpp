@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 16:03:12 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/13 10:24:57 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/17 15:41:22 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,10 @@ Source *SourceFactory::getNewSource(const ServerConfig &serverConfig, HttpReques
 	if (_isCgiRequest(serverConfig, location, req.path)) {
 		CGISource* ptr = new CGISource(serverConfig, location, req);
 			return ptr;
+	}
+	if (_isUploadRequest(serverConfig, location, req)){
+		UploadSource* ptr = new UploadSource(serverConfig, location, req);
+		return ptr;
 	}
 	return new StaticFileSource(serverConfig, location, req);
 }
@@ -61,3 +65,14 @@ bool SourceFactory::_isCgiRequest(const ServerConfig &serverConfig, const Locati
 	return false;
 }
 
+bool SourceFactory::_isUploadRequest(const ServerConfig &serverConfig, const Location *location, const HttpRequest &request){
+	if (request.method != "POST")
+		return false;
+	std::map<std::string, std::string>::const_iterator it = request.headers.find("Content-Type: multipart/form-data");
+	if (it == request.headers.end())
+		return false;
+	int _acceptMethod = Config::getAcceptMethod(serverConfig, location);
+	if (_acceptMethod & METHOD_POST)
+		return true;
+	throw (SourceAndRequestException("Upload not allowed here", 403));
+}
