@@ -3,26 +3,43 @@
 /*                                                        :::      ::::::::   */
 /*   UploadSource.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 15:44:12 by wpepping          #+#    #+#             */
-/*   Updated: 2025/05/29 16:09:41 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/18 15:59:34 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <string>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <dirent.h>
 #include "Source.hpp"
 
-class UploadSource : Source {
+struct fileToUpload{
+	std::string body;
+	std::string name;
+	std::string extension;
+};
+
+class UploadSource : public Source {
 	public:
 		UploadSource(
 			const ServerConfig &serverConfig,
-			Location const &location,
+			Location const *location,
 			HttpRequest req
 		);
 		~UploadSource();
+		void 	readSource();
+		char *	getBufferToSend();
 
 	private:
+		std::vector <fileToUpload> _uploads;
+		bool _isWriting;
+		size_t _writeSize;
 
-		std::string _filename;
+		void _getUploadFiles(std::string boundary, HttpRequest req);
+		std::string _getFileName(std::string token);
+		void _createHTTPResponse();
+		std::string _findBoundary(std::string header);
 };

@@ -3,6 +3,8 @@
 #include "HttpRequest.hpp"
 #include <string>
 #include <sstream>
+#include "Source/SourceAndRequestException.hpp"
+#include "Config/Config.hpp"
 
 #include <stdlib.h>     /* atoi */
 
@@ -18,23 +20,34 @@ class RequestParser {
         enum ParseResult {
             INCOMPLETE,
             COMPLETE,
-            BAD
+            BAD,
+			GET_CONFIGS
         };
         RequestParser();
-        ParseResult parse(const char* data, size_t len);
+        ParseResult parse(const char* data, size_t len) throw (SourceAndRequestException);
         bool isDone() const;
         const HttpRequest getRequest() const;
+		void setLocation (const Location *location);
+		void setServerConfig(const ServerConfig *serverConfig);
+		const ServerConfig *getServerConfig();
         void reset();
 
     private:
         ParseState state;
         HttpRequest request;
         std::string buffer;
+        unsigned long contentLength;
+		unsigned long chunkSize;
+		const Location	*_location;
+		const ServerConfig *_serverConfig;
+		unsigned long		maxBodySize;
 
         bool parseStartLine();
         bool parseHeaders();
-        bool parseBody(); //does not matter for GET, on which we focus for now
+        bool parseBody();
 		void _parseUrl();
-
-        size_t contentLength;
-    };
+		bool _handleChunkedInput();
+		void _parseChunkSize(const std::string& hexStr);
+		void _checkContentLength(std::map<std::string, std::string>::iterator it);
+		void getMaxBodySize();
+};

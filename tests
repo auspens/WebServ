@@ -1,0 +1,7 @@
+#to test chunked upload:
+## Generate a test file (1MB)
+dd if=/dev/urandom of=testfile.bin bs=1M count=1
+
+## Upload with chunked encoding
+curl -X POST -H "Transfer-Encoding: chunked" -H "Content-Type: multipart/form-data" \
+  --data-binary @testfile.bin http://localhost:8080/upload

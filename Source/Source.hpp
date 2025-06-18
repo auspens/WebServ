@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/17 18:49:37 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/18 16:10:53 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <fstream>
 #include <string>
 #include "ChildProcessNeededException.hpp"
+#include "SourceAndRequestException.hpp"
 #include "Config.hpp"
 #include "Logger.hpp"
 #include "HttpRequest.hpp"
@@ -24,10 +25,7 @@
 #include <sys/stat.h>
 
 
-class StaticFileSource;
-class ErrorPageSource;
-
-enum SourceType {STATIC, REDIRECT, CGI};
+enum SourceType {STATIC, REDIRECT, CGI, UPLOAD};
 struct HTTPStatusCode{
 	std::string code;
 	std::string message;
@@ -40,15 +38,6 @@ struct HTTPStatusCode{
 
 class Source {
 	public:
-		class SourceException : std::exception{
-				std::string _error;
-				int			_code;
-			public:
-				SourceException(std::string error, int code) throw();
-				const char *what() const throw();
-				int errorCode() const throw();
-				~SourceException()throw();
-		};
 		virtual 					~Source();
 		virtual void 				readSource() = 0;
 		virtual char *				getBufferToSend() = 0;//returns a buffer that can be sent through socket
@@ -64,7 +53,7 @@ class Source {
 		static Source *getNewSource(
 			const ServerConfig &serverConfig,
 			HttpRequest req
-		) throw(SourceException, ChildProcessNeededException);
+		) throw(SourceAndRequestException, ChildProcessNeededException);
 		static Source *getNewErrorPageSource(
 			const ServerConfig &serverConfig,
 			HttpRequest req,
@@ -91,7 +80,7 @@ class Source {
 		std::vector<char>	_body; //where we are writing
 
 		Source(const ServerConfig &serverConfig, const Location *location, HttpRequest req)
-			throw(SourceException);
+			throw(SourceAndRequestException);
 		Source(const ServerConfig &serverConfig, const Location *location, HttpRequest req, int code)
 			throw();
 		Source(const Source &src);
@@ -99,10 +88,5 @@ class Source {
 		char *readFromBuffer();
 
 	private:
-		static const Location *_findLocation (
-			const std::string &target,
-			const ServerConfig &serverConfig
-		);
-		static bool _isCgiRequest(const ServerConfig &serverConfig, const Location *location, const std::string &path);
 		bool _safePath(const std::string &path) const;
 };

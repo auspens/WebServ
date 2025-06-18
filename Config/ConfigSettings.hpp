@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigSettings.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 16:03:27 by wpepping          #+#    #+#             */
-/*   Updated: 2025/05/23 19:09:17 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/17 11:23:03 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ public:
 
 	size_t								getClientMaxBodySize()			const;
 	const std::map<int, std::string>	&getErrorPages()				const;
-	const std::string					&getErrorPage(int errorCode)	const;
 	const std::vector<std::string>		&getIndexPages()				const;
 	const std::vector<std::string>		&getAcceptCgi()					const;
 	int									getAcceptMethod()				const;

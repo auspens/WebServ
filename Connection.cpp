@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/18 16:04:23 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/18 17:46:05 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,14 +68,12 @@ std::string Connection::getRequestBody()const{
 	return _request.body;
 }
 
-void Connection::setupSource(const Config &config) throw(Source::SourceException, ChildProcessNeededException) {
+void Connection::setupSource(const Config &config) throw(SourceAndRequestException, ChildProcessNeededException) {
 	if (_source)
 		delete(_source);
 
 	_serverConfig = _findServerConfig(_serverPort, _request.hostname, config);
-	// if (!_serverConfig)
-	// 	throw Source::SourceException("No matching server found", 404); //Should this be a different exception type?
-	_source = Source::getNewSource(*_serverConfig, _request);
+	_source = SourceFactory::getNewSource(*_serverConfig, _request);
 }
 
 void Connection::setupErrorPageSource(const Config &config, int code) throw() {
@@ -83,7 +81,7 @@ void Connection::setupErrorPageSource(const Config &config, int code) throw() {
 		delete(_source);
 
 	_serverConfig = _findServerConfig(_serverPort, _request.hostname, config);
-	_source = Source::getNewErrorPageSource(*_serverConfig, _request, code);
+	_source = SourceFactory::getNewErrorPageSource(*_serverConfig, _request, code);
 }
 
 void Connection::setResponse() {
@@ -92,11 +90,17 @@ void Connection::setResponse() {
 	_response = new Response(_source);
 }
 
-void Connection::readFromSocket(size_t bufferSize) {
+void Connection::readFromSocket(const Config &config, size_t bufferSize) {
 	std::vector<char> buffer;
 	buffer.reserve(bufferSize);
 	int valread = read(_socket.getFd(), buffer.data(), bufferSize);
-	if (_parser.parse(buffer.data(), valread) != RequestParser::COMPLETE)
+	RequestParser::ParseResult result = _parser.parse(buffer.data(), valread);
+	if (result == RequestParser::GET_CONFIGS){
+		_parser.setServerConfig(_findServerConfig(_serverPort, _request.hostname, config));
+		_parser.setLocation(SourceFactory::_findLocation(_request.path, *(_parser.getServerConfig())));
+		result = _parser.parse(buffer.data(), valread);
+	}
+	if (result != RequestParser::COMPLETE)
 		return ;
 	_request = _parser.getRequest();
 

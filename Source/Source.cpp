@@ -3,23 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   Source.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/17 18:49:14 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/18 16:11:16 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Source.hpp"
-#include "RedirectSource.hpp"
-#include "StaticFileSource.hpp"
-#include "CGISource.hpp"
-#include "ErrorPageSource.hpp"
+#include "SourceAndRequestException.hpp"
 
 Source::~Source() {}
 
 Source::Source(const ServerConfig &serverConfig, const Location *location, HttpRequest req)
-	throw(SourceException)
+	throw(SourceAndRequestException)
 		:_bytesToSend(0)
 		,_offset(0)
 		,_doneReading(false)
@@ -32,7 +29,7 @@ Source::Source(const ServerConfig &serverConfig, const Location *location, HttpR
 		,_mime("")
 		,_request(req) {
 	if (!_safePath(req.path))
-			throw SourceException("Invalid Path", 403);
+			throw SourceAndRequestException("Invalid Path", 403);
 	if (location)
 		_target = WebServUtils::pathJoin(location->getRootFolder(), req.path.substr(location->getPath().size()));
 	else
@@ -87,15 +84,6 @@ Source &Source::operator=(const Source &other){
 	return *this;
 }
 
-Source::SourceException::SourceException(std::string error, int code)throw(): _error(error), _code(code){}
-Source::SourceException::~SourceException()throw(){}
-const char *Source::SourceException::what() const throw(){
-	return _error.c_str();
-}
-int Source::SourceException::errorCode() const throw(){
-	return _code;
-}
-
 int Source::getCode()const{
 	return _code;
 }
@@ -121,32 +109,6 @@ std::string Source::getRedirectLocation()const{
 	return _location->getRedirectPath();
 }
 
-const Location *Source::_findLocation (
-	const std::string &target,
-	const ServerConfig &serverConfig
-) {
-	const std::vector<Location *> locations = serverConfig.getLocations();
-	std::vector<Location *>::const_iterator it;
-
-	for (it = locations.begin(); it != locations.end(); ++it) {
-		std::string locationPath = (*it)->getPath();
-
-		if (target.compare(0, locationPath.size(), locationPath) == 0
-			&& (target.size() == locationPath.size()
-			|| WebServUtils::isin("/#?", target.at(locationPath.size()))))
-			return *it;
-	}
-	return (NULL);
-}
-
-bool Source::_isCgiRequest(const ServerConfig &serverConfig, const Location *location, const std::string &path) {
-	std::vector<std::string> acceptCgi = Config::getAcceptCgi(serverConfig, location);
-	for (size_t i = 0; i < acceptCgi.size(); i++) {
-		if (WebServUtils::strEndsWith(path, acceptCgi[i]))
-			return true;
-	}
-	return false;
-}
 
 bool Source::_safePath(const std::string &path) const {
 	if (path.find("..") != std::string::npos ||
@@ -156,24 +118,24 @@ bool Source::_safePath(const std::string &path) const {
 	return true;
 }
 
-Source *Source::getNewSource(const ServerConfig &serverConfig, HttpRequest req) throw(SourceException, ChildProcessNeededException) {
-	const Location *location = _findLocation(req.path, serverConfig);
-	Logger::debug() << "Location: " << (location? location->getPath():serverConfig.getRootFolder()) << std::endl;
-	Logger::debug() << "request path:" << req.path << std::endl;
-	if (location && location->isRedirect()) {
-		return new RedirectSource(serverConfig, *location, req);
-	}
-	if (_isCgiRequest(serverConfig, location, req.path)) {
-		CGISource* ptr = new CGISource(serverConfig, location, req);
-			return ptr;
-	}
-	return new StaticFileSource(serverConfig, location, req);
-}
+// Source *Source::getNewSource(const ServerConfig &serverConfig, HttpRequest req) throw(SourceException, ChildProcessNeededException) {
+// 	const Location *location = _findLocation(req.path, serverConfig);
+// 	Logger::debug() << "Location: " << (location? location->getPath():serverConfig.getRootFolder()) << std::endl;
+// 	Logger::debug() << "request path:" << req.path << std::endl;
+// 	if (location && location->isRedirect()) {
+// 		return new RedirectSource(serverConfig, *location, req);
+// 	}
+// 	if (_isCgiRequest(serverConfig, location, req.path)) {
+// 		CGISource* ptr = new CGISource(serverConfig, location, req);
+// 			return ptr;
+// 	}
+// 	return new StaticFileSource(serverConfig, location, req);
+// }
 
-Source *Source::getNewErrorPageSource(const ServerConfig &serverConfig, HttpRequest req, int code) {
-	const Location *location = _findLocation(req.path, serverConfig);
-	return new ErrorPageSource(serverConfig, location, req, code);
-}
+// Source *Source::getNewErrorPageSource(const ServerConfig &serverConfig, HttpRequest req, int code) {
+// 	const Location *location = _findLocation(req.path, serverConfig);
+// 	return new ErrorPageSource(serverConfig, location, req, code);
+// }
 
 char *Source::readFromBuffer(){
 	return _body.data() + _offset; //static cast or maybe even reinterpret cast?

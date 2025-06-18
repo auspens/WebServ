@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/18 17:26:23 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/18 17:47:25 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,24 +131,23 @@ void Server::_handleIncomingConnection(ListeningSocket *listeningSocket) {
 }
 
 void Server::_readFromSocket(Connection *conn) throw(ChildProcessNeededException) {
-	conn->readFromSocket(_config->getBufferSize());
-	if (conn->requestReady())
-	{
+	try {
+		conn->readFromSocket(*_config, _config->getBufferSize());
+		if (conn->requestReady())
+		{
 		// finished reading request, create the source and the response
-		Logger::debug() <<"Request body: "<< conn->getRequestBody() << std::endl << std::endl;
-		try {
+			Logger::debug() <<"Request body: "<< conn->getRequestBody() << std::endl << std::endl;
 			conn->setupSource(*_config);
 			if (conn->getSource()->getType() == CGI) // Use something like source.isPollable() instead of getType()
 				configureCGI(conn);
+			conn->setResponse();
+			_updateEpoll(EPOLL_CTL_MOD, EPOLLOUT, conn, conn->getSocketFd());
 		}
-		catch (Source::SourceException &e){
-			conn->setupErrorPageSource(*_config, e.errorCode());
-		}
-
+	}
+	catch (SourceAndRequestException &e){
+		conn->setupErrorPageSource(*_config, e.errorCode());
 		conn->setResponse();
-		_updateEpoll(EPOLL_CTL_MOD, EPOLLOUT, conn, conn->getSocketFd()); //moved to the place where reading from source is finished
-		// if (conn->getSource()->getType() == CGI)
-		// 	_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn, conn->getSourceFd());
+		_updateEpoll(EPOLL_CTL_MOD, EPOLLOUT, conn, conn->getSocketFd());
 	}
 }
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServUtils.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 14:38:47 by wouter            #+#    #+#             */
-/*   Updated: 2025/06/17 18:59:51 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/18 16:17:58 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ public:
 	static std::string pathJoin(const std::string& path1, const std::string& path2);
 	static bool strEndsWith(const std::string& str, const std::string& end);
 	static void printVector(const std::vector<char>& vec);
-
+	static std::string num_to_str(size_t num);
 
 	template <typename T, size_t N>
 	static bool isin(const T (&array)[N], const T &value) 	{

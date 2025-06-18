@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Direct File Upload Test</title>
+</head>
+<body>
+  <h1>Direct File Upload Test</h1>
+  <form action="/upload" method="post" enctype="multipart/form-data">
+    <p>
+      <label for="file">Select a file to upload:</label>
+      <input type="file" id="file" name="file">
+    </p>
+    <p>
+      <label for="description">Optional description:</label>
+      <input type="text" id="description" name="description">
+    </p>
+    <p>
+      <input type="submit" value="Upload">
+    </p>
+  </form>
+    </form>
+  <p><a href="/">Back to Home</a></p>
+</body>
+</html>

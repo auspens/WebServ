@@ -6,22 +6,23 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/18 15:59:44 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/18 17:47:15 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "Config.hpp"
+#include "Source/SourceFactory.hpp"
 #include "ChildProcessNeededException.hpp"
 #include "Logger.hpp"
 #include "RequestParser.hpp"
 #include "Response.hpp"
 #include "Socket.hpp"
-#include "StaticFileSource.hpp"
 #include "SystemCallsUtilities.hpp"
 #include <algorithm>
 #include <ctime>
+#include <string>
 #include <sstream>
 #include <vector>
 
@@ -35,7 +36,7 @@ class Connection{
 		int					getSocketFd() const;
 		HttpRequest			getRequest() const;
 		Source				*getSource() const;
-		const std::string&	getTarget() const;
+		const std::string	&getTarget() const;
 		std::string			getRequestBody()const;
 		time_t				getLastActiveTime() const;
 		int					isInvalidated() const;
@@ -47,10 +48,10 @@ class Connection{
 		bool				requestReady() const;
 		bool				doneReadingSource()const;
 
-		void				setupSource(const Config &config) throw(Source::SourceException, ChildProcessNeededException);
+		void				setupSource(const Config &config) throw(SourceAndRequestException, ChildProcessNeededException);
 		void				setupErrorPageSource(const Config &config, int code)throw();
 
-		void				readFromSocket(size_t bufferSize);
+		void				readFromSocket(const Config &config, size_t bufferSize);
 		void				writeToSocket();
 		void				sendFromSource();
 		void				sendHeader();

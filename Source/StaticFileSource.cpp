@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/17 19:04:28 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/18 16:10:24 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ StaticFileSource::StaticFileSource(const ServerConfig &serverConfig, Location co
 	_location = location;
 	checkIfDirectory();
 	if (!_generated && !checkIfExists(_target))
-		throw (SourceException("Page doesn't exist", 404));
+		throw (SourceAndRequestException("Page doesn't exist", 404));
 	if (!_generated){
 		_fd = open(_target.c_str(), O_RDONLY);
 		struct stat st;
@@ -56,7 +56,7 @@ void StaticFileSource::readSource(){
 	_offset = 0;
 	ssize_t readSize = read(_fd, _body.data(), _serverConfig.getBufferSize());
 	if (readSize < 0)
-		throw Source::SourceException("Could not read from static source file", 500);
+		throw SourceAndRequestException("Could not read from static source file", 500);
 	if (readSize == 0)
 		_doneReading = true;
 	_bytesToSend = readSize;
@@ -95,13 +95,13 @@ void StaticFileSource::checkIfDirectory(){
 				return;
 		}
 	}
-	throw SourceException("No index page for this directory and autoindex is off", 404);
+	throw SourceAndRequestException("No index page for this directory and autoindex is off", 404);
 }
 
 bool StaticFileSource::checkIfExists(std::string &target){
 	DIR *dir = opendir(_serverConfig.getRootFolder().c_str());
 	if (!dir)
-		throw(Source::SourceException("No root folder", 404));
+		throw(SourceAndRequestException("No root folder", 404));
 	closedir(dir);
 	if (access(target.c_str(), R_OK))
 		return false;
@@ -110,8 +110,16 @@ bool StaticFileSource::checkIfExists(std::string &target){
 
 void StaticFileSource::defineMimeType(){
 	int dotAt = _target.find_last_of('.');
+	if (dotAt < 0){
+		_mime = "application/octet-stream";
+		return ;
+	}
 	std::string extension = _target.substr(dotAt);
-	_mime = _mimeTypes.find(extension)->second;
+	std::map<std::string, std::string>::iterator it = _mimeTypes.find(extension);
+	if (it != _mimeTypes.end())
+		_mime = it->second;
+	else
+		_mime = "application/octet-stream";
 }
 
 bool StaticFileSource::readDirectories(std::vector<DirEntry> &entries){
@@ -173,6 +181,7 @@ void StaticFileSource::generatePage(int code){
 	html += "<body><h1>" + _statusCodes.at(code).code + "</h1><hr><ul>";
 	html += "<body><h1>" + _statusCodes.at(code).message + "</h1><hr><ul>";
 	html += "<body><h2>" + _statusCodes.at(code).description + "</h2><hr><ul>";
+	html += "<body><h3> this page is generated automatically by the webserver</h3><hr><ul>";
 	html += "</ul><hr></body></html>";
 	_body.assign(html.begin(), html.end());
 	_generated = true;
