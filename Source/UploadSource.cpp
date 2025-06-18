@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:03:49 by wpepping          #+#    #+#             */
-/*   Updated: 2025/06/18 13:26:40 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/18 15:59:12 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ std::string UploadSource::_getFileName(std::string token){
 	return name.str();
 }
 
-std::string _findBoundary(std::string header){
+std::string UploadSource::_findBoundary(std::string header){
 	size_t start;
 	size_t end;
 	if ((start = header.find("boundary=")) != std::string::npos)
@@ -109,18 +109,35 @@ void 	UploadSource::readSource(){
 
 	if (!_isWriting){
 		if (_uploads.empty()){
-			_createHTTPResponse(200);
-			_doneReading = true;
-			_bytesToSend = _body.size();
+			_createHTTPResponse();
 			return ;
 		}
 		_fd = open(_uploads.at(0).name.c_str(), O_RDWR | O_CREAT);
 		if (_fd < 0) throw SourceAndRequestException("Could not create upload file", 500);
 		_isWriting = true;
 	}
-	write(_fd, _uploads.at(0).body.c_str(), )
+	ssize_t bytesWritten = write(_fd, _uploads.at(0).body.c_str(), _writeSize);
+	if (bytesWritten < 0) throw SourceAndRequestException("Could not write to upload file", 500);
+	if (bytesWritten == 0) {
+		_uploads.erase(_uploads.begin());
+		_isWriting = false;
+		close(_fd);
+		_fd = -1;
+		return;
+	}
+	_uploads.at(0).body.erase(0, bytesWritten);
 }
 
-void UploadSource::_createHTTPResponse(int code){
-
+void UploadSource::_createHTTPResponse(){
+	std::string response_body =  "<html><body> File uploaded successfully!</h2><body></html>";
+	std::string content_length = "Content-Length: " + WebServUtils::num_to_str(response_body.size()) + "\r\n";
+	_body.assign(content_length.begin(), content_length.end());
+	_body.insert(_body.end(), response_body.begin(), response_body.end());
+	_doneReading = true;
+	_bytesToSend = _body.size();
 }
+
+char *	UploadSource::getBufferToSend(){
+	return readFromBuffer();
+}
+

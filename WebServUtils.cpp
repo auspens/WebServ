@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:15:00 by wouter            #+#    #+#             */
-/*   Updated: 2025/06/13 15:33:52 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/18 15:48:38 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,4 +68,10 @@ void WebServUtils::printVector(const std::vector<char>& vec) {
         std::cout << *it;
     }
     std::cout << std::endl;
+}
+
+std::string WebServUtils::num_to_str(size_t num) {
+	std::ostringstream convert;
+	convert << num;
+	return convert.str();
 }
