@@ -3,26 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2025/06/13 16:01:17 by auspensk         ###   ########.fr       */
-=======
-/*   Updated: 2025/06/17 19:27:46 by wpepping         ###   ########.fr       */
->>>>>>> e6b747404726033e3cd51df4848054da236c56e1
+/*   Updated: 2025/06/18 16:22:19 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "Config.hpp"
-<<<<<<< HEAD
 #include "Source/SourceFactory.hpp"
-=======
 #include "ChildProcessNeededException.hpp"
 #include "Logger.hpp"
->>>>>>> e6b747404726033e3cd51df4848054da236c56e1
 #include "RequestParser.hpp"
 #include "Response.hpp"
 #include "Socket.hpp"
@@ -41,11 +34,7 @@ class Connection{
 		int					getSocketFd() const;
 		bool				requestReady() const;
 		HttpRequest			getRequest() const;
-<<<<<<< HEAD
-		void				readFromSocket(const Config &config);
-=======
-		void				readFromSocket(size_t bufferSize);
->>>>>>> e6b747404726033e3cd51df4848054da236c56e1
+		void				readFromSocket(const Config &config, size_t bufferSize);
 		void				writeToSocket();
 		void				setResponse();
 		void				resetParser();

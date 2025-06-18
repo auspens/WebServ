@@ -3,18 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-<<<<<<< HEAD
-<<<<<<< HEAD
-/*   Updated: 2025/06/13 16:10:27 by auspensk         ###   ########.fr       */
-=======
-/*   Updated: 2025/06/17 19:32:12 by wpepping         ###   ########.fr       */
->>>>>>> e6b747404726033e3cd51df4848054da236c56e1
-=======
-/*   Updated: 2025/06/17 14:55:41 by auspensk         ###   ########.fr       */
->>>>>>> auspens
+/*   Updated: 2025/06/18 16:31:05 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,20 +126,12 @@ void Server::_handleIncomingConnection(ListeningSocket *listeningSocket) {
 }
 
 void Server::_readFromSocket(Connection *conn) throw(ChildProcessNeededException) {
-<<<<<<< HEAD
-	try{
-		conn->readFromSocket(*_config);
+	try {
+		conn->readFromSocket(*_config, _config->getBufferSize());
 		if (conn->requestReady())
 		{
-			std::cout <<"Request body: "<< conn->getRequestBody() << std::endl << std::endl;
-=======
-	conn->readFromSocket(_config->getBufferSize());
-	if (conn->requestReady())
-	{
 		// finished reading request, create the source and the response
-		Logger::debug() <<"Request body: "<< conn->getRequestBody() << std::endl << std::endl;
-		try {
->>>>>>> e6b747404726033e3cd51df4848054da236c56e1
+			Logger::debug() <<"Request body: "<< conn->getRequestBody() << std::endl << std::endl;
 			conn->setupSource(*_config);
 			if (conn->getSource()->getType() == CGI) // Use something like source.isPollable() instead of getType()
 				configureCGI(conn);
@@ -221,11 +205,7 @@ void Server::cleanup() {
 }
 
 // This should probably not be here. Maybe in connection?
-<<<<<<< HEAD
-// We cannot write to a pipe without polling. Also, request body can be larged, should be chunked
-=======
 // We cannot write to a pipe without polling. Also, request body can be large, should be chuncked
->>>>>>> e6b747404726033e3cd51df4848054da236c56e1
 void Server::configureCGI(Connection* conn) {
 	CGISource *cgiptr = (CGISource *)conn->getSource();
 

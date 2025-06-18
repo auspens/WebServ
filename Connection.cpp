@@ -3,14 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2025/06/13 16:27:32 by auspensk         ###   ########.fr       */
-=======
-/*   Updated: 2025/06/17 19:28:24 by wpepping         ###   ########.fr       */
->>>>>>> e6b747404726033e3cd51df4848054da236c56e1
+/*   Updated: 2025/06/18 16:22:07 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,11 +89,10 @@ void Connection::setResponse() {
 	_response = new Response(_source);
 }
 
-<<<<<<< HEAD
-void Connection::readFromSocket(const Config &config) {
+void Connection::readFromSocket(const Config &config, size_t bufferSize) {
 	std::vector<char> buffer;
-	buffer.reserve(READ_BUFFER);
-	int valread = read(_socket.getFd(), buffer.data(), READ_BUFFER);
+	buffer.reserve(bufferSize);
+	int valread = read(_socket.getFd(), buffer.data(), bufferSize);
 	RequestParser::ParseResult result = _parser.parse(buffer.data(), valread);
 	if (result == RequestParser::GET_CONFIGS){
 		_parser.setServerConfig(_findServerConfig(_serverPort, _request.hostname, config));
@@ -105,13 +100,6 @@ void Connection::readFromSocket(const Config &config) {
 		result = _parser.parse(buffer.data(), valread);
 	}
 	if (result != RequestParser::COMPLETE)
-=======
-void Connection::readFromSocket(size_t bufferSize) {
-	std::vector<char> buffer;
-	buffer.reserve(bufferSize);
-	int valread = read(_socket.getFd(), buffer.data(), bufferSize);
-	if (_parser.parse(buffer.data(), valread) != RequestParser::COMPLETE)
->>>>>>> e6b747404726033e3cd51df4848054da236c56e1
 		return ;
 	_request = _parser.getRequest();
 
@@ -169,21 +157,13 @@ void Connection::sendFromSource() {
 		ssize_t 	size = std::min(_source->_bytesToSend, _serverConfig->getBufferSize());
 		ssize_t		bytes_sent;
 
-<<<<<<< HEAD
-		// std::cout << ">> Sending to socket. Source type: " << _source->getType() << " Bytes to send: " << _source->_bytesToSend << std::endl;
-=======
 		Logger::debug() << ">> Sending to socket. Source type: " << _source->getType() << " Bytes to send: " << _source->_bytesToSend << std::endl;
->>>>>>> e6b747404726033e3cd51df4848054da236c56e1
 
 		bytes_sent = send(_socket.getFd(), buf, size, 0);
 		if (bytes_sent == -1)
 			throw (std::runtime_error("Error sending body")); // This should probably be a different type of exception. Also needs to be caught in Server or program will crash
 
-<<<<<<< HEAD
-		// std::cout << "Sent " << bytes_sent << " bytes" << std::endl;
-=======
 		Logger::debug() << "Sent " << bytes_sent << " bytes" << std::endl;
->>>>>>> e6b747404726033e3cd51df4848054da236c56e1
 
 		_source->_bytesToSend -= bytes_sent;
 		_source->_offset += bytes_sent;
