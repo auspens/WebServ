@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 14:52:12 by wouter            #+#    #+#             */
-/*   Updated: 2025/06/17 19:32:57 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/18 17:31:20 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,9 @@ enum eHttpMethod {
 #define DEFAULT_CLIENT_MAX_BODY_SIZE 10ULL*1024*1024*1024
 #define DEFAULT_ACCEPT_METHOD METHOD_GET
 #define DEFAULT_CHUNK_SIZE 1024
+#define DEFAULT_CONNECTION_TIMEOUT 60
+
+#define TIMEOUT_CLEANUP_INTERVAL 30
 
 const std::string CGI_EXTENSIONS[] = {
 	".py",

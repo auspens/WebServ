@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 16:03:09 by wpepping          #+#    #+#             */
-/*   Updated: 2025/06/17 18:00:14 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/18 15:57:17 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,11 +62,11 @@ std::string ParseUtils::parseToken(std::ifstream &infile) throw(ConfigParseExcep
 }
 
 int ParseUtils::parseInt(std::string nbr) throw(ConfigParseException) {
-	return parseInt(nbr, std::numeric_limits<int>::min(),
+	return parseLong(nbr, std::numeric_limits<int>::min(),
 		std::numeric_limits<int>::max());
 }
 
-int ParseUtils::parseInt(std::string nbr, int min, int max) throw(ConfigParseException) {
+long ParseUtils::parseLong(std::string nbr, long min, long max) throw(ConfigParseException) {
 	const char				*c_str;
 	char					*str_end;
 	long					l;
@@ -74,7 +74,12 @@ int ParseUtils::parseInt(std::string nbr, int min, int max) throw(ConfigParseExc
 	c_str = nbr.c_str();
 	l = strtol(c_str, &str_end, 10);
 	if (c_str == str_end || l < min || l > max)
-		throw ConfigParseException("Invalid number");
+		throw ConfigParseException(
+			"Invalid number, expected numeric value between " +
+			WebServUtils::to_string<int>(min) +
+			" and " +
+			WebServUtils::to_string<int>(max)
+		);
 	return l;
 }
 

@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/17 19:27:46 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/18 15:59:44 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include "StaticFileSource.hpp"
 #include "SystemCallsUtilities.hpp"
 #include <algorithm>
+#include <ctime>
 #include <sstream>
 #include <vector>
 
@@ -32,22 +33,28 @@ class Connection{
 
 		int					getSourceFd() const;
 		int					getSocketFd() const;
-		bool				requestReady() const;
 		HttpRequest			getRequest() const;
-		void				readFromSocket(size_t bufferSize);
-		void				writeToSocket();
-		void				setResponse();
-		void				resetParser();
-		const std::string&	getTarget() const;
 		Source				*getSource() const;
+		const std::string&	getTarget() const;
+		std::string			getRequestBody()const;
+		time_t				getLastActiveTime() const;
+		int					isInvalidated() const;
+
+		void				setLastActiveTime(time_t time);
+		void				setResponse();
+		void				invalidate();
+
+		bool				requestReady() const;
+		bool				doneReadingSource()const;
+
 		void				setupSource(const Config &config) throw(Source::SourceException, ChildProcessNeededException);
 		void				setupErrorPageSource(const Config &config, int code)throw();
-		void				sendHeader();
+
+		void				readFromSocket(size_t bufferSize);
+		void				writeToSocket();
 		void				sendFromSource();
-		std::string			getRequestBody()const;
-		bool				doneReadingSource()const;
-		void				invalidate();
-		int					isInvalidated() const;
+		void				sendHeader();
+		void				resetParser();
 
 
 	private:
@@ -71,4 +78,5 @@ class Connection{
 		const ServerConfig	*_serverConfig;
 		int					_serverPort;
 		bool				_invalidated;
+		time_t				_lastActiveTime;
 };

@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 16:03:05 by wpepping          #+#    #+#             */
-/*   Updated: 2025/06/17 16:19:36 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/18 15:57:38 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <cstdlib>
 #include <string>
 #include "ConfigParseException.hpp"
+#include "WebServUtils.hpp"
 
 class ParseUtils {
 public:
@@ -24,7 +25,7 @@ public:
 	static std::string parseToken(std::ifstream &infile) throw(ConfigParseException);
 	static void expectWhitespace(std::ifstream &infile) throw(ConfigParseException);
 	static void skipWhitespace(std::ifstream &infile) throw(ConfigParseException);
-	static int parseInt(std::string nbr, int min, int max) throw(ConfigParseException);
+	static long parseLong(std::string nbr, long min, long max) throw(ConfigParseException);
 	static int parseInt(std::string nbr) throw(ConfigParseException);
 	static std::string parseValue(std::ifstream &infile) throw(ConfigParseException);
 	static bool isErrorCode(std::string const &str);

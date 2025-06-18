@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 12:40:08 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/17 19:01:24 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/18 15:57:17 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,7 +184,7 @@ void Location::_parseRedirect(std::ifstream &infile) throw(ConfigParseException)
 	std::string token;
 
 	token = ParseUtils::parseValue(infile);
-	_redirect.code = ParseUtils::parseInt(token, 300, 308);
+	_redirect.code = ParseUtils::parseLong(token, 300, 308);
 	_isRedirect = true;
 
 	_redirect.path = ParseUtils::parseValue(infile);

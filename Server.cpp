@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/17 19:32:12 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/18 17:26:23 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,16 @@
 
 Server::Server() { }
 
-Server::Server(const Config &config) : _config(&config) { }
+Server::Server(const Config &config) :
+	_lastCleanup(std::time(0)),
+	_config(&config) { }
 
-Server::~Server(){
+Server::~Server() {
 	Logger::debug() << "Cleaning up server" << std::endl;
 	cleanup();
 }
 
-Server &Server::operator=(Server const &other){
+Server &Server::operator=(Server const &other) {
 	(void)other;
 	return *this;
 }
@@ -63,7 +65,7 @@ void Server::_runEpollLoop() throw(ChildProcessNeededException) {
 		if (events.capacity() < static_cast<size_t>(size)) {// Do we really want to do this in the loop? Number of reserve calls if you're tranferring a large amount of data might be too much
   			events.reserve(size); //we can check if the current capacity is enough and reserve if not. Other option can be reserving at init and capping to configured size
 		}
-		readyFds = epoll_wait(_epollInstance, &events[0], size, INFINITE_TIMEOUT); // EW: each epoll_event struct records: events on the fd (e.g. EPOLLIN) and data (ptr to connection)
+		readyFds = epoll_wait(_epollInstance, &events[0], size, TIMEOUT_CLEANUP_INTERVAL * 1000); // EW: each epoll_event struct records: events on the fd (e.g. EPOLLIN) and data (ptr to connection)
 		Logger::detail() << "Epoll returned " << readyFds << " ready fds" << std::endl;
 		SystemCallsUtilities::check_for_error(readyFds);
 
@@ -74,6 +76,8 @@ void Server::_runEpollLoop() throw(ChildProcessNeededException) {
 
 		if (_invalidatedConnections.size() > 0)
 			cleanInvalidatedConnections();
+		if (std::time(0) - _lastCleanup > TIMEOUT_CLEANUP_INTERVAL)
+			cleanIdleConnections();
 	}
 }
 
@@ -107,6 +111,7 @@ void Server::_handleSocketEvent(struct epoll_event &event) throw(ChildProcessNee
 			Logger::detail() << "EPOLLOUT so we write to socket.." << std::endl;
 			_writeToSocket(*conn);
 		}
+		conn->setLastActiveTime(std::time(0));
 	}
 }
 
@@ -231,14 +236,32 @@ void Server::cleanInvalidatedConnections() {
 	for (size_t i = 0; i < _invalidatedConnections.size(); i++) {
 		conn = _invalidatedConnections[i];
 		Logger::debug() << "Closing connection!" << std::endl;
-		_updateEpoll(EPOLL_CTL_DEL, -1, conn, conn->getSocketFd());
-		if (conn->getSource() && conn->getSource()->getType() == CGI) // Use something like source.isPollable() instead of getType()
-			_updateEpoll(EPOLL_CTL_DEL, -1, conn, conn->getSourceFd());
-		delete conn;
-		_connections.erase(
-			std::remove(_connections.begin(), _connections.end(), conn),
-			_connections.end()
-		);
+		cleanConnection(conn);
 	}
 	_invalidatedConnections.clear();
+}
+
+void Server::cleanIdleConnections() {
+	time_t		currentTime = std::time(0);
+	Connection	*conn;
+
+	for (size_t i = 0; i < _connections.size(); i++) {
+		conn = _connections[i];
+		if (currentTime - conn->getLastActiveTime() > _config->getConnectionTimeout()) {
+			Logger::info() << "Timeout on connection with socket fd " << conn->getSocketFd() << std::endl;
+			cleanConnection(conn);
+		}
+	}
+	_lastCleanup = std::time(0);
+}
+
+void Server::cleanConnection(Connection *conn) {
+	_updateEpoll(EPOLL_CTL_DEL, -1, conn, conn->getSocketFd());
+	if (conn->getSource() && conn->getSource()->getType() == CGI) // Use something like source.isPollable() instead of getType()
+		_updateEpoll(EPOLL_CTL_DEL, -1, conn, conn->getSourceFd());
+	delete conn;
+	_connections.erase(
+		std::remove(_connections.begin(), _connections.end(), conn),
+		_connections.end()
+	);
 }

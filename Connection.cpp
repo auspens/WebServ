@@ -6,24 +6,22 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/17 19:28:24 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/18 16:04:23 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Connection.hpp"
 
-Connection::Connection() {
-	_source = NULL;
-	_response = NULL;
-}
+Connection::Connection() { }
 
 Connection::Connection(int fd, int serverPort) :
 	_socket(fd),
 	_response(NULL),
 	_source(NULL),
 	_serverPort(serverPort),
-	_invalidated(false) {
-	Logger::debug() << "Create new connection with fd: " << fd << std::endl;
+	_invalidated(false),
+	_lastActiveTime(std::time(0)) {
+		Logger::debug() << "Create new connection with fd: " << fd << std::endl;
  }
 
 Connection::Connection(int fd, int serverPort, struct addrinfo *addrinfo) :
@@ -31,7 +29,10 @@ Connection::Connection(int fd, int serverPort, struct addrinfo *addrinfo) :
 	_response(NULL),
 	_source(NULL),
 	_serverPort(serverPort),
-	_invalidated(false) { }
+	_invalidated(false),
+	_lastActiveTime(std::time(0)) {
+		Logger::debug() << "Create new connection with fd: " << fd << std::endl;
+}
 
 Connection::Connection(const Connection &src) {
 	(void)src;
@@ -207,10 +208,18 @@ bool Connection::_matchServerName(std::string host, std::string serverName) cons
 	return host == serverName;
 }
 
-void	Connection::invalidate() {
+void Connection::invalidate() {
 	_invalidated = true;
 }
 
-int		Connection::isInvalidated() const {
+int Connection::isInvalidated() const {
 	return _invalidated;
+}
+
+time_t Connection::getLastActiveTime() const {
+	return _lastActiveTime;
+}
+
+void Connection::setLastActiveTime(time_t time) {
+	_lastActiveTime = time;
 }
