@@ -1,20 +1,16 @@
 #include "CGISource.hpp"
 
-CGISource::CGISource(const ServerConfig &serverConfig, Location const *location, HttpRequest req)  throw(ChildProcessNeededException)
+CGISource::CGISource(const ServerConfig &serverConfig, Location const *location, HttpRequest req) throw(ChildProcessNeededException)
  : Source(serverConfig, location, req) {
 	Logger::debug() << "Creating CGI Source" << std::endl;
 
-	_location = location;
+	_pollableRead = true;
+	_pollableWrite = true;
 	_type = CGI;
 
+	_location = location;
 	_scriptPath = req.path;
-
-	size_t qmark = req.uri.find('?');
-	if (qmark != std::string::npos) {
-		_queryString = req.uri.substr(qmark + 1);
-	} else {
-		_queryString = "";
-	}
+	_uri = req.uri;
 
 	size_t script_end = _scriptPath.find(".py") + 3; // include ".py" //
 	if (script_end != std::string::npos) {
@@ -54,17 +50,7 @@ void CGISource::forkAndExec()  throw(ChildProcessNeededException) {
 	} else if (pid == 0) { //CHILD
 		Logger::debug() << "Child: in child!" << std::endl;
 
-		// Build environment variables
-		if (_pathInfo.length())
-			envp.push_back(std::string("PATH_INFO=") + _pathInfo);
-		envp.push_back(std::string("REQUEST_METHOD=") + _request.method);
-		envp.push_back(std::string("QUERY_STRING=") + _queryString);
-		envp.push_back(std::string("SCRIPT_NAME=") + _scriptPath);
-		envp.push_back("SERVER_PROTOCOL=HTTP/1.1");
-
-		envp.push_back(std::string("CONTENT_LENGTH=") + _request.headers["Content-Length"]);
-		envp.push_back(std::string("CONTENT_TYPE=") + _request.headers["Content-Type"]);
-
+		buildEnvironmentVariables(envp);
 		close(_inputPipe[1]);
 		close(_outputPipe[0]);
 
@@ -75,6 +61,26 @@ void CGISource::forkAndExec()  throw(ChildProcessNeededException) {
 		close(_inputPipe[0]);
 		close(_outputPipe[1]);
 	}
+}
+
+void CGISource::buildEnvironmentVariables(std::vector<std::string> &envp) {
+	size_t qmark = _uri.find('?');
+
+	if (qmark != std::string::npos) {
+		_queryString = _uri.substr(qmark + 1);
+	} else {
+		_queryString = "";
+	}
+
+	if (_pathInfo.length())
+		envp.push_back(std::string("PATH_INFO=") + _pathInfo);
+	envp.push_back(std::string("REQUEST_METHOD=") + _request.method);
+	envp.push_back(std::string("QUERY_STRING=") + _queryString);
+	envp.push_back(std::string("SCRIPT_NAME=") + _scriptPath);
+	envp.push_back("SERVER_PROTOCOL=HTTP/1.1");
+
+	envp.push_back(std::string("CONTENT_LENGTH=") + _request.headers["Content-Length"]);
+	envp.push_back(std::string("CONTENT_TYPE=") + _request.headers["Content-Type"]);
 }
 
 void CGISource::readSource() {

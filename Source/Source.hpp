@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/19 17:43:26 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/19 18:08:50 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,6 @@ struct HTTPStatusCode{
 #define STATUS_CODES_JSON "StatusCodes.json"
 #define MIME_TYPES_JSON "FileExtesionsToMime.json"
 
-
 class Source {
 	public:
 		virtual 					~Source();
@@ -49,22 +48,25 @@ class Source {
 		SourceType					getType()const;
 		std::string					getRedirectLocation()const;
 		virtual char				*readFromBuffer();
+		bool						isPollableRead();
+		bool						isPollableWrite();
 
 		static Source *getNewSource(
 			const ServerConfig &serverConfig,
 			HttpRequest req
 		) throw(SourceAndRequestException, ChildProcessNeededException);
+
 		static Source *getNewErrorPageSource(
 			const ServerConfig &serverConfig,
 			HttpRequest req,
 			int code
 		);
 
-		size_t						_bytesToSend;
-		int							_offset;
-		bool						_doneReading;
-		static std::map<std::string, std::string> _mimeTypes;
-		static std::map<int, HTTPStatusCode> _statusCodes;
+		size_t										_bytesToSend;
+		int											_offset;
+		bool										_doneReading;
+		static std::map<std::string, std::string>	_mimeTypes;
+		static std::map<int, HTTPStatusCode>		_statusCodes;
 
 	protected:
 		int					_code;
@@ -76,6 +78,8 @@ class Source {
 		std::string			_target;
 		std::string			_mime;
 		HttpRequest			_request;
+		bool				_pollableRead;
+		bool				_pollableWrite;
 
 		std::vector<char>	_body; //where we are writing
 

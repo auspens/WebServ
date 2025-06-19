@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/19 17:44:25 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/19 18:09:46 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,5 +138,13 @@ bool Source::_safePath(const std::string &path) const {
 // }
 
 char *Source::readFromBuffer(){
-	return _body.data() + _offset; //static cast or maybe even reinterpret cast?
+	return _body.data() + _offset;
+}
+
+bool Source::isPollableRead() {
+	return _pollableRead;
+}
+
+bool Source::isPollableWrite() {
+	return _pollableWrite;
 }

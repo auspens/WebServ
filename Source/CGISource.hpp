@@ -13,7 +13,8 @@ class CGISource : public Source {
 		void readSource();
 		void forkAndExec() throw(ChildProcessNeededException);
 
-		CGISource(const ServerConfig &serverConfig, const Location *location, HttpRequest req)  throw(ChildProcessNeededException);
+		CGISource(const ServerConfig &serverConfig, const Location *location, HttpRequest req)
+			throw(ChildProcessNeededException);
 		//copy construct missing
 		~CGISource();
 
@@ -23,12 +24,14 @@ class CGISource : public Source {
 
 	private:
 		bool _pathExists;
-        std::vector<int> _outputPipe;
+		std::vector<int> _outputPipe;
 		std::vector<int> _inputPipe;
-        std::string _scriptPath;
-        std::string _queryString;
-        std::string _pathInfo;
+		std::string _scriptPath;
+		std::string _queryString;
+		std::string _pathInfo;
+		std::string _uri;
 
 		bool checkIfExists();
-		CGISource(); //default constructor that is never used
+		void buildEnvironmentVariables(std::vector<std::string> &envp);
+		CGISource();
 };
