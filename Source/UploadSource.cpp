@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   UploadSource.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:03:49 by wpepping          #+#    #+#             */
-/*   Updated: 2025/06/18 15:59:12 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/19 17:36:12 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,9 +135,5 @@ void UploadSource::_createHTTPResponse(){
 	_body.insert(_body.end(), response_body.begin(), response_body.end());
 	_doneReading = true;
 	_bytesToSend = _body.size();
-}
-
-char *	UploadSource::getBufferToSend(){
-	return readFromBuffer();
 }
 

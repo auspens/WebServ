@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/18 16:10:24 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/19 17:36:20 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,7 +190,7 @@ void StaticFileSource::generatePage(int code){
 	_mime = _mimeTypes.find(".html")->second;
 }
 
-char *StaticFileSource::getBufferToSend(){
+char *StaticFileSource::readFromBuffer(){
 	readSource();
-	return readFromBuffer();
+	return Source::readFromBuffer();
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/18 16:10:53 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/19 17:43:26 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ class Source {
 	public:
 		virtual 					~Source();
 		virtual void 				readSource() = 0;
-		virtual char *				getBufferToSend() = 0;//returns a buffer that can be sent through socket
 
 		int 						getCode()const;
 		std::string 				getMime()const;
@@ -49,6 +48,7 @@ class Source {
 		int							getSize()const;
 		SourceType					getType()const;
 		std::string					getRedirectLocation()const;
+		virtual char				*readFromBuffer();
 
 		static Source *getNewSource(
 			const ServerConfig &serverConfig,
@@ -85,7 +85,6 @@ class Source {
 			throw();
 		Source(const Source &src);
 		Source &operator=(const Source &other);
-		char *readFromBuffer();
 
 	private:
 		bool _safePath(const std::string &path) const;

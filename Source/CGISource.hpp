@@ -8,14 +8,9 @@
 #include "SystemCallsUtilities.hpp"
 #include "WebServUtils.hpp"
 
-
-#include "TestUtils.hpp"
-
-
 class CGISource : public Source {
 	public:
 		void readSource();
-		char* getBufferToSend();
 		void forkAndExec() throw(ChildProcessNeededException);
 
 		CGISource(const ServerConfig &serverConfig, const Location *location, HttpRequest req)  throw(ChildProcessNeededException);

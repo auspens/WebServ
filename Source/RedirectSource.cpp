@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/06 16:39:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/17 19:04:26 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/19 17:36:57 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,11 +22,6 @@ RedirectSource::RedirectSource(const ServerConfig &serverConfig, const Location 
 	_doneReading = true;
 }
 
-RedirectSource::~RedirectSource()
-{
-}
+RedirectSource::~RedirectSource() { }
 
-void RedirectSource::readSource(){}
-char *RedirectSource::getBufferToSend(){
-	return NULL;
-}
+void RedirectSource::readSource() { }

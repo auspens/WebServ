@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/18 17:46:05 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/19 17:34:59 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,7 +152,7 @@ void Connection::sendHeader() {
 }
 
 void Connection::sendFromSource() {
-	const char	*buf = _source->getBufferToSend();
+	const char	*buf = _source->readFromBuffer();
 
 	if (_source->_bytesToSend > 0) {
 		ssize_t 	size = std::min(_source->_bytesToSend, _serverConfig->getBufferSize());
