@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/20 17:51:40 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/20 18:01:22 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ class Source {
 		bool						isPollableRead();
 		bool						isPollableWrite();
 		bool						isWriteWhenComplete();
+		void						setHeader(std::string header);
 
 		static Source *getNewSource(
 			const ServerConfig &serverConfig,

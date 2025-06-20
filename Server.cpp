@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/20 17:43:14 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/20 18:11:21 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,15 +138,15 @@ void Server::_readFromSocket(Connection *conn) throw(ChildProcessNeededException
 			// finished reading request, create the source and the response
 			//Logger::detail() <<"Request body: "<< conn->getRequestBody() << std::endl << std::endl;
 			conn->setupSource(*_config);
+			conn->setResponse();
 			if (conn->getSource()->isPollableRead()) {
 				Logger::debug() << "Add source to epoll. fd: " << conn->getSource()->getFd() << std::endl;
 				_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn, conn->getSource()->getFd());
 			}
-			conn->setResponse();
 			_updateEpoll(EPOLL_CTL_MOD, EPOLLOUT, conn, conn->getSocketFd());
 		}
 	}
-	catch (SourceAndRequestException &e){
+	catch (SourceAndRequestException &e){ // Why does this need to happen in the server instead of connection?
 		conn->setupErrorPageSource(*_config, e.errorCode());
 		conn->setResponse();
 		_updateEpoll(EPOLL_CTL_MOD, EPOLLOUT, conn, conn->getSocketFd());
@@ -169,7 +169,7 @@ void Server::_readFromSource(Connection &conn) {
 	if (!conn.getSource())
 		return;
 	conn.getSource()->readSource();
-	if (conn.doneReadingSource() && conn.getSource()->getType() == CGI) // Use something like source.isPollable() instead of getType()
+	if (conn.doneReadingSource() && conn.getSource()->isPollableRead())
 		_updateEpoll(EPOLL_CTL_DEL, -1, &conn, conn.getSourceFd());
 }
 
@@ -243,7 +243,7 @@ void Server::cleanIdleConnections() {
 
 void Server::cleanConnection(Connection *conn) {
 	_updateEpoll(EPOLL_CTL_DEL, -1, conn, conn->getSocketFd());
-	if (conn->getSource() && conn->getSource()->isPollableRead()) // Use something like source.isPollable() instead of getType()
+	if (conn->getSource() && conn->getSource()->isPollableRead())
 		_updateEpoll(EPOLL_CTL_DEL, -1, conn, conn->getSourceFd());
 	delete conn;
 	_connections.erase(

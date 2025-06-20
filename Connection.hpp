@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/20 17:51:50 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/20 18:06:58 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,8 +53,6 @@ class Connection{
 
 		void				readFromSocket(const Config &config, size_t bufferSize);
 		void				writeToSocket();
-		void				sendFromSource();
-		void				sendHeader();
 		void				resetParser();
 
 

@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/20 17:51:33 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/20 18:14:08 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,25 +119,6 @@ bool Source::_safePath(const std::string &path) const {
 	return true;
 }
 
-// Source *Source::getNewSource(const ServerConfig &serverConfig, HttpRequest req) throw(SourceException, ChildProcessNeededException) {
-// 	const Location *location = _findLocation(req.path, serverConfig);
-// 	Logger::debug() << "Location: " << (location? location->getPath():serverConfig.getRootFolder()) << std::endl;
-// 	Logger::debug() << "request path:" << req.path << std::endl;
-// 	if (location && location->isRedirect()) {
-// 		return new RedirectSource(serverConfig, *location, req);
-// 	}
-// 	if (_isCgiRequest(serverConfig, location, req.path)) {
-// 		CGISource* ptr = new CGISource(serverConfig, location, req);
-// 			return ptr;
-// 	}
-// 	return new StaticFileSource(serverConfig, location, req);
-// }
-
-// Source *Source::getNewErrorPageSource(const ServerConfig &serverConfig, HttpRequest req, int code) {
-// 	const Location *location = _findLocation(req.path, serverConfig);
-// 	return new ErrorPageSource(serverConfig, location, req, code);
-// }
-
 char *Source::readFromBuffer(){
 	return _body.data() + _offset;
 }
@@ -152,4 +133,9 @@ bool Source::isPollableWrite() {
 
 bool Source::isWriteWhenComplete() {
 	return _writeWhenComplete;
+}
+
+void Source::setHeader(std::string header) {
+	_body.assign(header.begin(), header.end());
+	_bytesToSend = header.length();
 }

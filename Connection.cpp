@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/20 17:51:47 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/20 18:06:49 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,7 @@ void Connection::setResponse() {
 	if (_response)
 		delete(_response);
 	_response = new Response(_source);
+	_source->setHeader(_response->getHeader());
 }
 
 void Connection::readFromSocket(const Config &config, size_t bufferSize) {
@@ -112,46 +113,6 @@ void Connection::readFromSocket(const Config &config, size_t bufferSize) {
 }
 
 void Connection::writeToSocket() {
-	if (!_response->headerSent())
-	{
-		Logger::debug() << "Header to be sent:" << std::endl;
-		sendHeader();
-	}
-	else if (_source->getType() != REDIRECT) // ideally the connection is not aware of different source types, redirect could just have _bytesToSend = 0
-		sendFromSource();
-}
-
-bool Connection::doneReadingSource() const {
-	return (_source->_doneReading);
-}
-
-bool Connection::requestReady() const {
-	return _parser.isDone();
-}
-
-void Connection::resetParser() {
-	_parser.reset();
-}
-
-const std::string& Connection::getTarget() const {
-	return (_request.uri);
-}
-
-void Connection::sendHeader() {
-	const char	*buf = _response->getHeader() + _response->getOffset();
-	ssize_t		size = std::min(std::strlen(buf), _serverConfig->getBufferSize());
-	ssize_t		bytes_sent = send(_socket.getFd(), buf, size, 0);
-
-	Logger::debug() << std::string(buf) << std::endl;
-
-	if (bytes_sent == -1)
-		throw (std::runtime_error("Error sending header"));
-	if (bytes_sent >= (ssize_t)std::strlen(buf))
-		_response->setHeaderSent(true);
-	_response->setOffset(bytes_sent);
-}
-
-void Connection::sendFromSource() {
 	const char	*buf = _source->readFromBuffer();
 
 	if (_source->_bytesToSend > 0) {
@@ -170,6 +131,22 @@ void Connection::sendFromSource() {
 		_source->_bytesToSend -= bytes_sent;
 		_source->_offset += bytes_sent;
 	}
+}
+
+bool Connection::doneReadingSource() const {
+	return (_source->_doneReading);
+}
+
+bool Connection::requestReady() const {
+	return _parser.isDone();
+}
+
+void Connection::resetParser() {
+	_parser.reset();
+}
+
+const std::string& Connection::getTarget() const {
+	return (_request.uri);
 }
 
 const ServerConfig *Connection::_findServerConfig(
