@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 10:15:00 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/18 15:51:07 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/20 17:52:43 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,14 +25,16 @@ class Response {
 		Response &operator=(const Response &other);
 		// static std::map <int, std::string>	_statusCodesAndTexts;
 
-		const char *getHeader()const;
-		bool isChunked()const;
-		size_t getOffset()const;
-		bool headerSent()const;
-		void setHeaderSent(bool sent);
-		void setOffset(ssize_t bytes_sent);
+		const char	*getHeader()const;
+		bool		isChunked()const;
+		size_t		getOffset()const;
+		bool		headerSent()const;
+		void		setHeaderSent(bool sent);
+		void		setOffset(ssize_t bytes_sent);
 
 	private:
+		std::string num_to_str(size_t num);
+
 		std::string					_header;
 		bool						_chunked;
 		size_t						_offset;

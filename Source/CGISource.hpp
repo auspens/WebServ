@@ -18,18 +18,18 @@ class CGISource : public Source {
 		//copy construct missing
 		~CGISource();
 
-		int getInputFd() const;
-		int getPipeReadEnd() const;
 		bool getIfExists() const;
+		void writeToSource();
 
 	private:
-		bool _pathExists;
-		std::vector<int> _outputPipe;
-		std::vector<int> _inputPipe;
-		std::string _scriptPath;
-		std::string _queryString;
-		std::string _pathInfo;
-		std::string _uri;
+		bool				_pathExists;
+		int					_writeFd;
+		std::vector<int>	_outputPipe;
+		std::vector<int>	_inputPipe;
+		std::string			_scriptPath;
+		std::string			_queryString;
+		std::string			_pathInfo;
+		std::string			_uri;
 
 		bool checkIfExists();
 		void buildEnvironmentVariables(std::vector<std::string> &envp);

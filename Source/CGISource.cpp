@@ -60,6 +60,9 @@ void CGISource::forkAndExec()  throw(ChildProcessNeededException) {
 		Logger::debug() << "Closing child pipe ends in parent" << std::endl;
 		close(_inputPipe[0]);
 		close(_outputPipe[1]);
+		_fd = _outputPipe[0];
+		_writeFd = _inputPipe[1];
+		writeToSource();
 	}
 }
 
@@ -84,10 +87,14 @@ void CGISource::buildEnvironmentVariables(std::vector<std::string> &envp) {
 }
 
 void CGISource::readSource() {
-	_body.resize(_serverConfig.getBufferSize()); // This resize seems wrong - that's because it is, fixed now.
+	if (_bytesToSend > 0 || _doneReading)
+		return;
+
+	_body.resize(_serverConfig.getBufferSize());
 	size_t bytesRead = read(_outputPipe[0], _body.data(), _serverConfig.getBufferSize());
 
 	Logger::debug() << "Read " << bytesRead << " bytes from cgi source: " << std::endl << std::endl;
+	Logger::detail() << "Body data: " << std::endl << _body.data() << std::endl;
 
 	if (bytesRead == 0)
 		_doneReading = true;
@@ -111,10 +118,11 @@ bool CGISource::checkIfExists(){
 	return (1);
 }
 
-int CGISource::getPipeReadEnd() const {
-	return _outputPipe[0];
-}
-
-int CGISource::getInputFd() const {
-	return _inputPipe[1];
+void CGISource::writeToSource() {
+	if (_request.method == "POST") {
+		int numbytes = write(_writeFd, _request.body.c_str(), _request.body.length());
+		Logger::debug() << "method is POST! wrote " << numbytes << " bytes" << std::endl;
+	}
+	Logger::debug() << "Closing write end of input pipe: Closing fd " << _writeFd << std::endl;
+	close(_writeFd);
 }

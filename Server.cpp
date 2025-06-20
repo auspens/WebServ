@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/18 17:47:25 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/20 17:43:14 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ void Server::_handleSocketEvent(struct epoll_event &event) throw(ChildProcessNee
 		_handleIncomingConnection(listeningSocket);
 	}
 	else if (!conn->isInvalidated()) {
-		if (event.events & EPOLLIN || event.events & EPOLLHUP) {  // EW: maybe one also has to check for EPOLLHUP and EPOLLERR and if so close the connection
+		if (event.events & EPOLLIN || event.events & EPOLLHUP) { // check for EPOLLERR and close connection
 			if (!conn->requestReady()) {
 				Logger::detail() << "EPOLLIN and req is not ready, so we read from socket.." << std::endl;
 				_readFromSocket(conn);
@@ -135,11 +135,13 @@ void Server::_readFromSocket(Connection *conn) throw(ChildProcessNeededException
 		conn->readFromSocket(*_config, _config->getBufferSize());
 		if (conn->requestReady())
 		{
-		// finished reading request, create the source and the response
-			Logger::debug() <<"Request body: "<< conn->getRequestBody() << std::endl << std::endl;
+			// finished reading request, create the source and the response
+			//Logger::detail() <<"Request body: "<< conn->getRequestBody() << std::endl << std::endl;
 			conn->setupSource(*_config);
-			if (conn->getSource()->getType() == CGI) // Use something like source.isPollable() instead of getType()
-				configureCGI(conn);
+			if (conn->getSource()->isPollableRead()) {
+				Logger::debug() << "Add source to epoll. fd: " << conn->getSource()->getFd() << std::endl;
+				_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn, conn->getSource()->getFd());
+			}
 			conn->setResponse();
 			_updateEpoll(EPOLL_CTL_MOD, EPOLLOUT, conn, conn->getSocketFd());
 		}
@@ -209,21 +211,6 @@ void Server::cleanup() {
 	close(_epollInstance);
 }
 
-// This should probably not be here. Maybe in connection?
-// We cannot write to a pipe without polling. Also, request body can be large, should be chuncked
-void Server::configureCGI(Connection* conn) {
-	CGISource *cgiptr = (CGISource *)conn->getSource();
-
-	Logger::debug() << "Add cgi to epoll. fd: " << cgiptr->getPipeReadEnd() << std::endl;
-	_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn, cgiptr->getPipeReadEnd());
-	if (conn->getRequest().method == "POST") {
-		int numbytes = write(cgiptr->getInputFd(), conn->getRequest().body.c_str(), conn->getRequest().body.length());
-		Logger::debug() << "method is POST! wrote " << numbytes << " bytes" << std::endl;
-	}
-	if (close(cgiptr->getInputFd()) != -1)
-		Logger::debug() << "Closed write end of input pipe: Closing fd " << cgiptr->getInputFd() << std::endl;
-}
-
 void Server::removeConnection(Connection *conn) {
 	conn->invalidate();
 	_invalidatedConnections.push_back(conn);
@@ -256,7 +243,7 @@ void Server::cleanIdleConnections() {
 
 void Server::cleanConnection(Connection *conn) {
 	_updateEpoll(EPOLL_CTL_DEL, -1, conn, conn->getSocketFd());
-	if (conn->getSource() && conn->getSource()->getType() == CGI) // Use something like source.isPollable() instead of getType()
+	if (conn->getSource() && conn->getSource()->isPollableRead()) // Use something like source.isPollable() instead of getType()
 		_updateEpoll(EPOLL_CTL_DEL, -1, conn, conn->getSourceFd());
 	delete conn;
 	_connections.erase(

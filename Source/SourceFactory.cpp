@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   SourceFactory.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 16:03:12 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/17 15:41:22 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/20 17:44:50 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ Source *SourceFactory::getNewSource(const ServerConfig &serverConfig, HttpReques
 	}
 	if (_isCgiRequest(serverConfig, location, req.path)) {
 		CGISource* ptr = new CGISource(serverConfig, location, req);
-			return ptr;
+		return ptr;
 	}
 	if (_isUploadRequest(serverConfig, location, req)){
 		UploadSource* ptr = new UploadSource(serverConfig, location, req);
@@ -66,7 +66,7 @@ bool SourceFactory::_isCgiRequest(const ServerConfig &serverConfig, const Locati
 }
 
 bool SourceFactory::_isUploadRequest(const ServerConfig &serverConfig, const Location *location, const HttpRequest &request){
-	if (request.method != "POST")
+	if (!location || !location->isUploadPass() || request.method != "POST")
 		return false;
 	std::map<std::string, std::string>::const_iterator it = request.headers.find("Content-Type: multipart/form-data");
 	if (it == request.headers.end())

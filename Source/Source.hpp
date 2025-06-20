@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/19 18:08:50 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/20 17:51:40 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ class Source {
 		virtual char				*readFromBuffer();
 		bool						isPollableRead();
 		bool						isPollableWrite();
+		bool						isWriteWhenComplete();
 
 		static Source *getNewSource(
 			const ServerConfig &serverConfig,
@@ -80,16 +81,18 @@ class Source {
 		HttpRequest			_request;
 		bool				_pollableRead;
 		bool				_pollableWrite;
+		bool				_writeWhenComplete;
 
 		std::vector<char>	_body; //where we are writing
 
 		Source(const ServerConfig &serverConfig, const Location *location, HttpRequest req)
 			throw(SourceAndRequestException);
 		Source(const ServerConfig &serverConfig, const Location *location, HttpRequest req, int code)
-			throw();
+			throw(SourceAndRequestException);
 		Source(const Source &src);
 		Source &operator=(const Source &other);
 
 	private:
-		bool _safePath(const std::string &path) const;
+		bool	_safePath(const std::string &path) const;
+		void	init(int code) throw(SourceAndRequestException);
 };

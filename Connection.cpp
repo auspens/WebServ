@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/19 17:34:59 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/20 17:51:47 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,12 +159,13 @@ void Connection::sendFromSource() {
 		ssize_t		bytes_sent;
 
 		Logger::debug() << ">> Sending to socket. Source type: " << _source->getType() << " Bytes to send: " << _source->_bytesToSend << std::endl;
+		Logger::detail() << "Sending buffer: " << std::endl << buf << std::endl;
 
 		bytes_sent = send(_socket.getFd(), buf, size, 0);
 		if (bytes_sent == -1)
 			throw (std::runtime_error("Error sending body")); // This should probably be a different type of exception. Also needs to be caught in Server or program will crash
 
-		Logger::debug() << "Sent " << bytes_sent << " bytes" << std::endl;
+		Logger::debug() << "Sent " << bytes_sent << " bytes:" << std::endl;
 
 		_source->_bytesToSend -= bytes_sent;
 		_source->_offset += bytes_sent;

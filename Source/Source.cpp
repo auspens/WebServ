@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/19 18:09:46 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/20 17:51:33 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,44 +15,46 @@
 
 Source::~Source() {}
 
-Source::Source(const ServerConfig &serverConfig, const Location *location, HttpRequest req)
-	throw(SourceAndRequestException)
-		:_bytesToSend(0)
-		,_offset(0)
-		,_doneReading(false)
-		,_code(200)
-		,_fd(-1)
-		,_size(0)
-		,_type(STATIC)
-		,_serverConfig(serverConfig)
-		,_location(location)
-		,_mime("")
-		,_request(req) {
-	if (!_safePath(req.path))
-			throw SourceAndRequestException("Invalid Path", 403);
-	if (location)
-		_target = WebServUtils::pathJoin(location->getRootFolder(), req.path.substr(location->getPath().size()));
-	else
-		_target = WebServUtils::pathJoin(serverConfig.getRootFolder(), req.path);
+Source::Source(
+	const ServerConfig &serverConfig,
+	const Location *location,
+	HttpRequest req
+) throw(SourceAndRequestException) :
+	_serverConfig(serverConfig),
+	_location(location),
+	_request(req) {
+		init(200);
 }
 
-Source::Source(const ServerConfig &serverConfig, const Location *location, HttpRequest req, int code)
-	throw()
-		:_bytesToSend(0)
-		,_offset(0)
-		,_doneReading(false)
-		,_code(code)
-		,_fd(-1)
-		,_size(0)
-		,_type(STATIC)
-		,_serverConfig(serverConfig)
-		,_location(location)
-		,_mime("")
-		,_request(req) {
-	if (location)
-		_target = WebServUtils::pathJoin(location->getRootFolder(), req.path.substr(location->getPath().size()));
+Source::Source(
+	const ServerConfig &serverConfig,
+	const Location *location,
+	HttpRequest req,
+	int code
+) throw(SourceAndRequestException) :
+	_serverConfig(serverConfig),
+	_location(location),
+	_request(req) {
+		init(code);
+}
+
+void Source::init(int code) throw(SourceAndRequestException) {
+	_bytesToSend = 0;
+	_offset = 0;
+	_doneReading = false;
+	_code = code;
+	_fd = -1;
+	_size = 0;
+	_type = STATIC;
+	_mime = "";
+	_pollableRead = false;
+	_pollableWrite = false;
+	_writeWhenComplete = false;
+
+	if (_location)
+		_target = WebServUtils::pathJoin(_location->getRootFolder(), _request.path.substr(_location->getPath().size()));
 	else
-		_target = WebServUtils::pathJoin(serverConfig.getRootFolder(), req.path);
+		_target = WebServUtils::pathJoin(_serverConfig.getRootFolder(), _request.path);
 }
 
 Source::Source(const Source &src):
@@ -109,7 +111,6 @@ std::string Source::getRedirectLocation()const{
 	return _location->getRedirectPath();
 }
 
-
 bool Source::_safePath(const std::string &path) const {
 	if (path.find("..") != std::string::npos ||
 		path.find("//") != std::string::npos ||
@@ -147,4 +148,8 @@ bool Source::isPollableRead() {
 
 bool Source::isPollableWrite() {
 	return _pollableWrite;
+}
+
+bool Source::isWriteWhenComplete() {
+	return _writeWhenComplete;
 }
