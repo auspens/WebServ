@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Constants.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 14:52:12 by wouter            #+#    #+#             */
-/*   Updated: 2025/06/17 19:32:57 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/18 17:18:45 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,4 +40,4 @@ enum LogLevel {
 	LOG_ERROR
 };
 
-#define LOG_LEVEL LOG_INFO
+#define LOG_LEVEL LOG_DEBUG
