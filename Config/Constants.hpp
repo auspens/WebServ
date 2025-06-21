@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 14:52:12 by wouter            #+#    #+#             */
-/*   Updated: 2025/06/18 17:18:45 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/21 12:46:18 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,9 @@ enum eHttpMethod {
 #define DEFAULT_CLIENT_MAX_BODY_SIZE 10ULL*1024*1024*1024
 #define DEFAULT_ACCEPT_METHOD METHOD_GET
 #define DEFAULT_CHUNK_SIZE 1024
+#define DEFAULT_CONNECTION_TIMEOUT 60
+
+#define TIMEOUT_CLEANUP_INTERVAL 30
 
 const std::string CGI_EXTENSIONS[] = {
 	".py",

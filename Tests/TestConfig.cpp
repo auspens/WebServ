@@ -22,6 +22,8 @@ void printFullConfig(const Config& config) {
 	std::cout << "  accept_cgi: " << join(config.getAcceptCgi()) << "\n";
 	std::cout << "  accept_method: " << config.getAcceptMethod() << "\n";
 	std::cout << "  autoindex: " << (config.getAutoIndex() ? "on" : "off") << "\n";
+	std::cout << "  chunk_size: " << (config.getBufferSize()) << "\n";
+	std::cout << "  connection_timeout: " << config.getConnectionTimeout() << "\n";
 
 	const std::vector<ServerConfig*>& servers = config.getServerConfigs();
 	for (size_t i = 0; i < servers.size(); ++i) {

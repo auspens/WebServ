@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 16:57:51 by wpepping          #+#    #+#             */
-/*   Updated: 2025/06/17 16:17:09 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/18 15:33:36 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ class Config {
 		int									getAcceptMethod() const;
 		bool								getAutoIndex() const;
 		size_t								getBufferSize() const;
+		unsigned int						getConnectionTimeout() const;
 
 		static size_t							getClientMaxBodySize(const ServerConfig &serverConfig, const Location *location);
 		static const std::map<int, std::string>	&getErrorPages(const ServerConfig &serverConfig, const Location *location);
@@ -49,10 +50,13 @@ class Config {
 		ConfigSettings				_configSettings;
 		std::vector<ServerConfig *>	_serverConfigs;
 		size_t						_chunkSize;
+		unsigned int				_connectionTimeout;
 
 		void 			_parseConfigFile(const std::string &configFile) throw(ConfigParseException);
-		ServerConfig	*_parseServerConfig(std::ifstream &configFile) throw(ConfigParseException);
-		void			_parseChunkSize(std::ifstream &configFile) throw(ConfigParseException);
+		ServerConfig	*_parseServerConfig(std::ifstream &infile) throw(ConfigParseException);
+		void			_parseChunkSize(std::ifstream &infile) throw(ConfigParseException);
+		void			_parseConnectionTimeout(std::ifstream &infile) throw(ConfigParseException);
+
 		void			_validateConfig() const throw(ConfigParseException);
 		void			_validateServerConfig(ServerConfig &serverConfig) const throw(ConfigParseException);
 		void			_validateLocation(Location &location) const throw(ConfigParseException);

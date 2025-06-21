@@ -6,18 +6,20 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/17 18:46:39 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/18 17:26:41 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include <algorithm>
+#include <ctime>
 #include <map>
 #include <vector>
 #include "ChildProcessNeededException.hpp"
 #include "Config.hpp"
 #include "Connection.hpp"
+#include "Constants.hpp"
 #include "ListeningSocket.hpp"
 #include "Logger.hpp"
 
@@ -32,10 +34,11 @@ class Server {
 
 	private:
 		int									_epollInstance;
+		time_t								_lastCleanup;
 		const Config						*_config;
 		std::map<int, ListeningSocket *>	_listeningSockets;
-		std::vector<Connection*>			_connections;
-		std::vector<Connection*>			_invalidatedConnections;
+		std::vector<Connection *>			_connections;
+		std::vector<Connection *>			_invalidatedConnections;
 
 		Server();
 		Server(Server const &src);
@@ -54,4 +57,6 @@ class Server {
 		void configureCGI(Connection* conn);
 		void removeConnection(Connection *conn);
 		void cleanInvalidatedConnections();
+		void cleanIdleConnections();
+		void cleanConnection(Connection *conn);
 };

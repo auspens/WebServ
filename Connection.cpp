@@ -3,27 +3,25 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/18 16:22:07 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/19 17:34:59 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Connection.hpp"
 
-Connection::Connection() {
-	_source = NULL;
-	_response = NULL;
-}
+Connection::Connection() { }
 
 Connection::Connection(int fd, int serverPort) :
 	_socket(fd),
 	_response(NULL),
 	_source(NULL),
 	_serverPort(serverPort),
-	_invalidated(false) {
-	Logger::debug() << "Create new connection with fd: " << fd << std::endl;
+	_invalidated(false),
+	_lastActiveTime(std::time(0)) {
+		Logger::debug() << "Create new connection with fd: " << fd << std::endl;
  }
 
 Connection::Connection(int fd, int serverPort, struct addrinfo *addrinfo) :
@@ -31,7 +29,10 @@ Connection::Connection(int fd, int serverPort, struct addrinfo *addrinfo) :
 	_response(NULL),
 	_source(NULL),
 	_serverPort(serverPort),
-	_invalidated(false) { }
+	_invalidated(false),
+	_lastActiveTime(std::time(0)) {
+		Logger::debug() << "Create new connection with fd: " << fd << std::endl;
+}
 
 Connection::Connection(const Connection &src) {
 	(void)src;
@@ -151,7 +152,7 @@ void Connection::sendHeader() {
 }
 
 void Connection::sendFromSource() {
-	const char	*buf = _source->getBufferToSend();
+	const char	*buf = _source->readFromBuffer();
 
 	if (_source->_bytesToSend > 0) {
 		ssize_t 	size = std::min(_source->_bytesToSend, _serverConfig->getBufferSize());
@@ -211,10 +212,18 @@ bool Connection::_matchServerName(std::string host, std::string serverName) cons
 	return host == serverName;
 }
 
-void	Connection::invalidate() {
+void Connection::invalidate() {
 	_invalidated = true;
 }
 
-int		Connection::isInvalidated() const {
+int Connection::isInvalidated() const {
 	return _invalidated;
+}
+
+time_t Connection::getLastActiveTime() const {
+	return _lastActiveTime;
+}
+
+void Connection::setLastActiveTime(time_t time) {
+	_lastActiveTime = time;
 }

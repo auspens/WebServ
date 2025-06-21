@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:08:43 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/17 19:03:39 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/19 17:45:24 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ struct DirEntry {
 class StaticFileSource : public Source {
 	public:
 		void readSource();
-		char *getBufferToSend();//returns a buffer that can be sent through socket
+		char *readFromBuffer();
 
 		StaticFileSource(const ServerConfig &serverConfig, Location const *location, HttpRequest req);
 		StaticFileSource(const ServerConfig &serverConfig, Location const *location, HttpRequest req, int code)throw();

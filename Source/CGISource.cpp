@@ -112,8 +112,3 @@ int CGISource::getPipeReadEnd() const {
 int CGISource::getInputFd() const {
 	return _inputPipe[1];
 }
-
-char* CGISource::getBufferToSend() {
-	//need to form chunks
-	return static_cast<char *>(_body.data() + _offset);
-}
