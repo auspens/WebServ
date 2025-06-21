@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/21 15:52:48 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/21 16:22:24 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,7 @@ void Connection::writeToSocket() {
 		ssize_t		bytes_sent;
 
 		Logger::debug() << ">> Sending to socket. Source type: " << _source->getType() << " Bytes to send: " << _source->_bytesToSend << std::endl;
-		Logger::detail() << "Sending buffer: " << std::endl << buf << std::endl;
+		Logger::debug() << "Sending buffer: " << std::endl << buf << std::endl;
 
 		bytes_sent = send(_socket.getFd(), buf, size, 0);
 		if (bytes_sent == -1)
@@ -120,8 +120,8 @@ void Connection::writeToSocket() {
 
 		Logger::debug() << "Sent " << bytes_sent << " bytes:" << std::endl;
 
-		_source->_bytesToSend -= bytes_sent;
-		_source->_offset += bytes_sent;
+		_source->_bytesToSend -= bytes_sent; // Use setter
+		_source->_offset += bytes_sent; // Use setter
 	}
 }
 

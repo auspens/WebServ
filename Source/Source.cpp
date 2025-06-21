@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/20 18:14:08 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/21 16:25:44 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,8 @@ void Source::init(int code) throw(SourceAndRequestException) {
 	_pollableRead = false;
 	_pollableWrite = false;
 	_writeWhenComplete = false;
+
+	_body.reserve(_serverConfig.getBufferSize());
 
 	if (_location)
 		_target = WebServUtils::pathJoin(_location->getRootFolder(), _request.path.substr(_location->getPath().size()));

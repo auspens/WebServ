@@ -90,7 +90,6 @@ void CGISource::readSource() {
 	if (_bytesToSend > 0 || _doneReading)
 		return;
 
-	_body.resize(_serverConfig.getBufferSize());
 	size_t bytesRead = read(_outputPipe[0], _body.data(), _serverConfig.getBufferSize());
 
 	Logger::debug() << "Read " << bytesRead << " bytes from cgi source: " << std::endl << std::endl;
@@ -98,9 +97,9 @@ void CGISource::readSource() {
 
 	if (bytesRead == 0)
 		_doneReading = true;
-	_size = bytesRead;
-	_bytesToSend = bytesRead;
-	_body.resize(bytesRead);
+	_bytesToSend += bytesRead;
+	_size += bytesRead;
+	_offset = 0;
 }
 
 bool CGISource::getIfExists() const {

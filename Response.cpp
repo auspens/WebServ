@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 10:33:18 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/18 15:51:00 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/21 16:35:05 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,12 +22,12 @@ Response::Response (const Source *source)
 	, _chunked(false)
 	, _offset(0)
 	, _headerSent(false){
-	_header += std::string(PROTOCOL) + " " + WebServUtils::num_to_str(source->getCode()) + " " + Source::_statusCodes.find(source->getCode())->second.message + "\r\n";
+	_header += std::string(PROTOCOL) + " " + num_to_str(source->getCode()) + " " + Source::_statusCodes.find(source->getCode())->second.message + "\r\n";
 	switch(source->getType())
 	{
 		case STATIC:
 			_header += "Content-Type: " + source->getMime() + "\r\n";
-			_header += "Content-Length: " + WebServUtils::num_to_str(source->getSize()) + "\r\n";
+			_header += "Content-Length: " + num_to_str(source->getSize()) + "\r\n";
 			break;
 		case REDIRECT:
 			_header += "Location: " + source->getRedirectLocation() + "\r\n";
@@ -38,7 +38,9 @@ Response::Response (const Source *source)
 			_header += "Keep-Alive: timeout=5, max=997";
 			//_header += "Transfer-Encoding: chunked\r\n";
 			//_chunked = true;
-		case UPLOAD: break;
+			break;
+		case UPLOAD:
+			break;
 	}
 	_header += "\r\n"; // END of headers: blank line
 }
@@ -55,7 +57,11 @@ const char *Response::getHeader()const{
 bool Response::headerSent()const{
 	return _headerSent;
 }
-
+std::string Response::num_to_str(size_t num) {
+	std::ostringstream convert;
+	convert << num;
+	return convert.str();
+}
 bool Response::isChunked()const{
 	return _chunked;
 }

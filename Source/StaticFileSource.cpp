@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/19 17:36:20 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/21 16:26:25 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,16 +51,13 @@ StaticFileSource::~StaticFileSource(){
 void StaticFileSource::readSource(){
 	if (_bytesToSend > 0 || _generated || _doneReading)
 		return;
-	_body.clear();
-	_body.resize(_serverConfig.getBufferSize());
-	_offset = 0;
 	ssize_t readSize = read(_fd, _body.data(), _serverConfig.getBufferSize());
 	if (readSize < 0)
 		throw SourceAndRequestException("Could not read from static source file", 500);
 	if (readSize == 0)
 		_doneReading = true;
 	_bytesToSend = readSize;
-	_body.resize(readSize);
+	_offset = 0;
 }
 
 bool StaticFileSource::indexExists(const std::vector<std::string> &indexes, const std::string &root){
