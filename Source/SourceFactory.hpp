@@ -3,21 +3,22 @@
 /*                                                        :::      ::::::::   */
 /*   SourceFactory.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 16:00:07 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/17 12:22:26 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/21 15:54:20 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+#include "CGISource.hpp"
+#include "ChildProcessNeededException.hpp"
+#include "Constants.hpp"
+#include "ErrorPageSource.hpp"
+#include "RedirectSource.hpp"
+#include "SourceAndRequestException.hpp"
 #include "StaticFileSource.hpp"
 #include "UploadSource.hpp"
-#include "RedirectSource.hpp"
-#include "ErrorPageSource.hpp"
-#include "CGISource.hpp"
-#include "SourceAndRequestException.hpp"
-#include "ChildProcessNeededException.hpp"
 
 class SourceFactory {
 	public:

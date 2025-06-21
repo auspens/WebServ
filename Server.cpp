@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/20 18:11:21 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/21 15:52:59 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,7 +132,7 @@ void Server::_handleIncomingConnection(ListeningSocket *listeningSocket) {
 
 void Server::_readFromSocket(Connection *conn) throw(ChildProcessNeededException) {
 	try {
-		conn->readFromSocket(*_config, _config->getBufferSize());
+		conn->readFromSocket(_config->getBufferSize());
 		if (conn->requestReady())
 		{
 			// finished reading request, create the source and the response
@@ -165,7 +165,7 @@ void Server::_writeToSocket(Connection &conn) {
 }
 
 void Server::_readFromSource(Connection &conn) {
-	Logger::debug() << "Server::readFromSource" << std::endl;
+	Logger::detail() << "Server::readFromSource" << std::endl;
 	if (!conn.getSource())
 		return;
 	conn.getSource()->readSource();

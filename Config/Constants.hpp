@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 14:52:12 by wouter            #+#    #+#             */
-/*   Updated: 2025/06/19 19:48:25 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/21 15:54:35 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,4 +43,4 @@ enum LogLevel {
 	LOG_ERROR
 };
 
-#define LOG_LEVEL LOG_DETAIL
+#define LOG_LEVEL LOG_DEBUG

@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 16:03:12 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/20 17:44:50 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/21 15:54:56 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,21 @@
 
 Source *SourceFactory::getNewSource(const ServerConfig &serverConfig, HttpRequest req) throw(SourceAndRequestException, ChildProcessNeededException) {
 	const Location *location = _findLocation(req.path, serverConfig);
-	std::cout << "Location: " << (location? location->getPath():serverConfig.getRootFolder()) << std::endl;
-	std::cout << "request path:" << req.path << std::endl;
-	std::cout << std::boolalpha << "POST allowed: " << (Config::getAcceptMethod(serverConfig, location) & METHOD_POST) << std::endl;
-	std::cout << std::boolalpha << "Upload pass: " << (location? location->isUploadPass() : false) << std::endl;
+	Logger::debug() << "Location: " << (location? location->getPath():serverConfig.getRootFolder()) << std::endl;
+	Logger::debug() << "request path:" << req.path << std::endl;
+	Logger::debug() << std::boolalpha << "POST allowed: " << (Config::getAcceptMethod(serverConfig, location) & METHOD_POST) << std::endl;
+	Logger::debug() << std::boolalpha << "Upload pass: " << (location? location->isUploadPass() : false) << std::endl;
 
 	if (location && location->isRedirect()) {
 		return new RedirectSource(serverConfig, *location, req);
 	}
 	if (_isCgiRequest(serverConfig, location, req.path)) {
+		Logger::debug() <<"CGISource is being created" <<std::endl;
 		CGISource* ptr = new CGISource(serverConfig, location, req);
 		return ptr;
 	}
 	if (_isUploadRequest(serverConfig, location, req)){
+		Logger::debug() <<"UploadSource is being created" <<std::endl;
 		UploadSource* ptr = new UploadSource(serverConfig, location, req);
 		return ptr;
 	}
@@ -44,7 +46,6 @@ const Location *SourceFactory::_findLocation (
 ) {
 	const std::vector<Location *> locations = serverConfig.getLocations();
 	std::vector<Location *>::const_iterator it;
-
 	for (it = locations.begin(); it != locations.end(); ++it) {
 		std::string locationPath = (*it)->getPath();
 
@@ -58,6 +59,7 @@ const Location *SourceFactory::_findLocation (
 
 bool SourceFactory::_isCgiRequest(const ServerConfig &serverConfig, const Location *location, const std::string &path) {
 	std::vector<std::string> acceptCgi = Config::getAcceptCgi(serverConfig, location);
+	Logger::debug()<<"AcceptCgi size: " << acceptCgi.size() << " AcceptCgi at 0: " << (acceptCgi.empty() ? "null" : acceptCgi.at(0)) << std::endl;
 	for (size_t i = 0; i < acceptCgi.size(); i++) {
 		if (WebServUtils::strEndsWith(path, acceptCgi[i]))
 			return true;
@@ -68,11 +70,15 @@ bool SourceFactory::_isCgiRequest(const ServerConfig &serverConfig, const Locati
 bool SourceFactory::_isUploadRequest(const ServerConfig &serverConfig, const Location *location, const HttpRequest &request){
 	if (!location || !location->isUploadPass() || request.method != "POST")
 		return false;
-	std::map<std::string, std::string>::const_iterator it = request.headers.find("Content-Type: multipart/form-data");
-	if (it == request.headers.end())
+	std::map<std::string, std::string>::const_iterator it = request.headers.find("Content-Type");
+	if (it == request.headers.end() || it->second.find("multipart/form-data") == std::string::npos)
 		return false;
 	int _acceptMethod = Config::getAcceptMethod(serverConfig, location);
-	if (_acceptMethod & METHOD_POST)
-		return true;
-	throw (SourceAndRequestException("Upload not allowed here", 403));
+	if (!(_acceptMethod & METHOD_POST))
+		throw (SourceAndRequestException("Upload not allowed here", 403));
+	if (!location)
+		return false;
+	if (!location->isUploadPass())
+		return false;
+	return true;
 }
