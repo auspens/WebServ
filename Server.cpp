@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/18 17:47:25 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/21 15:30:37 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,7 +132,7 @@ void Server::_handleIncomingConnection(ListeningSocket *listeningSocket) {
 
 void Server::_readFromSocket(Connection *conn) throw(ChildProcessNeededException) {
 	try {
-		conn->readFromSocket(*_config, _config->getBufferSize());
+		conn->readFromSocket(_config->getBufferSize());
 		if (conn->requestReady())
 		{
 		// finished reading request, create the source and the response

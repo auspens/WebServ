@@ -1,0 +1,2 @@
+run this in Terminal:
+xrandr --output HDMI-1 --brightness 1

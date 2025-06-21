@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 16:03:12 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/18 17:30:32 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/21 14:48:38 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ Source *SourceFactory::getNewSource(const ServerConfig &serverConfig, HttpReques
 			return ptr;
 	}
 	if (_isUploadRequest(serverConfig, location, req)){
+		Logger::debug() <<"UploadSource is being created" <<std::endl;
 		UploadSource* ptr = new UploadSource(serverConfig, location, req);
 		return ptr;
 	}
@@ -45,7 +46,6 @@ const Location *SourceFactory::_findLocation (
 ) {
 	const std::vector<Location *> locations = serverConfig.getLocations();
 	std::vector<Location *>::const_iterator it;
-	Logger::debug() << "Location at 0: " << locations.at(0)->getPath() <<std::endl;
 	for (it = locations.begin(); it != locations.end(); ++it) {
 		std::string locationPath = (*it)->getPath();
 
@@ -70,11 +70,15 @@ bool SourceFactory::_isCgiRequest(const ServerConfig &serverConfig, const Locati
 bool SourceFactory::_isUploadRequest(const ServerConfig &serverConfig, const Location *location, const HttpRequest &request){
 	if (request.method != "POST")
 		return false;
-	std::map<std::string, std::string>::const_iterator it = request.headers.find("Content-Type: multipart/form-data");
-	if (it == request.headers.end())
+	std::map<std::string, std::string>::const_iterator it = request.headers.find("Content-Type");
+	if (it == request.headers.end() || it->second.find("multipart/form-data") == std::string::npos)
 		return false;
 	int _acceptMethod = Config::getAcceptMethod(serverConfig, location);
-	if (_acceptMethod & METHOD_POST)
-		return true;
-	throw (SourceAndRequestException("Upload not allowed here", 403));
+	if (!(_acceptMethod & METHOD_POST))
+		throw (SourceAndRequestException("Upload not allowed here", 403));
+	if (!location)
+		return false;
+	if (!location->isUploadPass())
+		return false;
+	return true;
 }

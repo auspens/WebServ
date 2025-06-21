@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   UploadSource.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:03:49 by wpepping          #+#    #+#             */
-/*   Updated: 2025/06/19 17:36:12 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/21 14:39:45 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ void UploadSource::_getUploadFiles(std::string boundary, HttpRequest req){
 
 		std::string headers = req.body.substr(pos, header_end - pos);
 		pos = header_end + 4;
+		Logger::debug() <<"LOG. Multipart boundary: " << boundary << " multipart headers: " << headers <<std::endl;
 
 		fileToUpload fileInfo;
         std::size_t cd_pos = headers.find("Content-Disposition:");

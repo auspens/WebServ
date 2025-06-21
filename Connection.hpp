@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/18 17:47:15 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/21 15:30:04 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ class Connection{
 		void				setupSource(const Config &config) throw(SourceAndRequestException, ChildProcessNeededException);
 		void				setupErrorPageSource(const Config &config, int code)throw();
 
-		void				readFromSocket(const Config &config, size_t bufferSize);
+		void				readFromSocket(size_t bufferSize);
 		void				writeToSocket();
 		void				sendFromSource();
 		void				sendHeader();
