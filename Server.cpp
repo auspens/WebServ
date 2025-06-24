@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/24 12:16:00 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/24 14:29:44 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,8 @@ void Server::_runEpollLoop() throw(ChildProcessNeededException) {
 			cleanInvalidatedConnections();
 		if (std::time(0) - _lastCleanup > TIMEOUT_CLEANUP_INTERVAL)
 			cleanIdleConnections();
+		if (!_nonPollableFds.empty())
+			_runNonPollableFds();
 	}
 }
 
@@ -142,6 +144,9 @@ void Server::_readFromSocket(Connection *conn) throw(ChildProcessNeededException
 			if (conn->getSource()->isPollableRead()) {
 				Logger::debug() << "Add source to epoll. fd: " << conn->getSource()->getFd() << std::endl;
 				_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn, conn->getSource()->getFd());
+			}
+			else if (!conn->getSource()->_doneReading){
+				_nonPollableFds.push_back(conn);
 			}
 			_updateEpoll(EPOLL_CTL_MOD, EPOLLOUT, conn, conn->getSocketFd());
 		}
@@ -250,4 +255,16 @@ void Server::cleanConnection(Connection *conn) {
 		std::remove(_connections.begin(), _connections.end(), conn),
 		_connections.end()
 	);
+}
+
+void	Server::_runNonPollableFds(){
+	for (std::vector<Connection *>::iterator it = _nonPollableFds.begin(); it != _nonPollableFds.end();) {
+		if ((*it)->getSource()->_doneReading) {
+			it = _nonPollableFds.erase(it);
+		} else {
+			(*it)->getSource()->readSource();
+			++it;
+		}
+	}
+	Logger::debug()<< "Running nonPollableFd" <<std::endl;
 }

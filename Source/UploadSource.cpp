@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:03:49 by wpepping          #+#    #+#             */
-/*   Updated: 2025/06/24 12:44:47 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/24 14:21:33 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,10 +45,8 @@ void UploadSource::_getUploadFiles(std::string boundary, HttpRequest req){
 		if (req.body.substr(pos, 2) == "\r\n") pos += 2;
 		std::size_t header_end = req.body.find("\r\n\r\n", pos);
 		if (header_end == std::string::npos) throw SourceAndRequestException("couldn't parce the multipart form body", 400);
-
 		std::string headers = req.body.substr(pos, header_end - pos);
 		pos = header_end + 4;
-		Logger::debug() <<"LOG. Multipart boundary: " << boundary << " multipart headers: " << headers <<std::endl;
 		fileToUpload fileInfo;
         std::size_t cd_pos = headers.find("Content-Disposition:");
         if (cd_pos != std::string::npos) {
@@ -73,7 +71,6 @@ void UploadSource::_getUploadFiles(std::string boundary, HttpRequest req){
         if (next_boundary == std::string::npos)
             throw SourceAndRequestException("couldn't parce the multipart form body", 400);
         fileInfo.body = req.body.substr(pos, next_boundary - pos - 2);
-		Logger::debug() << "File body: " << fileInfo.body << std::endl;
         _uploads.push_back(fileInfo);
         pos = next_boundary;
     }
@@ -114,6 +111,7 @@ void 	UploadSource::readSource(){
 
 	if (!_isWriting){
 		if (_uploads.empty()){
+			_doneReading = true;
 			_createHTTPResponse();
 			return ;
 		}
@@ -121,7 +119,8 @@ void 	UploadSource::readSource(){
 		if (_fd < 0) throw SourceAndRequestException("Could not create upload file", 500);
 		_isWriting = true;
 	}
-	ssize_t bytesWritten = write(_fd, _uploads.at(0).body.c_str(), _writeSize);
+	ssize_t bytesToWrite = std::min(_writeSize, _uploads.at(0).body.size());
+	ssize_t bytesWritten = write(_fd, _uploads.at(0).body.c_str(), bytesToWrite);
 	if (bytesWritten < 0) throw SourceAndRequestException("Could not write to upload file", 500);
 	if (bytesWritten == 0) {
 		_uploads.erase(_uploads.begin());
@@ -134,11 +133,17 @@ void 	UploadSource::readSource(){
 }
 
 void UploadSource::_createHTTPResponse(){
-	std::string response_body =  "<html><body> File uploaded successfully!</h2><body></html>";
-	std::string content_length = "Content-Length: " + WebServUtils::num_to_str(response_body.size()) + "\r\n";
-	_body.assign(content_length.begin(), content_length.end());
+	std::string header = std::string(PROTOCOL) + " " + WebServUtils::num_to_str(_code) + " " + _statusCodes.find(_code)->second.message + "\r\n";
+	std::string response_body =  "<html><body> File uploaded successfully!</body></html>";
+	header += "Content-Length: " + WebServUtils::num_to_str(response_body.size()) + "\r\n";
+	header += "Content-Type: text/html\r\n";
+	header += "\r\n";
+	_body.clear();
+	_body.assign(header.begin(), header.end());
 	_body.insert(_body.end(), response_body.begin(), response_body.end());
 	_doneReading = true;
 	_bytesToSend = _body.size();
+	_offset = 0;
+	Logger::debug() << "UploadSource http response: " << std::string(_body.begin(), _body.end()) <<std::endl;
 }
 

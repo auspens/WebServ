@@ -6,11 +6,11 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 10:33:18 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/24 12:53:08 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/24 14:25:39 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Response.hpp"
+#include "Response.hpp" //I'm not sure if we need this class as it is now.
 
 Response::Response()
 	: _header("")
@@ -36,6 +36,7 @@ Response::Response (const Source *source)
 			//_chunked = true;
 			break;
 		case UPLOAD:
+			_header = "";
 			break;
 	}
 	_header += "\r\n"; // END of headers: blank line

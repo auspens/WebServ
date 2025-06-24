@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/18 17:26:41 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/24 13:02:17 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ class Server {
 		std::map<int, ListeningSocket *>	_listeningSockets;
 		std::vector<Connection *>			_connections;
 		std::vector<Connection *>			_invalidatedConnections;
+		std::vector<Connection *>			_nonPollableFds;
 
 		Server();
 		Server(Server const &src);
@@ -52,9 +53,9 @@ class Server {
 		void _readFromSource(Connection &conn);
 		int _updateEpoll(int action, int events, Connection *connection, int fd);
 		ListeningSocket *_findListeningSocket(int fd);
+		void _runNonPollableFds();
 
 		void cleanup();
-		void configureCGI(Connection* conn);
 		void removeConnection(Connection *conn);
 		void cleanInvalidatedConnections();
 		void cleanIdleConnections();

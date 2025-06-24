@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/24 11:51:36 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/24 14:05:24 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,6 +167,7 @@ void StaticFileSource::generateIndex(){
 	_bytesToSend = _body.size();
 	_size = _body.size();
 	_mime = _mimeTypes.find(".html")->second;
+	_doneReading = true;
 }
 
 
@@ -184,9 +185,10 @@ void StaticFileSource::generatePage(int code){
 	_bytesToSend = _body.size();
 	_size = _body.size();
 	_mime = _mimeTypes.find(".html")->second;
+	_doneReading = true;
 }
 
 char *StaticFileSource::readFromBuffer(){
-	readSource();
+	// readSource();
 	return Source::readFromBuffer();
 }
