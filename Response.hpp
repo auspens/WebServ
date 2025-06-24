@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 10:15:00 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/20 17:52:43 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/21 18:05:49 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "Source/RedirectSource.hpp"
 #include "Source/CGISource.hpp"
 
-#define PROTOCOL "HTTP/1.1"
+
 
 class Response {
 	public:

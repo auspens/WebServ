@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/21 15:52:59 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/24 10:20:30 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,7 +132,7 @@ void Server::_handleIncomingConnection(ListeningSocket *listeningSocket) {
 
 void Server::_readFromSocket(Connection *conn) throw(ChildProcessNeededException) {
 	try {
-		conn->readFromSocket(_config->getBufferSize());
+		conn->readFromSocket(_config->getBufferSize(), _config);
 		if (conn->requestReady())
 		{
 			// finished reading request, create the source and the response
@@ -146,9 +146,8 @@ void Server::_readFromSocket(Connection *conn) throw(ChildProcessNeededException
 			_updateEpoll(EPOLL_CTL_MOD, EPOLLOUT, conn, conn->getSocketFd());
 		}
 	}
-	catch (SourceAndRequestException &e){ // Why does this need to happen in the server instead of connection?
+	catch (SourceAndRequestException &e){ // Why does this need to happen in the server instead of connection? Because if readFromSocket throws, we need to create Error page and not proceed to setUpSource
 		conn->setupErrorPageSource(*_config, e.errorCode());
-		conn->setResponse();
 		_updateEpoll(EPOLL_CTL_MOD, EPOLLOUT, conn, conn->getSocketFd());
 	}
 }

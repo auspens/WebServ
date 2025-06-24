@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Constants.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 14:52:12 by wouter            #+#    #+#             */
-/*   Updated: 2025/06/21 16:17:34 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/21 18:06:14 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@ enum eHttpMethod {
 		METHOD_POST   = 1 << 1, // 0010
 		METHOD_DELETE = 1 << 2  // 0100
 };
+
+#define PROTOCOL "HTTP/1.1"
 
 #define DEFAULT_PORT 3490
 #define DEFAULT_AUTO_INDEX false

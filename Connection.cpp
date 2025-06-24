@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/21 16:22:24 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/24 11:25:04 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,12 +91,19 @@ void Connection::setResponse() {
 	_source->setHeader(_response->getHeader());
 }
 
-void Connection::readFromSocket(size_t bufferSize) {
+void Connection::readFromSocket(size_t bufferSize, const Config *config) {
     std::vector<char> buffer;
     buffer.reserve(bufferSize);
     int valread = read(_socket.getFd(), buffer.data(), bufferSize);
-    if (_parser.parse(buffer.data(), valread) != RequestParser::COMPLETE)
-        return ;
+	RequestParser::ParseResult parseResult = _parser.parse(buffer.data(), valread);
+	if (parseResult == RequestParser::URL_READY){
+			const ServerConfig *serverConfig = _findServerConfig(_serverPort,_request.hostname, *config); //This should be somewhere else, not sure where. Config maybe
+			const Location *location = SourceFactory::_findLocation(_request.path, *serverConfig);
+			_parser.setMaxBody(Config::getClientMaxBodySize(*serverConfig, location));
+			parseResult = _parser.continueParsing();
+	}
+    if (parseResult!= RequestParser::COMPLETE)
+		return ;
     _request = _parser.getRequest();
     Logger::debug() << "Headers:" << std::endl;
     for (std::map<std::string, std::string>::iterator it = _request.headers.begin(); it != _request.headers.end(); ++it)
@@ -112,7 +119,7 @@ void Connection::writeToSocket() {
 		ssize_t		bytes_sent;
 
 		Logger::debug() << ">> Sending to socket. Source type: " << _source->getType() << " Bytes to send: " << _source->_bytesToSend << std::endl;
-		Logger::debug() << "Sending buffer: " << std::endl << buf << std::endl;
+		Logger::detail() << "Sending buffer: " << std::endl << buf << std::endl;
 
 		bytes_sent = send(_socket.getFd(), buf, size, 0);
 		if (bytes_sent == -1)

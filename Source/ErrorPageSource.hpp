@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 15:37:02 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/18 16:18:19 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/21 18:03:45 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,5 +25,7 @@ class ErrorPageSource : public StaticFileSource{
 		~ErrorPageSource();
 
 		void getErrorPage(int index);
+	private:
+		void _addHeaders();
 };
 

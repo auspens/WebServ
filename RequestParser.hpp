@@ -1,5 +1,7 @@
 #pragma once
 #include "HttpRequest.hpp"
+#include "Source/SourceAndRequestException.hpp"
+#include "Logger/Logger.hpp"
 #include <string>
 #include <sstream>
 #include <stdlib.h>     /* atoi */
@@ -15,6 +17,7 @@ class RequestParser {
         enum ParseResult {
             INCOMPLETE,
             COMPLETE,
+			URL_READY,
             BAD
         };
         RequestParser();
@@ -22,16 +25,20 @@ class RequestParser {
         bool isDone() const;
         const HttpRequest getRequest() const;
         void reset();
+		void setMaxBody(size_t size);
+		ParseResult continueParsing();
+		
     private:
-        ParseState state;
-        HttpRequest request;
-        std::string buffer;
+        ParseState _state;
+        HttpRequest _request;
+        std::string _buffer;
+		size_t 	_maxBody;
         bool parseStartLine();
         bool parseHeaders();
-        bool parseBody(); //does not matter for GET, on which we focus for now
+        bool parseBody();
         void _parseUrl();
         size_t contentLength;
-    };
+	};
 
 
 

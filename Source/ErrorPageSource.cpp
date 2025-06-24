@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 15:55:07 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/18 16:18:14 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/21 18:13:25 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,9 +42,10 @@ ErrorPageSource::ErrorPageSource
 	_code = code;
 	_body.clear();
 	getErrorPage(code);
-	_body.resize(_size);
+	_size = _body.size();
+	_addHeaders();
 	_offset = 0;
-	_bytesToSend = _size;
+	_bytesToSend = _body.size();
 	_doneReading = true;
 	Logger::debug() << "Body: \n" << std::endl;
 	WebServUtils::printVector(_body);
@@ -69,8 +70,14 @@ void ErrorPageSource::getErrorPage(int code){
 	}
 	else
 		generatePage(code);
-	Logger::debug() << "Body in generate page: \n" << std::endl;
-	WebServUtils::printVector(_body);
+}
+
+void ErrorPageSource::_addHeaders(){
+	std::string header;
+	header += std::string(PROTOCOL) + " " + WebServUtils::num_to_str(_code) + " " + Source::_statusCodes.find(_code)->second.message + "\r\n";
+	header += "Content-Type: " + _mime + "\r\n";
+	header += "Content-Length: " + WebServUtils::num_to_str(_size) + "\r\n\r\n";
+	_body.insert(_body.begin(), header.begin(), header.end());
 }
 
 ErrorPageSource::ErrorPageSource(const ErrorPageSource &src):StaticFileSource(src){
