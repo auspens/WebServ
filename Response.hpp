@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 10:15:00 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/24 12:52:46 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/24 12:54:51 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@ class Response {
 
 		const char	*getHeader()const;
 		bool		isChunked()const;
-		size_t		getOffset()const;
 
 	private:
 		std::string num_to_str(size_t num);
