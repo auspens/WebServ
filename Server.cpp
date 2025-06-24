@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/24 10:20:30 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/24 12:16:00 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,6 +148,7 @@ void Server::_readFromSocket(Connection *conn) throw(ChildProcessNeededException
 	}
 	catch (SourceAndRequestException &e){ // Why does this need to happen in the server instead of connection? Because if readFromSocket throws, we need to create Error page and not proceed to setUpSource
 		conn->setupErrorPageSource(*_config, e.errorCode());
+		conn->setResponse();
 		_updateEpoll(EPOLL_CTL_MOD, EPOLLOUT, conn, conn->getSocketFd());
 	}
 }
