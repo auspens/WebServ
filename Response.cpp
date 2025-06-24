@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 10:33:18 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/21 16:35:05 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/24 12:53:08 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,10 @@
 
 Response::Response()
 	: _header("")
-	, _chunked(false)
-	, _offset(0)
-	, _headerSent(false){}
+	, _chunked(false){}
 Response::Response (const Source *source)
 	: _header("")
-	, _chunked(false)
-	, _offset(0)
-	, _headerSent(false){
+	, _chunked(false){
 	_header += std::string(PROTOCOL) + " " + num_to_str(source->getCode()) + " " + Source::_statusCodes.find(source->getCode())->second.message + "\r\n";
 	switch(source->getType())
 	{
@@ -54,9 +50,7 @@ Response &Response::operator=(const Response &other){
 const char *Response::getHeader()const{
 	return (_header.c_str());
 }
-bool Response::headerSent()const{
-	return _headerSent;
-}
+
 std::string Response::num_to_str(size_t num) {
 	std::ostringstream convert;
 	convert << num;
@@ -65,14 +59,4 @@ std::string Response::num_to_str(size_t num) {
 bool Response::isChunked()const{
 	return _chunked;
 }
-size_t Response::getOffset()const{
-	return _offset;
-}
 
-void Response::setHeaderSent(bool sent){
-	_headerSent = sent;
-}
-
-void Response::setOffset(ssize_t bytes_sent){
-	_offset += bytes_sent;
-}

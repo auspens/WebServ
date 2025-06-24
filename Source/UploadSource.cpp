@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:03:49 by wpepping          #+#    #+#             */
-/*   Updated: 2025/06/21 14:39:45 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/24 12:44:47 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,6 @@ void UploadSource::_getUploadFiles(std::string boundary, HttpRequest req){
 		std::string headers = req.body.substr(pos, header_end - pos);
 		pos = header_end + 4;
 		Logger::debug() <<"LOG. Multipart boundary: " << boundary << " multipart headers: " << headers <<std::endl;
-
 		fileToUpload fileInfo;
         std::size_t cd_pos = headers.find("Content-Disposition:");
         if (cd_pos != std::string::npos) {
@@ -57,10 +56,15 @@ void UploadSource::_getUploadFiles(std::string boundary, HttpRequest req){
             if (fn_pos != std::string::npos) {
                 fn_pos += 10;
                 std::size_t fn_end = headers.find("\"", fn_pos);
+				if (fn_end == std::string::npos)
+    				throw SourceAndRequestException("Malformed filename in Content-Disposition", 400);
                 fileInfo.name = _getFileName(headers.substr(fn_pos, fn_end - fn_pos));
             }
 			else{
-				pos = req.body.find(boundary, cd_pos);
+				std::size_t skip = req.body.find(boundary, pos);
+				if (skip == std::string::npos)
+					throw SourceAndRequestException("Couldn't parse upload files", 400);
+				pos = skip;
 				continue;
 			}
         }
@@ -68,8 +72,8 @@ void UploadSource::_getUploadFiles(std::string boundary, HttpRequest req){
 		std::size_t next_boundary = req.body.find(boundary, pos);
         if (next_boundary == std::string::npos)
             throw SourceAndRequestException("couldn't parce the multipart form body", 400);
-
         fileInfo.body = req.body.substr(pos, next_boundary - pos - 2);
+		Logger::debug() << "File body: " << fileInfo.body << std::endl;
         _uploads.push_back(fileInfo);
         pos = next_boundary;
     }
