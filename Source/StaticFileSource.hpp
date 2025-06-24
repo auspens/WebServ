@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:08:43 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/19 17:45:24 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/24 11:51:19 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ class StaticFileSource : public Source {
 		bool checkIfExists(std::string &target);
 		void checkIfDirectory();
 		void defineMimeType();
-		bool generateIndex();
+		void generateIndex();
 		bool readDirectories(std::vector<DirEntry>&entries);
 		void generatePage(int code);
 		bool indexExists(const std::vector<std::string> &indexes, const std::string &root);

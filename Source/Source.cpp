@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/21 16:25:44 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/24 11:57:15 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,6 +138,6 @@ bool Source::isWriteWhenComplete() {
 }
 
 void Source::setHeader(std::string header) {
-	_body.assign(header.begin(), header.end());
-	_bytesToSend = header.length();
+	_body.insert(_body.begin(), header.begin(), header.end());
+	_bytesToSend += header.length();
 }

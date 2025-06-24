@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/21 16:26:25 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/24 11:51:36 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,16 +80,16 @@ void StaticFileSource::checkIfDirectory(){
 		if (indexExists(_serverConfig.getIndexPages(), _serverConfig.getRootFolder()))
 			return;
 		if (_serverConfig.getAutoIndex()){
-			if (generateIndex())
-				return;
+			generateIndex();
+			return;
 		}
 	}
 	else{
 		if(indexExists(_location->getIndexPages(),_location->getPath()))
 				return;
 		if (_location->getAutoIndex()){
-			if (generateIndex())
-				return;
+			generateIndex();
+			return;
 		}
 	}
 	throw SourceAndRequestException("No index page for this directory and autoindex is off", 404);
@@ -141,10 +141,10 @@ bool StaticFileSource::readDirectories(std::vector<DirEntry> &entries){
 	return true;
 }
 
-bool StaticFileSource::generateIndex(){
+void StaticFileSource::generateIndex(){
 	std::vector<DirEntry> entries;
 	if (!readDirectories(entries))
-		return false;
+		throw SourceAndRequestException("Could not generate index", 500);
 	std::string relativeTarget = _target;
 	std::string prefix = _serverConfig.getRootFolder();
 	if (relativeTarget.rfind(prefix, 0) == 0)
@@ -167,7 +167,6 @@ bool StaticFileSource::generateIndex(){
 	_bytesToSend = _body.size();
 	_size = _body.size();
 	_mime = _mimeTypes.find(".html")->second;
-	return true;
 }
 
 
