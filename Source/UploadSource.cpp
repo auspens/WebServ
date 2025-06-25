@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:03:49 by wpepping          #+#    #+#             */
-/*   Updated: 2025/06/25 13:27:49 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/25 16:53:21 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,10 @@ UploadSource::UploadSource(
 	if (!opendir(_target.c_str()))
 		throw SourceAndRequestException("Upload folder doesn't exist", 403);
 	_isWriting = false;
-	_type = UPLOAD;
-	_doneReading = true;
 	_doneWriting = false;
+	_doneReading = true;
+	_type = UPLOAD;
+	_uploadOffset = 0;
 	std::string header;
 	try {
 		header = req.headers.at("Content-Type");
@@ -87,7 +88,7 @@ std::string UploadSource::_getFileName(std::string token){
 		token.erase(token.find("/"), 1);
 	std::size_t pos = token.find_last_of(".");
 	std::ostringstream name;
-	name << _target << "/" << "upload_" << token.substr(0, pos - 1) << "_" << time(NULL) << token.substr(pos);
+	name << _target << "/" << "upload_" << token.substr(0, pos) << "_" << time(NULL) << token.substr(pos);
 	return name.str();
 }
 
@@ -110,6 +111,7 @@ std::string UploadSource::_findBoundary(std::string header){
 }
 
 void 	UploadSource::writeSource(){
+
 	if (!_isWriting){
 		if (_uploads.empty()){
 			_doneWriting = true;
@@ -119,9 +121,11 @@ void 	UploadSource::writeSource(){
 		_fd = open(_uploads.at(0).name.c_str(), O_RDWR | O_CREAT);
 		if (_fd < 0) throw SourceAndRequestException("Could not create upload file", 500);
 		_isWriting = true;
+		_uploadOffset = 0;
 	}
-	ssize_t bytesToWrite = std::min(_writeSize, _uploads.at(0).body.size());
-	ssize_t bytesWritten = write(_fd, _uploads.at(0).body.c_str(), bytesToWrite);
+	ssize_t remaining = _uploads.at(0).body.size() - _uploadOffset;
+	ssize_t bytesToWrite = std::min(_writeSize, remaining);
+	ssize_t bytesWritten = write(_fd, _uploads.at(0).body.c_str() + _uploadOffset, bytesToWrite);
 	if (bytesWritten < 0) throw SourceAndRequestException("Could not write to upload file", 500);
 	if (bytesWritten == 0) {
 		_uploads.erase(_uploads.begin());
@@ -130,7 +134,7 @@ void 	UploadSource::writeSource(){
 		_fd = -1;
 		return;
 	}
-	_uploads.at(0).body.erase(0, bytesWritten);
+	_uploadOffset += bytesWritten;
 }
 
 void UploadSource::_createHTTPResponse(){
@@ -148,4 +152,4 @@ void UploadSource::_createHTTPResponse(){
 	Logger::debug() << "UploadSource http response: " << std::string(_body.begin(), _body.end()) <<std::endl;
 }
 
-void 	UploadSource::readSource(){}
+void UploadSource::readSource(){}

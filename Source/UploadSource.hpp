@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 15:44:12 by wpepping          #+#    #+#             */
-/*   Updated: 2025/06/25 13:25:30 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/25 16:54:57 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,8 @@ class UploadSource : public Source {
 	private:
 		std::vector <fileToUpload> _uploads;
 		bool _isWriting;
-		size_t _writeSize;
+		ssize_t _writeSize;
+		size_t _uploadOffset;
 
 		void _getUploadFiles(std::string boundary, HttpRequest req);
 		std::string _getFileName(std::string token);
