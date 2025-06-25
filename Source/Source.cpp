@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/25 13:50:32 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/25 20:26:42 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,7 @@ int Source::getFd()const{
 }
 
 int Source::getWriteFd()const{
-	return _fd;
+	return _writeFd;
 }
 
 int Source::getSize()const{
@@ -152,7 +152,7 @@ void Source::setHeader(std::string header) {
 	Logger::debug()<< "Header: " << header << " headerLength: "<< header.length()<<std::endl;
 	_body.insert(_body.begin(), header.begin(), header.end());
 	_bytesToSend += header.length();
-
+	Logger::debug() << "Bytes to send: " << _bytesToSend << std::endl;
 }
 
 void Source::writeSource(){}

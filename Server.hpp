@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/25 14:41:45 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/25 19:33:24 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ class Server {
 		void _runEpollLoop() throw(ChildProcessNeededException);
 		void _handleSocketEvent(u_int32_t event, Connection *conn, int fd) throw(ChildProcessNeededException);
 		void _handleIncomingConnection(ListeningSocket *listeningSocket);
+		void _setupSource(Connection *conn) throw(ChildProcessNeededException);
 		void _readFromSocket(Connection *conn) throw(ChildProcessNeededException);
 		void _writeToSocket(Connection &conn);
 		void _readFromSource(Connection &conn);

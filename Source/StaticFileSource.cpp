@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/24 14:05:24 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/25 18:25:04 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,15 +49,15 @@ StaticFileSource::~StaticFileSource(){
 }
 
 void StaticFileSource::readSource(){
-	if (_bytesToSend > 0 || _generated || _doneReading)
-		return;
-	ssize_t readSize = read(_fd, _body.data(), _serverConfig.getBufferSize());
-	if (readSize < 0)
-		throw SourceAndRequestException("Could not read from static source file", 500);
-	if (readSize == 0)
-		_doneReading = true;
-	_bytesToSend = readSize;
-	_offset = 0;
+	if (_bytesToSend == 0 && !_generated && !_doneReading) {
+		ssize_t readSize = read(_fd, _body.data(), _serverConfig.getBufferSize());
+		if (readSize < 0)
+			throw SourceAndRequestException("Could not read from static source file", 500);
+		if (readSize == 0)
+			_doneReading = true;
+		_bytesToSend = readSize;
+		_offset = 0;
+	}
 }
 
 bool StaticFileSource::indexExists(const std::vector<std::string> &indexes, const std::string &root){

@@ -6,13 +6,18 @@ CGISource::CGISource(const ServerConfig &serverConfig, Location const *location,
 
 	_pollableRead = true;
 	_pollableWrite = true;
+	_writeWhenComplete = true;
 	_type = CGI;
-
 	_location = location;
 	_scriptPath = req.path;
 	_uri = req.uri;
+	_writeOffset = 0;
+	_readBuffer.resize(_serverConfig.getBufferSize());
 
-	size_t script_end = _scriptPath.find(".py") + 3; // include ".py" //
+	if (req.method == "POST")
+		_doneWriting = false;
+
+	size_t script_end = _scriptPath.find(".py") + 3; // Needs to be based on config file
 	if (script_end != std::string::npos) {
 		_pathInfo = _scriptPath.substr(script_end);
 		_scriptPath = _scriptPath.substr(0, script_end);
@@ -34,26 +39,21 @@ CGISource::~CGISource(){
 
 void CGISource::forkAndExec()  throw(ChildProcessNeededException) {
 	Logger::debug() << "in forkAndExec()" << std::endl;
-	std::vector<std::string> envp;
-	pid_t pid;
+	std::vector<std::string>	envp;
+	pid_t						pid;
 
 	_inputPipe.resize(2);
 	_outputPipe.resize(2);
 	pipe(_inputPipe.data());
 	pipe(_outputPipe.data());
 
-	Logger::debug() << "_inputPipe = {" << _inputPipe[0] << ", " << _inputPipe[1] << "}, _outputPipe = {" << _outputPipe[0] << ", " << _outputPipe[1] << "}" << std::endl;
-
 	pid = fork();
 	if (pid < 0) {
 		perror("fork");
 	} else if (pid == 0) { //CHILD
-		Logger::debug() << "Child: in child!" << std::endl;
-
 		buildEnvironmentVariables(envp);
 		close(_inputPipe[1]);
 		close(_outputPipe[0]);
-
 		Logger::debug() << "Child: Throwing ChildProcessNeededException" << std::endl;
 		throw ChildProcessNeededException(_scriptPath, envp, _inputPipe[0], _outputPipe[1]);
 	} else { // PARENT
@@ -62,7 +62,6 @@ void CGISource::forkAndExec()  throw(ChildProcessNeededException) {
 		close(_outputPipe[1]);
 		_fd = _outputPipe[0];
 		_writeFd = _inputPipe[1];
-		writeToSource();
 	}
 }
 
@@ -86,22 +85,6 @@ void CGISource::buildEnvironmentVariables(std::vector<std::string> &envp) {
 	envp.push_back(std::string("CONTENT_TYPE=") + _request.headers["Content-Type"]);
 }
 
-void CGISource::readSource() {
-	if (_bytesToSend > 0 || _doneReading)
-		return;
-
-	size_t bytesRead = read(_outputPipe[0], _body.data(), _serverConfig.getBufferSize());
-
-	Logger::debug() << "Read " << bytesRead << " bytes from cgi source: " << std::endl << std::endl;
-	Logger::detail() << "Body data: " << std::endl << _body.data() << std::endl;
-
-	if (bytesRead == 0)
-		_doneReading = true;
-	_bytesToSend += bytesRead;
-	_size += bytesRead;
-	_offset = 0;
-}
-
 bool CGISource::getIfExists() const {
 	return (_pathExists);
 }
@@ -117,11 +100,34 @@ bool CGISource::checkIfExists(){
 	return (1);
 }
 
-void CGISource::writeToSource() {
-	if (_request.method == "POST") {
-		int numbytes = write(_writeFd, _request.body.c_str(), _request.body.length());
-		Logger::debug() << "method is POST! wrote " << numbytes << " bytes" << std::endl;
+void CGISource::readSource() {
+	if (!_doneReading) {
+		Logger::debug() << "Bytes to send: " << _bytesToSend << std::endl;
+		size_t bytesRead = read(_outputPipe[0], _readBuffer.data(), _serverConfig.getBufferSize());
+		_body.insert(_body.end(), _readBuffer.begin(), _readBuffer.begin() + bytesRead);
+
+		if (bytesRead == 0)
+			_doneReading = true;
+		_bytesToSend += bytesRead;
+		_size += bytesRead;
+
+		Logger::debug() << "Read " << bytesRead << " bytes from cgi source: " << std::endl << std::endl;
+		Logger::debug() << "Bytes to send: " << _bytesToSend << std::endl;
+		if (bytesRead > 0) Logger::detail() << "Data read from source: " << std::endl << std::string(_readBuffer.data(), bytesRead) << std::endl;
+		if (bytesRead > 0) Logger::detail() << "Body data (size=" << _body.size() << "): " << std::endl << std::string(_body.data(), _bytesToSend) << std::endl;
+		if (_doneReading) Logger::debug() << "Done reading CGI source" << std::endl;
 	}
-	Logger::debug() << "Closing write end of input pipe: Closing fd " << _writeFd << std::endl;
-	close(_writeFd);
+}
+
+void CGISource::writeSource() {
+	size_t numbytes;
+	size_t writeSize = std::min(Config::getClientMaxBodySize(_serverConfig, _location), _request.body.length() - _writeOffset);
+
+	numbytes = write(_writeFd, _request.body.c_str() + _writeOffset, writeSize);
+	_writeOffset += numbytes;
+	if (_writeOffset == numbytes) {
+		Logger::debug() << "Closing write end of input pipe: Closing fd " << _writeFd << std::endl;
+		_doneWriting = true;
+		close(_writeFd);
+	}
 }

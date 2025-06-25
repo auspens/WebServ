@@ -19,16 +19,18 @@ class CGISource : public Source {
 		~CGISource();
 
 		bool getIfExists() const;
-		void writeToSource();
+		void writeSource();
 
 	private:
 		bool				_pathExists;
 		std::vector<int>	_outputPipe;
 		std::vector<int>	_inputPipe;
+		std::vector<char>	_readBuffer;
 		std::string			_scriptPath;
 		std::string			_queryString;
 		std::string			_pathInfo;
 		std::string			_uri;
+		size_t				_writeOffset;
 
 		bool checkIfExists();
 		void buildEnvironmentVariables(std::vector<std::string> &envp);

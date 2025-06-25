@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/25 13:59:58 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/25 18:04:10 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,6 +138,10 @@ bool Connection::doneReadingSource() const {
 
 bool Connection::doneWritingSource() const {
 	return (_source->_doneWriting);
+}
+
+bool Connection::doneWritingSocket() const {
+	return getSource()->_bytesToSend == 0;
 }
 
 bool Connection::requestReady() const {
