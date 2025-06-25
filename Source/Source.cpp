@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/24 11:57:15 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/25 13:50:32 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,8 +42,10 @@ void Source::init(int code) throw(SourceAndRequestException) {
 	_bytesToSend = 0;
 	_offset = 0;
 	_doneReading = false;
+	_doneWriting = true;
 	_code = code;
 	_fd = -1;
+	_writeFd = -1;
 	_size = 0;
 	_type = STATIC;
 	_mime = "";
@@ -98,15 +100,23 @@ std::string Source::getMime()const{
 std::vector<char> const &Source::getBytesRead()const{
 	return _body;
 }
+
 int Source::getFd()const{
 	return _fd;
 }
+
+int Source::getWriteFd()const{
+	return _fd;
+}
+
 int Source::getSize()const{
 	return _size;
 }
+
 SourceType Source::getType()const{
 	return _type;
 }
+
 std::string Source::getRedirectLocation()const{
 	if (!_location->isRedirect())
 		return std::string("");
@@ -138,6 +148,12 @@ bool Source::isWriteWhenComplete() {
 }
 
 void Source::setHeader(std::string header) {
+	Logger::debug()<< "At setHeader. Body: " << std::string(_body.begin(), _body.end())<< " bytesTosend: "<< _bytesToSend<<std::endl;
+	Logger::debug()<< "Header: " << header << " headerLength: "<< header.length()<<std::endl;
 	_body.insert(_body.begin(), header.begin(), header.end());
 	_bytesToSend += header.length();
+
 }
+
+void Source::writeSource(){}
+

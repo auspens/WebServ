@@ -23,7 +23,6 @@ class CGISource : public Source {
 
 	private:
 		bool				_pathExists;
-		int					_writeFd;
 		std::vector<int>	_outputPipe;
 		std::vector<int>	_inputPipe;
 		std::string			_scriptPath;

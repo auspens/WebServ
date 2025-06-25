@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/20 18:01:22 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/25 13:49:40 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,11 +39,14 @@ class Source {
 	public:
 		virtual 					~Source();
 		virtual void 				readSource() = 0;
+		virtual void 				writeSource();
+
 
 		int 						getCode()const;
 		std::string 				getMime()const;
 		std::vector<char> const &	getBytesRead()const;
 		int 						getFd()const;
+		int 						getWriteFd()const;
 		int							getSize()const;
 		SourceType					getType()const;
 		std::string					getRedirectLocation()const;
@@ -67,12 +70,14 @@ class Source {
 		size_t										_bytesToSend;
 		int											_offset;
 		bool										_doneReading;
+		bool										_doneWriting;
 		static std::map<std::string, std::string>	_mimeTypes;
 		static std::map<int, HTTPStatusCode>		_statusCodes;
 
 	protected:
 		int					_code;
 		int					_fd;
+		int					_writeFd;
 		int					_size;
 		SourceType			_type;
 		const ServerConfig	&_serverConfig;

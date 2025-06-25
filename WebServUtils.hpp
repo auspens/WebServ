@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 14:38:47 by wouter            #+#    #+#             */
-/*   Updated: 2025/06/18 16:17:58 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/25 13:38:49 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,14 @@ public:
 		}
 		return false;
 	}
+
+template <typename Container>
+static void removeFromContainer(Container& container, const typename Container::value_type& value) {
+    typename Container::iterator it = std::find(container.begin(), container.end(), value);
+    if (it != container.end()) {
+        container.erase(it);
+    }
+}
 
 private:
 	WebServUtils();

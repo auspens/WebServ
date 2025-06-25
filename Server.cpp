@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/24 14:29:44 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/25 14:41:34 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ void Server::listen() throw(ChildProcessNeededException) {
 			socket = new ListeningSocket(port);
 			socket->startListening();
 			_listeningSockets.insert(std::pair<int, ListeningSocket*>(socket->getFd(), socket));
-			_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, NULL, socket->getFd());
+			_updateEvents(EPOLL_CTL_ADD, EPOLLIN, NULL, socket->getFd());
 			portsDone.push_back(port);
 		}
 	}
@@ -59,6 +59,7 @@ void Server::_runEpollLoop() throw(ChildProcessNeededException) {
 	std::vector<struct epoll_event>	events;
 	int								size;
 	int								readyFds;
+	Connection 						*conn;
 
 	while (true) {
 		size = _connections.size() + _listeningSockets.size();
@@ -71,31 +72,39 @@ void Server::_runEpollLoop() throw(ChildProcessNeededException) {
 
 		for(int i = 0; i < readyFds; ++i){
 			Logger::detail() << "Going through ready list, i = " << i << ", event: " << events[i].events << std::endl;
-			_handleSocketEvent(events[i]);
+			_handleSocketEvent(events[i].events, static_cast<Connection*>(events[i].data.ptr), events[i].data.fd);
+		}
+		for (std::list<Connection *>::iterator it = _nonPollableReadFds.begin(); it != _nonPollableReadFds.end(); ) {
+			conn = *it;
+			++it;
+			_handleSocketEvent(EPOLLIN, conn, -1);
+		}
+		for (std::list<Connection *>::iterator it = _nonPollableWriteFds.begin(); it != _nonPollableWriteFds.end(); ) {
+			conn = *it;
+			it++;
+			_handleSocketEvent(EPOLLOUT, conn, -1);
 		}
 
 		if (_invalidatedConnections.size() > 0)
 			cleanInvalidatedConnections();
 		if (std::time(0) - _lastCleanup > TIMEOUT_CLEANUP_INTERVAL)
 			cleanIdleConnections();
-		if (!_nonPollableFds.empty())
-			_runNonPollableFds();
+
 	}
 }
 
 // create an interface that would contain a handleSocketEvent method and implement it for different classes.
 // This would allow to avoid these if-else statements
-void Server::_handleSocketEvent(struct epoll_event &event) throw(ChildProcessNeededException) {
-	Connection *conn = static_cast<Connection*>(event.data.ptr);
+void Server::_handleSocketEvent(u_int32_t events, Connection *conn, int fd) throw(ChildProcessNeededException) {
 	ListeningSocket *listeningSocket;
 
-	listeningSocket = _findListeningSocket(event.data.fd);
+	listeningSocket = _findListeningSocket(fd);
 	if (listeningSocket) {
-		Logger::debug() << "epoll returned listening socket with fd " << event.data.fd << std::endl;
+		Logger::debug() << "epoll returned listening socket with fd " << fd << std::endl;
 		_handleIncomingConnection(listeningSocket);
 	}
 	else if (!conn->isInvalidated()) {
-		if (event.events & EPOLLIN || event.events & EPOLLHUP) { // check for EPOLLERR and close connection
+		if (events & EPOLLIN || events & EPOLLHUP) { // check for EPOLLERR and close connection
 			if (!conn->requestReady()) {
 				Logger::detail() << "EPOLLIN and req is not ready, so we read from socket.." << std::endl;
 				_readFromSocket(conn);
@@ -109,9 +118,14 @@ void Server::_handleSocketEvent(struct epoll_event &event) throw(ChildProcessNee
 				removeConnection(conn);
 			}
 		}
-		else if (event.events & EPOLLOUT) {
-			Logger::detail() << "EPOLLOUT so we write to socket.." << std::endl;
-			_writeToSocket(*conn);
+		else if (events & EPOLLOUT) {
+			if (conn->doneWritingSource()) {
+				Logger::detail() << "EPOLLOUT and doneWritingSource so we write to socket.." << std::endl;
+				_writeToSocket(*conn);
+			} else {
+				Logger::detail() << "EPOLLOUT and not doneWritingSource so we write to socket.." << std::endl;
+				_writeToSource(*conn);
+			}
 		}
 		conn->setLastActiveTime(std::time(0));
 	}
@@ -129,7 +143,7 @@ void Server::_handleIncomingConnection(ListeningSocket *listeningSocket) {
 
 	Connection *inc_conn = new Connection(new_fd, listeningSocket->getPort());
 	_connections.push_back(inc_conn);
-	_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, inc_conn, new_fd);
+	_updateEvents(EPOLL_CTL_ADD, EPOLLIN, inc_conn, new_fd);
 }
 
 void Server::_readFromSocket(Connection *conn) throw(ChildProcessNeededException) {
@@ -141,20 +155,21 @@ void Server::_readFromSocket(Connection *conn) throw(ChildProcessNeededException
 			//Logger::detail() <<"Request body: "<< conn->getRequestBody() << std::endl << std::endl;
 			conn->setupSource(*_config);
 			conn->setResponse();
-			if (conn->getSource()->isPollableRead()) {
+			if (!conn->getSource()->_doneReading) {
 				Logger::debug() << "Add source to epoll. fd: " << conn->getSource()->getFd() << std::endl;
-				_updateEpoll(EPOLL_CTL_ADD, EPOLLIN, conn, conn->getSource()->getFd());
+				_updateEvents(EPOLL_CTL_ADD, EPOLLIN, conn, conn->getSource()->getFd());
 			}
-			else if (!conn->getSource()->_doneReading){
-				_nonPollableFds.push_back(conn);
+			if (!conn->getSource()->_doneWriting) {
+				Logger::debug() << "Add source write to epoll. fd: " << conn->getSource()->getWriteFd() << std::endl;
+				_updateEvents(EPOLL_CTL_ADD, EPOLLOUT, conn, conn->getSource()->getWriteFd());
 			}
-			_updateEpoll(EPOLL_CTL_MOD, EPOLLOUT, conn, conn->getSocketFd());
+			_updateEvents(EPOLL_CTL_MOD, EPOLLOUT, conn, conn->getSocketFd());
 		}
 	}
 	catch (SourceAndRequestException &e){ // Why does this need to happen in the server instead of connection? Because if readFromSocket throws, we need to create Error page and not proceed to setUpSource
 		conn->setupErrorPageSource(*_config, e.errorCode());
 		conn->setResponse();
-		_updateEpoll(EPOLL_CTL_MOD, EPOLLOUT, conn, conn->getSocketFd());
+		_updateEvents(EPOLL_CTL_MOD, EPOLLOUT, conn, conn->getSocketFd());
 	}
 }
 
@@ -169,16 +184,23 @@ void Server::_writeToSocket(Connection &conn) {
 		removeConnection(&conn);
 }
 
+void Server::_writeToSource(Connection &conn) {
+	Logger::detail() << "Server::_writeToSource" << std::endl;
+	conn.getSource()->writeSource();
+	if (conn.doneWritingSource())
+		_updateEvents(EPOLL_CTL_MOD, EPOLLIN, &conn, conn.getSourceFd());
+}
+
 void Server::_readFromSource(Connection &conn) {
-	Logger::detail() << "Server::readFromSource" << std::endl;
+	Logger::detail() << "Server::_readFromSource" << std::endl;
 	if (!conn.getSource())
 		return;
 	conn.getSource()->readSource();
-	if (conn.doneReadingSource() && conn.getSource()->isPollableRead())
-		_updateEpoll(EPOLL_CTL_DEL, -1, &conn, conn.getSourceFd());
+	if (conn.doneReadingSource())
+		_updateEvents(EPOLL_CTL_DEL, -1, &conn, conn.getSourceFd());
 }
 
-int Server::_updateEpoll(int action, int events, Connection *connection, int fd) {
+void Server::_updateEpoll(int action, int events, Connection *connection, int fd) {
 	epoll_event event;
 	epoll_event *event_ptr;
 
@@ -193,7 +215,34 @@ int Server::_updateEpoll(int action, int events, Connection *connection, int fd)
 		event_ptr = NULL;
 	}
 
-	return epoll_ctl(_epollInstance, action, fd, event_ptr);
+	epoll_ctl(_epollInstance, action, fd, event_ptr);
+}
+
+void Server::_updateEvents(int action, int events, Connection *connection, int fd) {
+	if (!connection ||
+		fd == connection->getSocketFd() ||
+		(events == EPOLLIN && connection->getSource()->isPollableRead()) ||
+		(events == EPOLLOUT && connection->getSource()->isPollableWrite())) {
+		_updateEpoll(action, events, connection, fd);
+		return;
+	}
+
+	std::list<Connection*> &targetVector = events == EPOLLIN ? _nonPollableReadFds : _nonPollableWriteFds;
+	std::list<Connection*> &otherVector = events == EPOLLIN ? _nonPollableWriteFds : _nonPollableReadFds;
+
+	switch (action) {
+		case EPOLL_CTL_DEL:
+			WebServUtils::removeFromContainer(_nonPollableReadFds, connection);
+			WebServUtils::removeFromContainer(_nonPollableWriteFds, connection);
+			break;
+		case EPOLL_CTL_MOD:
+			WebServUtils::removeFromContainer(otherVector, connection);
+			targetVector.push_back(connection);
+			break;
+		case EPOLL_CTL_ADD:
+			targetVector.push_back(connection);
+			break;
+	}
 }
 
 ListeningSocket *Server::_findListeningSocket(int fd) {
@@ -247,9 +296,9 @@ void Server::cleanIdleConnections() {
 }
 
 void Server::cleanConnection(Connection *conn) {
-	_updateEpoll(EPOLL_CTL_DEL, -1, conn, conn->getSocketFd());
+	_updateEvents(EPOLL_CTL_DEL, -1, conn, conn->getSocketFd());
 	if (conn->getSource() && conn->getSource()->isPollableRead())
-		_updateEpoll(EPOLL_CTL_DEL, -1, conn, conn->getSourceFd());
+		_updateEvents(EPOLL_CTL_DEL, -1, conn, conn->getSourceFd());
 	delete conn;
 	_connections.erase(
 		std::remove(_connections.begin(), _connections.end(), conn),
@@ -257,14 +306,14 @@ void Server::cleanConnection(Connection *conn) {
 	);
 }
 
-void	Server::_runNonPollableFds(){
-	for (std::vector<Connection *>::iterator it = _nonPollableFds.begin(); it != _nonPollableFds.end();) {
-		if ((*it)->getSource()->_doneReading) {
-			it = _nonPollableFds.erase(it);
-		} else {
-			(*it)->getSource()->readSource();
-			++it;
-		}
-	}
-	Logger::debug()<< "Running nonPollableFd" <<std::endl;
-}
+// void	Server::_runNonPollableReadFds(){
+// 	for (std::vector<Connection *>::iterator it = _nonPollableFds.begin(); it != _nonPollableFds.end();) {
+// 		if ((*it)->getSource()->_doneReading) {
+// 			it = _nonPollableFds.erase(it);
+// 		} else {
+// 			(*it)->getSource()->readSource();
+// 			++it;
+// 		}
+// 	}
+// 	Logger::debug()<< "Running nonPollableFd" <<std::endl;
+// }
