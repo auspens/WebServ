@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   SourceFactory.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 16:03:12 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/21 15:54:56 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/25 16:11:17 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
