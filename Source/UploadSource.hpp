@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   UploadSource.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 15:44:12 by wpepping          #+#    #+#             */
-/*   Updated: 2025/06/25 13:25:30 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/25 21:35:16 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ class UploadSource : public Source {
 		UploadSource(
 			const ServerConfig &serverConfig,
 			Location const *location,
-			HttpRequest req
+			HttpRequest &req
 		);
 		~UploadSource();
 		void 	readSource();
@@ -39,7 +39,7 @@ class UploadSource : public Source {
 		bool _isWriting;
 		size_t _writeSize;
 
-		void _getUploadFiles(std::string boundary, HttpRequest req);
+		void _getUploadFiles(std::string boundary, HttpRequest &req);
 		std::string _getFileName(std::string token);
 		void _createHTTPResponse();
 		std::string _findBoundary(std::string header);

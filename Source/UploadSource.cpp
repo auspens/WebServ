@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   UploadSource.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:03:49 by wpepping          #+#    #+#             */
-/*   Updated: 2025/06/25 13:27:49 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/25 21:35:16 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ UploadSource::~UploadSource() { }
 UploadSource::UploadSource(
 	const ServerConfig &serverConfig,
 	Location const *location,
-	HttpRequest req
+	HttpRequest &req
 ) : Source(serverConfig, location, req) {
 	if (!opendir(_target.c_str()))
 		throw SourceAndRequestException("Upload folder doesn't exist", 403);
@@ -37,7 +37,7 @@ UploadSource::UploadSource(
 	_writeSize = Config::getClientMaxBodySize(serverConfig, location);
 }
 
-void UploadSource::_getUploadFiles(std::string boundary, HttpRequest req){
+void UploadSource::_getUploadFiles(std::string boundary, HttpRequest &req){
 	std::string line;
 	std::size_t pos = 0;
 	while ((pos = req.body.find(boundary, pos)) != std::string::npos) {

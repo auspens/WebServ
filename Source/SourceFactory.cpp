@@ -6,13 +6,13 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 16:03:12 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/21 15:54:56 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/25 21:35:16 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "SourceFactory.hpp"
 
-Source *SourceFactory::getNewSource(const ServerConfig &serverConfig, HttpRequest req) throw(SourceAndRequestException, ChildProcessNeededException) {
+Source *SourceFactory::getNewSource(const ServerConfig &serverConfig, HttpRequest &req) throw(SourceAndRequestException, ChildProcessNeededException) {
 	const Location *location = _findLocation(req.path, serverConfig);
 	Logger::debug() << "Location: " << (location? location->getPath():serverConfig.getRootFolder()) << std::endl;
 	Logger::debug() << "request path:" << req.path << std::endl;
@@ -35,7 +35,7 @@ Source *SourceFactory::getNewSource(const ServerConfig &serverConfig, HttpReques
 	return new StaticFileSource(serverConfig, location, req);
 }
 
-Source *SourceFactory::getNewErrorPageSource(const ServerConfig &serverConfig, HttpRequest req, int code) {
+Source *SourceFactory::getNewErrorPageSource(const ServerConfig &serverConfig, HttpRequest &req, int code) {
 	const Location *location = _findLocation(req.path, serverConfig);
 	return new ErrorPageSource(serverConfig, location, req, code);
 }

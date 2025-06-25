@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/25 17:51:52 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/25 21:35:16 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,12 +57,12 @@ class Source {
 
 		static Source *getNewSource(
 			const ServerConfig &serverConfig,
-			HttpRequest req
+			HttpRequest &req
 		) throw(SourceAndRequestException, ChildProcessNeededException);
 
 		static Source *getNewErrorPageSource(
 			const ServerConfig &serverConfig,
-			HttpRequest req,
+			HttpRequest &req,
 			int code
 		);
 
@@ -90,9 +90,9 @@ class Source {
 
 		std::vector<char>	_body; //where we are writing
 
-		Source(const ServerConfig &serverConfig, const Location *location, HttpRequest req)
+		Source(const ServerConfig &serverConfig, const Location *location, HttpRequest &req)
 			throw(SourceAndRequestException);
-		Source(const ServerConfig &serverConfig, const Location *location, HttpRequest req, int code)
+		Source(const ServerConfig &serverConfig, const Location *location, HttpRequest &req, int code)
 			throw(SourceAndRequestException);
 		Source(const Source &src);
 		Source &operator=(const Source &other);

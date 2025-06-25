@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:08:43 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/24 11:51:19 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/25 21:35:16 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,8 @@ class StaticFileSource : public Source {
 		void readSource();
 		char *readFromBuffer();
 
-		StaticFileSource(const ServerConfig &serverConfig, Location const *location, HttpRequest req);
-		StaticFileSource(const ServerConfig &serverConfig, Location const *location, HttpRequest req, int code)throw();
+		StaticFileSource(const ServerConfig &serverConfig, Location const *location, HttpRequest &req);
+		StaticFileSource(const ServerConfig &serverConfig, Location const *location, HttpRequest &req, int code)throw();
 		StaticFileSource(const StaticFileSource &src);
 		StaticFileSource &operator=(StaticFileSource const &other);
 		~StaticFileSource();

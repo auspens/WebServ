@@ -13,7 +13,7 @@ class CGISource : public Source {
 		void readSource();
 		void forkAndExec() throw(ChildProcessNeededException);
 
-		CGISource(const ServerConfig &serverConfig, const Location *location, HttpRequest req)
+		CGISource(const ServerConfig &serverConfig, const Location *location, HttpRequest &req)
 			throw(ChildProcessNeededException);
 		//copy construct missing
 		~CGISource();

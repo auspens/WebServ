@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ErrorPageSource.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 15:55:07 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/24 12:17:23 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/25 21:35:16 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 ErrorPageSource::ErrorPageSource
 		(const ServerConfig &serverConfig,
 		Location const *location,
-		HttpRequest req, int code)
+		HttpRequest &req, int code)
 		:	StaticFileSource(serverConfig, location, req, code){ //this constructor is specific for ErrorPage and skips all usual checks for static file to avoid looping in error
 	_code = code;
 	_body.clear();

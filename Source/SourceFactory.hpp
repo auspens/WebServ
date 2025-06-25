@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 16:00:07 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/21 15:54:20 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/25 21:35:16 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +24,11 @@ class SourceFactory {
 	public:
 		static Source *getNewSource(
 			const ServerConfig &serverConfig,
-			HttpRequest req
+			HttpRequest &req
 		) throw(SourceAndRequestException, ChildProcessNeededException);
 		static Source *getNewErrorPageSource(
 			const ServerConfig &serverConfig,
-			HttpRequest req,
+			HttpRequest &req,
 			int code
 		);
 		static const Location *_findLocation (

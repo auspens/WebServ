@@ -1,6 +1,6 @@
 #include "CGISource.hpp"
 
-CGISource::CGISource(const ServerConfig &serverConfig, Location const *location, HttpRequest req) throw(ChildProcessNeededException)
+CGISource::CGISource(const ServerConfig &serverConfig, Location const *location, HttpRequest &req) throw(ChildProcessNeededException)
  : Source(serverConfig, location, req) {
 	Logger::debug() << "Creating CGI Source" << std::endl;
 

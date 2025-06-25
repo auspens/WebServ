@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/25 19:33:24 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/25 21:44:27 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,22 +47,21 @@ class Server {
 		Server(Server const &src);
 		Server &operator=(Server const &other);
 
-		void _runEpollLoop() throw(ChildProcessNeededException);
-		void _handleSocketEvent(u_int32_t event, Connection *conn, int fd) throw(ChildProcessNeededException);
-		void _handleIncomingConnection(ListeningSocket *listeningSocket);
-		void _setupSource(Connection *conn) throw(ChildProcessNeededException);
-		void _readFromSocket(Connection *conn) throw(ChildProcessNeededException);
-		void _writeToSocket(Connection &conn);
-		void _readFromSource(Connection &conn);
-		void _writeToSource(Connection &conn);
-		void _updateEvents(int action, int events, Connection *connection, int fd);
-		void _updateEpoll(int action, int events, Connection *connection, int fd);
-		ListeningSocket *_findListeningSocket(int fd);
-		void _runNonPollableFds();
-
-		void cleanup();
-		void removeConnection(Connection *conn);
-		void cleanInvalidatedConnections();
-		void cleanIdleConnections();
-		void cleanConnection(Connection *conn);
+		void			_runEpollLoop() throw(ChildProcessNeededException);
+		void			_handleSocketEvent(u_int32_t event, Connection *conn, int fd) throw(ChildProcessNeededException);
+		void			_handleIncomingConnection(ListeningSocket *listeningSocket);
+		void			_setupSource(Connection *conn) throw(ChildProcessNeededException, SourceAndRequestException);
+		void			_readFromSocket(Connection *conn) throw(ChildProcessNeededException);
+		void			_writeToSocket(Connection &conn);
+		void			_readFromSource(Connection &conn);
+		void			_writeToSource(Connection &conn);
+		void			_updateEvents(int action, int events, Connection *connection, int fd);
+		void			_updateEpoll(int action, int events, Connection *connection, int fd);
+		ListeningSocket	*_findListeningSocket(int fd);
+		void			_runNonPollableFds();
+		void			cleanup();
+		void			removeConnection(Connection *conn);
+		void			cleanInvalidatedConnections();
+		void			cleanIdleConnections();
+		void			cleanConnection(Connection *conn);
 };

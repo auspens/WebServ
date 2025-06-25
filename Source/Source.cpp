@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/25 20:26:42 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/25 21:35:16 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ Source::~Source() {}
 Source::Source(
 	const ServerConfig &serverConfig,
 	const Location *location,
-	HttpRequest req
+	HttpRequest &req
 ) throw(SourceAndRequestException) :
 	_serverConfig(serverConfig),
 	_location(location),
@@ -29,7 +29,7 @@ Source::Source(
 Source::Source(
 	const ServerConfig &serverConfig,
 	const Location *location,
-	HttpRequest req,
+	HttpRequest &req,
 	int code
 ) throw(SourceAndRequestException) :
 	_serverConfig(serverConfig),

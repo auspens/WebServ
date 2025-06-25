@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/25 21:25:56 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/25 21:43:34 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,7 +146,7 @@ void Server::_handleIncomingConnection(ListeningSocket *listeningSocket) {
 	_updateEvents(EPOLL_CTL_ADD, EPOLLIN, inc_conn, new_fd);
 }
 
-void Server::_setupSource(Connection *conn) throw(ChildProcessNeededException) {
+void Server::_setupSource(Connection *conn) throw(ChildProcessNeededException, SourceAndRequestException) {
 	//Logger::detail() <<"Request body: "<< conn->getRequestBody() << std::endl << std::endl;
 	conn->setupSource(*_config);
 	conn->setResponse();
@@ -169,16 +169,17 @@ void Server::_setupSource(Connection *conn) throw(ChildProcessNeededException) {
 
 void Server::_readFromSocket(Connection *conn) throw(ChildProcessNeededException) {
 	Logger::detail() << "Server::_readFromSocket" << std::endl;
-	try {
-		conn->readFromSocket(_config->getBufferSize(), _config);
-		if (conn->requestReady()) // finished reading request, create the source and the response
-			_setupSource(conn);
-	}
-	catch (SourceAndRequestException &e) { // We need to clean up epoll and vectors here
-		Logger::warning() << "SourceAndRequestException caught" << std::endl;
-		conn->setupErrorPageSource(*_config, e.errorCode());
-		conn->setResponse();
-		_updateEvents(EPOLL_CTL_MOD, EPOLLOUT, conn, conn->getSocketFd());
+	conn->readFromSocket(_config->getBufferSize(), _config);
+
+	if (conn->requestReady()) { // finished reading request, create the source and the response
+		try {
+				_setupSource(conn);
+		} catch (SourceAndRequestException &e) { // We need to clean up epoll and vectors here
+			Logger::warning() << "SourceAndRequestException caught" << std::endl;
+			conn->setupErrorPageSource(*_config, e.errorCode());
+			conn->setResponse();
+			_updateEvents(EPOLL_CTL_MOD, EPOLLOUT, conn, conn->getSocketFd());
+		}
 	}
 }
 

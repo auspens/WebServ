@@ -6,16 +6,16 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/25 18:25:04 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/06/25 21:34:51 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "StaticFileSource.hpp"
 
-StaticFileSource::StaticFileSource(const ServerConfig &serverConfig, Location const *location, HttpRequest req)
+StaticFileSource::StaticFileSource(const ServerConfig &serverConfig, Location const *location, HttpRequest &req)
 	: Source(serverConfig, location, req)
 	, _generated(false){
-	Logger::debug() << "Creating Static File Source" << std::endl;
+	Logger::debug() << "Creating Static File Source for " << _target << std::endl;
 	_location = location;
 	checkIfDirectory();
 	if (!_generated && !checkIfExists(_target))
@@ -28,7 +28,7 @@ StaticFileSource::StaticFileSource(const ServerConfig &serverConfig, Location co
 		defineMimeType();
 	}
 }
-StaticFileSource::StaticFileSource(const ServerConfig &serverConfig, Location const *location, HttpRequest req, int code)throw()
+StaticFileSource::StaticFileSource(const ServerConfig &serverConfig, Location const *location, HttpRequest &req, int code)throw()
 	: Source(serverConfig, location, req, code)
 	, _generated(false){
 	_location = location;
