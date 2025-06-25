@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:03:49 by wpepping          #+#    #+#             */
-/*   Updated: 2025/06/24 14:21:33 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/25 13:27:49 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@ UploadSource::UploadSource(
 		throw SourceAndRequestException("Upload folder doesn't exist", 403);
 	_isWriting = false;
 	_type = UPLOAD;
+	_doneReading = true;
+	_doneWriting = false;
 	std::string header;
 	try {
 		header = req.headers.at("Content-Type");
@@ -107,11 +109,10 @@ std::string UploadSource::_findBoundary(std::string header){
 	return header.substr(start, end);
 }
 
-void 	UploadSource::readSource(){
-
+void 	UploadSource::writeSource(){
 	if (!_isWriting){
 		if (_uploads.empty()){
-			_doneReading = true;
+			_doneWriting = true;
 			_createHTTPResponse();
 			return ;
 		}
@@ -147,3 +148,4 @@ void UploadSource::_createHTTPResponse(){
 	Logger::debug() << "UploadSource http response: " << std::string(_body.begin(), _body.end()) <<std::endl;
 }
 
+void 	UploadSource::readSource(){}

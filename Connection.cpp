@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/24 14:27:52 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/25 13:59:58 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,9 +92,9 @@ void Connection::setResponse() {
 }
 
 void Connection::readFromSocket(size_t bufferSize, const Config *config) {
-    std::vector<char> buffer;
-    buffer.reserve(bufferSize);
-    int valread = read(_socket.getFd(), buffer.data(), bufferSize);
+	std::vector<char> buffer;
+	buffer.reserve(bufferSize);
+	int valread = read(_socket.getFd(), buffer.data(), bufferSize);
 	RequestParser::ParseResult parseResult = _parser.parse(buffer.data(), valread);
 	if (parseResult == RequestParser::URL_READY){
 			const ServerConfig *serverConfig = _findServerConfig(_serverPort,_request.hostname, *config); //This should be somewhere else, not sure where. Config maybe
@@ -102,13 +102,13 @@ void Connection::readFromSocket(size_t bufferSize, const Config *config) {
 			_parser.setMaxBody(Config::getClientMaxBodySize(*serverConfig, location));
 			parseResult = _parser.continueParsing();
 	}
-    if (parseResult!= RequestParser::COMPLETE)
+	if (parseResult!= RequestParser::COMPLETE)
 		return ;
-    _request = _parser.getRequest();
-    Logger::debug() << "Headers:" << std::endl;
-    for (std::map<std::string, std::string>::iterator it = _request.headers.begin(); it != _request.headers.end(); ++it)
-        Logger::debug() << it->first << " : " << it->second << std::endl;
-    Logger::debug() << std::endl;
+	_request = _parser.getRequest();
+	Logger::debug() << "Headers:" << std::endl;
+	for (std::map<std::string, std::string>::iterator it = _request.headers.begin(); it != _request.headers.end(); ++it)
+		Logger::debug() << it->first << " : " << it->second << std::endl;
+	Logger::debug() << std::endl;
 }
 
 void Connection::writeToSocket() {
@@ -119,7 +119,7 @@ void Connection::writeToSocket() {
 		ssize_t		bytes_sent;
 
 		Logger::debug() << ">> Sending to socket. Source type: " << _source->getType() << " Bytes to send: " << _source->_bytesToSend << std::endl;
-		Logger::detail() << "Sending buffer: " << std::endl << buf << std::endl;
+		Logger::debug() << "Sending buffer: " << std::endl << std::string(buf).substr(0, _source->_bytesToSend) << std::endl;
 
 		bytes_sent = send(_socket.getFd(), buf, size, 0);
 		if (bytes_sent == -1)
@@ -134,6 +134,10 @@ void Connection::writeToSocket() {
 
 bool Connection::doneReadingSource() const {
 	return (_source->_doneReading);
+}
+
+bool Connection::doneWritingSource() const {
+	return (_source->_doneWriting);
 }
 
 bool Connection::requestReady() const {

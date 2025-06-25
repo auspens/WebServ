@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/24 13:02:17 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/25 14:41:45 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 #include <algorithm>
 #include <ctime>
+#include <list>
 #include <map>
 #include <vector>
 #include "ChildProcessNeededException.hpp"
@@ -39,19 +40,22 @@ class Server {
 		std::map<int, ListeningSocket *>	_listeningSockets;
 		std::vector<Connection *>			_connections;
 		std::vector<Connection *>			_invalidatedConnections;
-		std::vector<Connection *>			_nonPollableFds;
+		std::list<Connection *>				_nonPollableReadFds;
+		std::list<Connection *>				_nonPollableWriteFds;
 
 		Server();
 		Server(Server const &src);
 		Server &operator=(Server const &other);
 
 		void _runEpollLoop() throw(ChildProcessNeededException);
-		void _handleSocketEvent(struct epoll_event &event) throw(ChildProcessNeededException);
+		void _handleSocketEvent(u_int32_t event, Connection *conn, int fd) throw(ChildProcessNeededException);
 		void _handleIncomingConnection(ListeningSocket *listeningSocket);
 		void _readFromSocket(Connection *conn) throw(ChildProcessNeededException);
 		void _writeToSocket(Connection &conn);
 		void _readFromSource(Connection &conn);
-		int _updateEpoll(int action, int events, Connection *connection, int fd);
+		void _writeToSource(Connection &conn);
+		void _updateEvents(int action, int events, Connection *connection, int fd);
+		void _updateEpoll(int action, int events, Connection *connection, int fd);
 		ListeningSocket *_findListeningSocket(int fd);
 		void _runNonPollableFds();
 

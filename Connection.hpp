@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/21 17:20:13 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/06/25 13:30:35 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ class Connection{
 
 		bool				requestReady() const;
 		bool				doneReadingSource()const;
+		bool				doneWritingSource() const;
 
 		void				setupSource(const Config &config) throw(SourceAndRequestException, ChildProcessNeededException);
 		void				setupErrorPageSource(const Config &config, int code)throw();
