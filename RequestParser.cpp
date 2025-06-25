@@ -48,9 +48,12 @@ bool RequestParser::parseStartLine() {
     if (pos == std::string::npos) return false;
     std::istringstream line(_buffer.substr(0, pos));
     if (!(line >> _request.method >> _request.uri >> _request.http_version)) {
-        _state = ERROR;
-        return false;
+        throw SourceAndRequestException("Could not parse start line", 400);
     }
+	if (_request.http_version != "HTTP/1.1")
+		throw SourceAndRequestException("Incorrect http version", 503);
+	if (_request.method != "POST" && _request.method != "GET" && _request.method != "DELETE")
+		throw SourceAndRequestException("Incorrect http version", 400);
     _buffer.erase(0, pos + 2);
     return true;
 }
@@ -59,7 +62,11 @@ bool RequestParser::parseHeaders() {
     while ((pos = _buffer.find("\r\n")) != std::string::npos) {
         std::string line = _buffer.substr(0, pos);
         _buffer.erase(0, pos + 2);
-        if (line.empty()) return true; // End of headers
+        if (line.empty()) {
+			if (_request.headers.find("Host") == _request.headers.end())
+				throw SourceAndRequestException("No Host header", 400);
+			return true; // End of headers
+		}
         size_t colon = line.find(":");
         if (colon == std::string::npos) {
             _state = ERROR;
