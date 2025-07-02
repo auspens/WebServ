@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/25 21:43:34 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/02 15:07:29 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -230,31 +230,7 @@ void Server::_updateEpoll(int action, int events, Connection *connection, int fd
 		Logger::warning() << "_updateEpoll failed" << std::endl;
 }
 
-void Server::_updateEvents(int action, int events, Connection *connection, int fd) {
-	if (!connection ||
-		fd == connection->getSocketFd() ||
-		(events == EPOLLIN && connection->getSource()->isPollableRead()) ||
-		(events == EPOLLOUT && connection->getSource()->isPollableWrite())) {
-		_updateEpoll(action, events, connection, fd);
-
-		if (events == EPOLLOUT) {
-			if (fd == connection->getSocketFd())
-				std::cout << ">>> Adding socket fd to EPOLLOUT, fd: " << fd << std::endl;
-			else
-				std::cout << ">>> Adding source fd to EPOLLOUT, fd: " << fd << std::endl;
-		}
-		else if (connection && events == EPOLLIN) {
-			if (fd == connection->getSocketFd())
-				std::cout << ">>> Adding socket fd to EPOLLIN, fd: " << fd << std::endl;
-			else
-				std::cout << ">>> Adding source fd to EPOLLIN, fd: " << fd << std::endl;
-		}
-		else if (action == EPOLL_CTL_DEL)
-			std::cout << ">>> Deleting fd " << fd << " from epoll" << std::endl;
-
-		return;
-	}
-
+void Server::_updateNonPollables(int action, int events, Connection *connection) {
 	std::list<Connection*> &targetVector = events == EPOLLIN ? _nonPollableReadFds : _nonPollableWriteFds;
 	std::list<Connection*> &otherVector = events == EPOLLIN ? _nonPollableWriteFds : _nonPollableReadFds;
 
@@ -271,6 +247,32 @@ void Server::_updateEvents(int action, int events, Connection *connection, int f
 			targetVector.push_back(connection);
 			break;
 	}
+}
+
+void Server::_updateEvents(int action, int events, Connection *connection, int fd) {
+	bool pollable;
+
+	if (!connection ||
+		fd == connection->getSocketFd() ||
+		(events == EPOLLIN && connection->getSource()->isPollableRead()) ||
+		(events == EPOLLOUT && connection->getSource()->isPollableWrite()))
+			pollable = true;
+	else
+		pollable = false;
+
+	if (pollable)
+		_updateEpoll(action, events, connection, fd);
+	else
+		_updateNonPollables(action, events, connection);
+
+	if (connection && events == EPOLLIN)
+		std::cout << ">>> Adding " << (pollable ? "" : "non-") << "pollable " <<
+			(fd == connection->getSocketFd() ? "socket" : "source") << " fd to EPOLLIN: " << fd << std::endl;
+	else if (events == EPOLLOUT)
+		std::cout << ">>> Adding " << (pollable ? "" : "non-") << "pollable " <<
+			(fd == connection->getSocketFd() ? "socket" : "source") << " fd to EPOLLOUT: " << fd << std::endl;
+	else if (action == EPOLL_CTL_DEL)
+		std::cout << ">>> Deleting " << (pollable ? "" : "non-") << "pollable fd from epoll: " << fd << std::endl;
 }
 
 ListeningSocket *Server::_findListeningSocket(int fd) {

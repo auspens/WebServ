@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/25 21:44:27 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/02 15:07:38 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,16 @@
 #include "Logger.hpp"
 
 #define INFINITE_TIMEOUT -1
+
+enum EpollEventType {
+	SOCKET,
+	SOURCE
+};
+
+struct EventInfo {
+	Connection *conn;
+	EpollEventType type;
+};
 
 class Server {
 	public:
@@ -57,6 +67,7 @@ class Server {
 		void			_writeToSource(Connection &conn);
 		void			_updateEvents(int action, int events, Connection *connection, int fd);
 		void			_updateEpoll(int action, int events, Connection *connection, int fd);
+		void			_updateNonPollables(int action, int events, Connection *connection);
 		ListeningSocket	*_findListeningSocket(int fd);
 		void			_runNonPollableFds();
 		void			cleanup();

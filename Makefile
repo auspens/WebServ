@@ -6,9 +6,9 @@ CFLAGS = -Wall -Wextra -Werror -std=c++98
 DEBUG_FLAGS = -g -O0
 CFLAGS += $(DEBUG_FLAGS)
 
-OBJ_DIR = obj
+OBJDIR = Obj
 
-SRC = 	Config/Config.cpp \
+SRC =	Config/Config.cpp \
 		Config/Location.cpp \
 		Config/ServerConfig.cpp \
 		Config/ParseUtils.cpp \
@@ -39,9 +39,7 @@ SRC = 	Config/Config.cpp \
 		Tests/TestConfig.cpp \
 		Tests/TestUtils.cpp
 
-OBJ = $(SRC:src/%.cpp=$(OBJ_DIR)/%.o)
-
-HDR = 	Config/Config.hpp \
+HDR =	Config/Config.hpp \
 		Config/Location.hpp \
 		Config/ServerConfig.hpp \
 		Config/ParseUtils.hpp \
@@ -63,29 +61,29 @@ HDR = 	Config/Config.hpp \
 		ListeningSocket.hpp \
 		RequestParser.hpp \
 		HttpRequest.hpp \
-		HttpResponse.hpp \
+		Response.hpp \
 		Server.hpp \
 		Socket.hpp \
 		SystemCallsUtilities.hpp \
-		WebServUtlis.hpp \
+		WebServUtils.hpp \
 		Tests/TestConfig.hpp \
 		Tests/TestUtils.hpp
+
+OBJ = $(SRC:%.cpp=$(OBJDIR)/%.obj)
 
 INCLUDE = -I. -IConfig -ISource -ITests -ILogger
 
 all: $(NAME)
 
-$(OBJ_DIR):
-	mkdir -p $(OBJ_DIR)
-
 $(NAME): $(OBJ)
 	$(CC) $(CFLAGS) $(INCLUDE) $(OBJ) -o $(NAME)
 
-$(OBJ_DIR)/%.o: src/%.cpp $(HDR) | $(OBJ_DIR)
+$(OBJDIR)/%.obj: %.cpp $(HDR)
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
 
 clean:
-	rm -rf $(OBJ_DIR)
+	rm -rf $(OBJDIR)
 
 fclean: clean
 	rm -f $(NAME)
@@ -93,4 +91,3 @@ fclean: clean
 re: fclean all
 
 .PHONY: all clean fclean re
-
