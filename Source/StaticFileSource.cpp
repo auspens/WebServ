@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/25 21:34:51 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/02 19:36:25 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ StaticFileSource::~StaticFileSource(){
 	close(_fd);
 }
 
-void StaticFileSource::readSource(){
+void StaticFileSource::readSource() throw(SourceAndRequestException) {
 	if (_bytesToSend == 0 && !_generated && !_doneReading) {
 		ssize_t readSize = read(_fd, _body.data(), _serverConfig.getBufferSize());
 		if (readSize < 0)
@@ -71,7 +71,7 @@ bool StaticFileSource::indexExists(const std::vector<std::string> &indexes, cons
 	return false;
 }
 
-void StaticFileSource::checkIfDirectory(){
+void StaticFileSource::checkIfDirectory() throw(SourceAndRequestException) {
 	DIR *dir = opendir(_target.c_str());
 	if (!dir)
 		return;
@@ -141,7 +141,7 @@ bool StaticFileSource::readDirectories(std::vector<DirEntry> &entries){
 	return true;
 }
 
-void StaticFileSource::generateIndex(){
+void StaticFileSource::generateIndex() throw(SourceAndRequestException) {
 	std::vector<DirEntry> entries;
 	if (!readDirectories(entries))
 		throw SourceAndRequestException("Could not generate index", 500);

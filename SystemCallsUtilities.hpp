@@ -16,7 +16,7 @@
 
 class SystemCallsUtilities{
 public:
-	static void check_for_error(int return_value);
+	static void check_for_error(int return_value, std::string message);
 
 private:
 	SystemCallsUtilities();

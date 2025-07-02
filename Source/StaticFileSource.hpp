@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:08:43 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/25 21:35:16 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/02 19:36:51 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ struct DirEntry {
 
 class StaticFileSource : public Source {
 	public:
-		void readSource();
+		void readSource() throw(SourceAndRequestException);
 		char *readFromBuffer();
 
 		StaticFileSource(const ServerConfig &serverConfig, Location const *location, HttpRequest &req);
@@ -40,9 +40,9 @@ class StaticFileSource : public Source {
 	protected:
 		bool _generated;
 		bool checkIfExists(std::string &target);
-		void checkIfDirectory();
+		void checkIfDirectory() throw(SourceAndRequestException);
 		void defineMimeType();
-		void generateIndex();
+		void generateIndex() throw(SourceAndRequestException);
 		bool readDirectories(std::vector<DirEntry>&entries);
 		void generatePage(int code);
 		bool indexExists(const std::vector<std::string> &indexes, const std::string &root);

@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:44:56 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/20 16:22:57 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/02 18:42:40 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,19 +42,19 @@ void ListeningSocket::init() {
 
 	//create socket
 	_fd = socket(_addrinfo->ai_family, _addrinfo->ai_socktype, _addrinfo->ai_protocol);
-	SystemCallsUtilities::check_for_error(_fd);
+	SystemCallsUtilities::check_for_error(_fd, "Failed to opening listening socket");
 }
 
 void ListeningSocket::startListening() {
 	// lose the "Address already in use" error message
 	int yes=1;
-	SystemCallsUtilities::check_for_error(setsockopt(_fd, SOL_SOCKET,SO_REUSEADDR, &yes, sizeof(yes)));
+	SystemCallsUtilities::check_for_error(setsockopt(_fd, SOL_SOCKET,SO_REUSEADDR, &yes, sizeof(yes)), "Failed to opening listening socket");
 
 	//bind
-	SystemCallsUtilities::check_for_error(bind(_fd, _addrinfo->ai_addr, _addrinfo->ai_addrlen));
+	SystemCallsUtilities::check_for_error(bind(_fd, _addrinfo->ai_addr, _addrinfo->ai_addrlen), "Failed to opening listening socket");
 
 	//listen
-	SystemCallsUtilities::check_for_error(listen(_fd, BACKLOG));
+	SystemCallsUtilities::check_for_error(listen(_fd, BACKLOG), "Failed to opening listening socket");
 
 	Logger::info() << "Listening on port " << _listeningPort << std::endl;
 }

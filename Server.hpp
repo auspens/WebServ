@@ -6,14 +6,13 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/02 15:07:38 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/02 18:52:13 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include <algorithm>
-#include <ctime>
 #include <list>
 #include <map>
 #include <vector>
@@ -27,13 +26,24 @@
 #define INFINITE_TIMEOUT -1
 
 enum EpollEventType {
+	LISTENING_SOCKET,
 	SOCKET,
 	SOURCE
 };
 
 struct EventInfo {
-	Connection *conn;
 	EpollEventType type;
+	union {
+		Connection		*conn;
+		ListeningSocket	*listeningSocket;
+	};
+
+	EventInfo(EpollEventType type, void *ptr) : type(type) {
+		if (type == LISTENING_SOCKET)
+			this->listeningSocket = static_cast<ListeningSocket*>(ptr);
+		else
+			this->conn = static_cast<Connection*>(ptr);
+	}
 };
 
 class Server {
@@ -48,31 +58,36 @@ class Server {
 		time_t								_lastCleanup;
 		const Config						*_config;
 		std::map<int, ListeningSocket *>	_listeningSockets;
+		std::map<int, EventInfo *>			_eventInfoPtrs;
 		std::vector<Connection *>			_connections;
 		std::vector<Connection *>			_invalidatedConnections;
-		std::list<Connection *>				_nonPollableReadFds;
-		std::list<Connection *>				_nonPollableWriteFds;
+		std::list<EventInfo *>				_nonPollableReadFds;
+		std::list<EventInfo *>				_nonPollableWriteFds;
 
 		Server();
 		Server(Server const &src);
 		Server &operator=(Server const &other);
 
 		void			_runEpollLoop() throw(ChildProcessNeededException);
-		void			_handleSocketEvent(u_int32_t event, Connection *conn, int fd) throw(ChildProcessNeededException);
+		void			_handleEpollEvent(u_int32_t event, EventInfo *eventInfo) throw(ChildProcessNeededException);
 		void			_handleIncomingConnection(ListeningSocket *listeningSocket);
+		void			_handleSourceEvent(u_int32_t events, EventInfo *eventInfo) throw(ChildProcessNeededException);
+		void			_handleSocketEvent(u_int32_t events, EventInfo *eventInfo);
 		void			_setupSource(Connection *conn) throw(ChildProcessNeededException, SourceAndRequestException);
-		void			_readFromSocket(Connection *conn) throw(ChildProcessNeededException);
-		void			_writeToSocket(Connection &conn);
-		void			_readFromSource(Connection &conn);
-		void			_writeToSource(Connection &conn);
-		void			_updateEvents(int action, int events, Connection *connection, int fd);
-		void			_updateEpoll(int action, int events, Connection *connection, int fd);
-		void			_updateNonPollables(int action, int events, Connection *connection);
+		void			_readFromSocket(EventInfo &eventInfo) throw(ChildProcessNeededException);
+		void			_writeToSocket(EventInfo &eventInfo);
+		void			_readFromSource(EventInfo &eventInfo);
+		void			_writeToSource(EventInfo &eventInfo);
+		void			_iterateNonPollables(std::list<EventInfo *> fds, u_int32_t eventType);
+		void			_updateEvents(int action, u_int32_t events, EventInfo *eventInfo, int fd);
+		void			_updateEpoll(int action, u_int32_t events, EventInfo *eventInfo, int fd);
+		void			_updateNonPollables(int action, u_int32_t events, EventInfo *eventInfo);
 		ListeningSocket	*_findListeningSocket(int fd);
 		void			_runNonPollableFds();
-		void			cleanup();
-		void			removeConnection(Connection *conn);
-		void			cleanInvalidatedConnections();
-		void			cleanIdleConnections();
-		void			cleanConnection(Connection *conn);
+		void			_cleanup();
+		void			_removeConnection(Connection *conn);
+		void			_cleanInvalidatedConnections();
+		void			_cleanIdleConnections();
+		void			_cleanEventInfo(int fd, uint32_t events);
+		void			_cleanConnection(Connection *conn);
 };

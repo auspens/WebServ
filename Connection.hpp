@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/25 18:02:30 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/02 19:30:56 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,6 @@
 #include <algorithm>
 #include <ctime>
 #include <string>
-#include <sstream>
-#include <vector>
 
 class Connection{
 	public:
@@ -53,7 +51,7 @@ class Connection{
 		void				setupSource(const Config &config) throw(SourceAndRequestException, ChildProcessNeededException);
 		void				setupErrorPageSource(const Config &config, int code)throw();
 
-		void				readFromSocket(size_t bufferSize, const Config *config);
+		void				readFromSocket(size_t bufferSize, const Config *config) throw(SourceAndRequestException);
 		void				writeToSocket();
 		void				resetParser();
 

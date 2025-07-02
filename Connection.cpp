@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/25 18:04:10 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/02 19:31:07 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,20 +91,25 @@ void Connection::setResponse() {
 	_source->setHeader(_response->getHeader());
 }
 
-void Connection::readFromSocket(size_t bufferSize, const Config *config) {
+void Connection::readFromSocket(size_t bufferSize, const Config *config) throw(SourceAndRequestException) {
 	std::vector<char> buffer;
+
 	buffer.reserve(bufferSize);
 	int valread = read(_socket.getFd(), buffer.data(), bufferSize);
+
 	RequestParser::ParseResult parseResult = _parser.parse(buffer.data(), valread);
-	if (parseResult == RequestParser::URL_READY){
-			const ServerConfig *serverConfig = _findServerConfig(_serverPort,_request.hostname, *config); //This should be somewhere else, not sure where. Config maybe
-			const Location *location = SourceFactory::_findLocation(_request.path, *serverConfig);
-			_parser.setMaxBody(Config::getClientMaxBodySize(*serverConfig, location));
-			parseResult = _parser.continueParsing();
+	if (parseResult == RequestParser::URL_READY) {
+		const ServerConfig *serverConfig = _findServerConfig(_serverPort,_request.hostname, *config);
+		const Location *location = SourceFactory::_findLocation(_request.path, *serverConfig);
+		_parser.setMaxBody(Config::getClientMaxBodySize(*serverConfig, location));
+		parseResult = _parser.continueParsing();
 	}
+
 	if (parseResult!= RequestParser::COMPLETE)
 		return ;
+
 	_request = _parser.getRequest();
+
 	Logger::debug() << "Headers:" << std::endl;
 	for (std::map<std::string, std::string>::iterator it = _request.headers.begin(); it != _request.headers.end(); ++it)
 		Logger::debug() << it->first << " : " << it->second << std::endl;

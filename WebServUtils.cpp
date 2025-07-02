@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServUtils.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:15:00 by wouter            #+#    #+#             */
-/*   Updated: 2025/06/25 13:11:23 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/02 16:32:23 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,3 +76,24 @@ std::string WebServUtils::num_to_str(size_t num) {
 	return convert.str();
 }
 
+std::string WebServUtils::getEpollEventNames(uint32_t events) {
+	std::vector<std::string> names;
+
+	if (events & EPOLLIN) names.push_back("EPOLLIN");
+	if (events & EPOLLOUT) names.push_back("EPOLLOUT");
+	if (events & EPOLLERR) names.push_back("EPOLLERR");
+	if (events & EPOLLHUP) names.push_back("EPOLLHUP");
+	if (events & EPOLLRDHUP) names.push_back("EPOLLRDHUP");
+	if (events & EPOLLET) names.push_back("EPOLLET");
+	if (events & EPOLLONESHOT) names.push_back("EPOLLONESHOT");
+
+	std::string result;
+	for (size_t i = 0; i < names.size(); ++i) {
+		result += names[i];
+		if (i != names.size() - 1) {
+			result += ", ";
+		}
+	}
+
+	return result;
+	}

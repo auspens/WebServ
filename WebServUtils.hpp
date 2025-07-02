@@ -3,21 +3,22 @@
 /*                                                        :::      ::::::::   */
 /*   WebServUtils.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 14:38:47 by wouter            #+#    #+#             */
-/*   Updated: 2025/06/25 13:38:49 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/02 16:33:20 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include <cstdlib>
+#include <dirent.h>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <dirent.h>
+#include <sys/epoll.h>
 #include <vector>
 #include "Logger.hpp"
 
@@ -30,14 +31,15 @@ public:
 		return result.str();
 	}
 
-	void printErrorAndExit(std::string message, int exit_status);
-	static bool fileExists(const std::string &filename);
-	static bool folderExists(const std::string &dname);
-	static bool isin(const std::string haystack, char needle);
-	static std::string pathJoin(const std::string& path1, const std::string& path2);
-	static bool strEndsWith(const std::string& str, const std::string& end);
-	static void printVector(const std::vector<char>& vec);
-	static std::string num_to_str(size_t num);
+	static void			printErrorAndExit(std::string message, int exit_status);
+	static bool			fileExists(const std::string &filename);
+	static bool			folderExists(const std::string &dname);
+	static bool			isin(const std::string haystack, char needle);
+	static std::string	pathJoin(const std::string& path1, const std::string& path2);
+	static bool			strEndsWith(const std::string& str, const std::string& end);
+	static void			printVector(const std::vector<char>& vec);
+	static std::string	num_to_str(size_t num);
+	static std::string	getEpollEventNames(uint32_t events);
 
 	template <typename T, size_t N>
 	static bool isin(const T (&array)[N], const T &value) 	{
@@ -50,11 +52,11 @@ public:
 
 template <typename Container>
 static void removeFromContainer(Container& container, const typename Container::value_type& value) {
-    typename Container::iterator it = std::find(container.begin(), container.end(), value);
-    if (it != container.end()) {
-        container.erase(it);
-    }
-}
+	typename Container::iterator it = std::find(container.begin(), container.end(), value);
+	if (it != container.end()) {
+		container.erase(it);
+	}
+	}
 
 private:
 	WebServUtils();

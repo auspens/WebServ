@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/25 21:35:16 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/02 18:02:52 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,8 +148,9 @@ bool Source::isWriteWhenComplete() {
 }
 
 void Source::setHeader(std::string header) {
-	Logger::debug()<< "At setHeader. Body: " << std::string(_body.begin(), _body.end())<< " bytesTosend: "<< _bytesToSend<<std::endl;
-	Logger::debug()<< "Header: " << header << " headerLength: "<< header.length()<<std::endl;
+	Logger::debug()<< "At setHeader" << std::endl;
+	Logger::debug() << "Body: " << std::string(_body.begin(), _body.end())<< " bytesTosend: "<< _bytesToSend<<std::endl;
+	Logger::debug()<< "Header: " << header << "header length: "<< header.length()<<std::endl;
 	_body.insert(_body.begin(), header.begin(), header.end());
 	_bytesToSend += header.length();
 	Logger::debug() << "Bytes to send: " << _bytesToSend << std::endl;

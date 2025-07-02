@@ -17,23 +17,23 @@ void RequestParser::setMaxBody(size_t size){
 	_maxBody = size;
 }
 
-RequestParser::ParseResult RequestParser::parse(const char* data, size_t len) {
+RequestParser::ParseResult RequestParser::parse(const char* data, size_t len) throw(SourceAndRequestException) {
     if(data && len > 0)
 		_buffer.append(data, len);
     while (true) {
         switch (_state) {
             case START_LINE:
-                if (!parseStartLine()) return INCOMPLETE;
+                if (!parseStartLine(data, len)) return INCOMPLETE;
                 _parseUrl();
                 _state = HEADERS;
 				return URL_READY;
                 // break;
             case HEADERS:
-                if (!parseHeaders()) return INCOMPLETE;
+                if (!parseHeaders(data, len)) return INCOMPLETE;
                 _state = BODY;
                 break;
             case BODY:
-                if (!parseBody()) return INCOMPLETE;
+                if (!parseBody(data, len)) return INCOMPLETE;
                 _state = DONE;
                 return COMPLETE;
             case DONE:
@@ -43,9 +43,10 @@ RequestParser::ParseResult RequestParser::parse(const char* data, size_t len) {
         }
     }
 }
-bool RequestParser::parseStartLine() {
+
+bool RequestParser::parseStartLine(const char *data, size_t len) throw(SourceAndRequestException) {
     size_t pos = _buffer.find("\r\n");
-    if (pos == std::string::npos) return false;
+    if (pos == std::string::npos) checkForError(data, len, false);
     std::istringstream line(_buffer.substr(0, pos));
     if (!(line >> _request.method >> _request.uri >> _request.http_version)) {
         throw SourceAndRequestException("Could not parse start line", 400);
@@ -57,7 +58,8 @@ bool RequestParser::parseStartLine() {
     _buffer.erase(0, pos + 2);
     return true;
 }
-bool RequestParser::parseHeaders() {
+
+bool RequestParser::parseHeaders(const char *data, size_t len) throw(SourceAndRequestException) {
     size_t pos;
     while ((pos = _buffer.find("\r\n")) != std::string::npos) {
         std::string line = _buffer.substr(0, pos);
@@ -68,17 +70,16 @@ bool RequestParser::parseHeaders() {
 			return true; // End of headers
 		}
         size_t colon = line.find(":");
-        if (colon == std::string::npos) {
-            _state = ERROR;
-            return false;
-        }
+        if (colon == std::string::npos)
+            checkForError(data, len, true);
         std::string key = line.substr(0, colon);
         std::string value = line.substr(colon + 2);
         _request.headers[key] = value;
     }
-    return false; // wait for more data
+    return checkForError(data, len, false); // wait for more data
 }
-bool RequestParser::parseBody() {
+
+bool RequestParser::parseBody(const char *data, size_t len) throw(SourceAndRequestException) {
     if (_request.method != "POST") return true;
     std::map<std::string, std::string>::iterator it = _request.headers.find("Content-Length");
     if (it == _request.headers.end()) {
@@ -87,11 +88,12 @@ bool RequestParser::parseBody() {
     contentLength = atoi(it->second.c_str());
 	if (contentLength > _maxBody)
 		throw SourceAndRequestException("Body too big", 403);
-    if (_buffer.size() < contentLength) return false;
+    if (_buffer.size() < contentLength) return checkForError(data, len, false);
     _request.body = _buffer.substr(0, contentLength);
     _buffer.erase(0, contentLength);
     return true;
 }
+
 void RequestParser::_parseUrl() {
     size_t      hostStart;
     size_t      hostEnd;
@@ -112,14 +114,12 @@ void RequestParser::_parseUrl() {
         _request.path = "/";
 }
 
-RequestParser::ParseResult RequestParser::continueParsing(){
+RequestParser::ParseResult RequestParser::continueParsing() {
 	return parse(NULL, 0);
 }
 
-
-
-
-
-
-
-
+bool RequestParser::checkForError(const char *data, size_t len, bool errorFound) {
+	if (errorFound || (data && len == 0))
+		_state = ERROR;
+	return false;
+}
