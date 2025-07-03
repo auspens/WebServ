@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   UploadSource.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:03:49 by wpepping          #+#    #+#             */
-/*   Updated: 2025/06/25 21:49:21 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/03 19:49:24 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ UploadSource::UploadSource(
 	_isWriting = false;
 	_doneWriting = false;
 	_doneReading = true;
+	_writeWhenComplete = true;
 	_type = UPLOAD;
 	_uploadOffset = 0;
 	std::string header;
@@ -47,7 +48,7 @@ void UploadSource::_getUploadFiles(std::string boundary, HttpRequest &req){
 			break;
 		if (req.body.substr(pos, 2) == "\r\n") pos += 2;
 		std::size_t header_end = req.body.find("\r\n\r\n", pos);
-		if (header_end == std::string::npos) throw SourceAndRequestException("couldn't parce the multipart form body", 400);
+		if (header_end == std::string::npos) throw SourceAndRequestException("couldn't parse the multipart form body", 400);
 		std::string headers = req.body.substr(pos, header_end - pos);
 		pos = header_end + 4;
 		fileToUpload fileInfo;
@@ -111,27 +112,26 @@ std::string UploadSource::_findBoundary(std::string header){
 }
 
 void 	UploadSource::writeSource(){
-
 	if (!_isWriting){
 		if (_uploads.empty()){
 			_doneWriting = true;
 			_createHTTPResponse();
 			return ;
 		}
-		_fd = open(_uploads.at(0).name.c_str(), O_RDWR | O_CREAT);
-		if (_fd < 0) throw SourceAndRequestException("Could not create upload file", 500);
+		_writeFd = open(_uploads.at(0).name.c_str(), O_RDWR | O_CREAT);
+		if (_writeFd < 0) throw SourceAndRequestException("Could not create upload file", 500);
 		_isWriting = true;
 		_uploadOffset = 0;
 	}
 	ssize_t remaining = _uploads.at(0).body.size() - _uploadOffset;
 	ssize_t bytesToWrite = std::min(_writeSize, remaining);
-	ssize_t bytesWritten = write(_fd, _uploads.at(0).body.c_str() + _uploadOffset, bytesToWrite);
+	ssize_t bytesWritten = write(_writeFd, _uploads.at(0).body.c_str() + _uploadOffset, bytesToWrite);
 	if (bytesWritten < 0) throw SourceAndRequestException("Could not write to upload file", 500);
 	if (bytesWritten == 0) {
 		_uploads.erase(_uploads.begin());
 		_isWriting = false;
-		close(_fd);
-		_fd = -1;
+		close(_writeFd);
+		_writeFd = -1;
 		return;
 	}
 	_uploadOffset += bytesWritten;
@@ -143,7 +143,6 @@ void UploadSource::_createHTTPResponse(){
 	header += "Content-Length: " + WebServUtils::num_to_str(response_body.size()) + "\r\n";
 	header += "Content-Type: text/html\r\n";
 	header += "\r\n";
-	_body.clear();
 	_body.assign(header.begin(), header.end());
 	_body.insert(_body.end(), response_body.begin(), response_body.end());
 	_doneReading = true;

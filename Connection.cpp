@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/02 19:31:07 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/03 18:49:06 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,9 @@ Connection::Connection(int fd, int serverPort) :
 	_source(NULL),
 	_serverPort(serverPort),
 	_invalidated(false),
-	_lastActiveTime(std::time(0)) {
+	_lastActiveTime(std::time(0)),
+	_sourceEventInfo(new EventInfo(SOURCE, this)),
+	_socketEventInfo(new EventInfo(SOCKET, this)) {
 		Logger::debug() << "Create new connection with fd: " << fd << std::endl;
  }
 
@@ -30,7 +32,9 @@ Connection::Connection(int fd, int serverPort, struct addrinfo *addrinfo) :
 	_source(NULL),
 	_serverPort(serverPort),
 	_invalidated(false),
-	_lastActiveTime(std::time(0)) {
+	_lastActiveTime(std::time(0)),
+	_sourceEventInfo(new EventInfo(SOURCE, this)),
+	_socketEventInfo(new EventInfo(SOCKET, this)) {
 		Logger::debug() << "Create new connection with fd: " << fd << std::endl;
 }
 
@@ -41,6 +45,8 @@ Connection::Connection(const Connection &src) {
 Connection::~Connection() {
 	delete _source ;
 	delete _response;
+	delete _sourceEventInfo;
+	delete _socketEventInfo;
 }
 
 Connection &Connection::operator=(const Connection &other) {
@@ -212,6 +218,15 @@ int Connection::isInvalidated() const {
 
 time_t Connection::getLastActiveTime() const {
 	return _lastActiveTime;
+}
+
+
+EventInfo *Connection::getSourceEventInfo() const {
+	return _sourceEventInfo;
+}
+
+EventInfo *Connection::getSocketEventInfo() const {
+	return _socketEventInfo;
 }
 
 void Connection::setLastActiveTime(time_t time) {

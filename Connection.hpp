@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/02 19:30:56 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/03 18:42:38 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "Config.hpp"
 #include "Source/SourceFactory.hpp"
 #include "ChildProcessNeededException.hpp"
+#include "EventInfo.hpp"
 #include "Logger.hpp"
 #include "RequestParser.hpp"
 #include "Response.hpp"
@@ -37,10 +38,14 @@ class Connection{
 		const std::string	&getTarget() const;
 		std::string			getRequestBody()const;
 		time_t				getLastActiveTime() const;
+		EventInfo			*getSourceEventInfo() const;
+		EventInfo			*getSocketEventInfo() const;
 		int					isInvalidated() const;
 
 		void				setLastActiveTime(time_t time);
 		void				setResponse();
+		void				setSourceEventInfo(EventInfo *eventInfo);
+		void				setSocketEventInfo(EventInfo *eventInfo);
 		void				invalidate();
 
 		bool				requestReady() const;
@@ -78,4 +83,6 @@ class Connection{
 		int					_serverPort;
 		bool				_invalidated;
 		time_t				_lastActiveTime;
+		EventInfo			*_sourceEventInfo;
+		EventInfo			*_socketEventInfo;
 };

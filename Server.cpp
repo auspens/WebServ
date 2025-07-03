@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/02 20:00:53 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/03 19:46:39 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ Server &Server::operator=(Server const &other) {
 void Server::listen() throw(ChildProcessNeededException) {
 	int					port;
 	ListeningSocket		*socket;
-	EventInfo			*eventInfo;
 	std::vector<int>	portsDone;
 
 	_epollInstance = epoll_create(1);
@@ -41,10 +40,9 @@ void Server::listen() throw(ChildProcessNeededException) {
 		port = _config->getServerConfigs()[i]->getPort();
 		if (std::find(portsDone.begin(), portsDone.end(), port) == portsDone.end()) {
 			socket = new ListeningSocket(port);
-			eventInfo = new EventInfo(LISTENING_SOCKET, socket);
 			socket->startListening();
 			_listeningSockets.insert(std::pair<int, ListeningSocket*>(socket->getFd(), socket));
-			_updateEvents(EPOLL_CTL_ADD, EPOLLIN, eventInfo, socket->getFd());
+			_updateEvents(EPOLL_CTL_ADD, EPOLLIN, socket->getEventInfo(), socket->getFd());
 			portsDone.push_back(port);
 		}
 	}
@@ -60,13 +58,16 @@ void Server::_runEpollLoop() throw(ChildProcessNeededException) {
 	std::vector<struct epoll_event>	events;
 	size_t							size;
 	int								readyFds;
+	int								timeoutInterval;
 
 	events.resize(100);
 	while (true) {
 		size = _connections.size() + _listeningSockets.size();
 		if (events.capacity() < size)
 			events.resize(size);
-		readyFds = epoll_wait(_epollInstance, events.data(), size, TIMEOUT_CLEANUP_INTERVAL * 1000);
+		timeoutInterval = (_nonPollableReadFds.empty() &&
+			_nonPollableWriteFds.empty() ? TIMEOUT_CLEANUP_INTERVAL * 1000 : 0);
+		readyFds = epoll_wait(_epollInstance, events.data(), size, timeoutInterval);
 		Logger::detail() << "Epoll returned " << readyFds << " ready fds" << std::endl;
 		SystemCallsUtilities::check_for_error(readyFds, "Critical error"); // We can't just exit here
 
@@ -127,7 +128,6 @@ void Server::_handleIncomingConnection(ListeningSocket *listeningSocket) {
 	socklen_t				addr_size;
 	int						new_fd;
 	Connection				*inc_conn;
-	EventInfo				*eventInfo;
 
 	addr_size = sizeof(inc_addr);
 	new_fd = accept(listeningSocket->getFd(), (struct sockaddr *)&inc_addr, &addr_size);
@@ -135,81 +135,85 @@ void Server::_handleIncomingConnection(ListeningSocket *listeningSocket) {
 	Logger::info() << "Accepting incoming connection with fd " << new_fd << std::endl;
 
 	inc_conn = new Connection(new_fd, listeningSocket->getPort());
-	eventInfo = new EventInfo(SOCKET, inc_conn); // This may cause memory leaks, need to find a way to clean this up
 
 	_connections.push_back(inc_conn);
-	_updateEvents(EPOLL_CTL_ADD, EPOLLIN, eventInfo, new_fd);
+	_updateEvents(EPOLL_CTL_ADD, EPOLLIN, inc_conn->getSocketEventInfo(), new_fd);
 }
 
 void Server::_setupSource(Connection *conn) throw(ChildProcessNeededException, SourceAndRequestException) {
 	//Logger::detail() <<"Request body: "<< conn->getRequestBody() << std::endl << std::endl;
-	EventInfo *eventInfoSource;
-	EventInfo *eventInfoSocket;
 
 	conn->setupSource(*_config);
 	conn->setResponse();
-	eventInfoSource = new EventInfo(SOURCE, conn); // This may cause memory leaks, need to find a way to clean this up
 
-	if (!conn->getSource()->_doneReading) {
+	if (!conn->doneReadingSource()) {
 		Logger::debug() << "Add source to epoll. fd: " << conn->getSource()->getFd() << std::endl;
-		_updateEvents(EPOLL_CTL_ADD, EPOLLIN, eventInfoSource, conn->getSource()->getFd());
+		_updateEvents(EPOLL_CTL_ADD, EPOLLIN, conn->getSourceEventInfo(), conn->getSource()->getFd());
 	}
 
-	if (!conn->getSource()->_doneWriting) {
+	if (!conn->doneWritingSource()) {
 		Logger::debug() << "Add source write to epoll. fd: " << conn->getSource()->getWriteFd() << std::endl;
-		_updateEvents(EPOLL_CTL_ADD, EPOLLOUT, eventInfoSource, conn->getSource()->getWriteFd());
+		_updateEvents(EPOLL_CTL_ADD, EPOLLOUT, conn->getSourceEventInfo(), conn->getSource()->getWriteFd());
 	}
 
 	if (conn->getSource()->isWriteWhenComplete())
-		_updateEvents(EPOLL_CTL_DEL, EPOLLIN, eventInfoSource, conn->getSocketFd());
+		_updateEvents(EPOLL_CTL_DEL, EPOLLIN, conn->getSocketEventInfo(), conn->getSocketFd());
 	else {
-		eventInfoSocket = new EventInfo(SOCKET, conn); // This may cause memory leaks, need to find a way to clean this up
-		_updateEvents(EPOLL_CTL_MOD, EPOLLOUT, eventInfoSocket, conn->getSocketFd());
+		_updateEvents(EPOLL_CTL_MOD, EPOLLOUT, conn->getSocketEventInfo(), conn->getSocketFd());
 	}
 }
 
 void Server::_readFromSocket(EventInfo &eventInfo) throw(ChildProcessNeededException) {
 	Logger::detail() << "Server::_readFromSocket" << std::endl;
+	Connection *conn = eventInfo.conn;
 
 	try {
-		eventInfo.conn->readFromSocket(_config->getBufferSize(), _config);
-		if (eventInfo.conn->requestReady()) // finished reading request, create the source and the response
-			_setupSource(eventInfo.conn);
-	} catch (SourceAndRequestException &e) { // We need to clean up epoll and vectors here
+		conn->readFromSocket(_config->getBufferSize(), _config);
+		if (conn->requestReady()) // finished reading request, create the source and the response
+			_setupSource(conn);
+	} catch (SourceAndRequestException &e) { // We need to clean up here
 		Logger::warning() << "SourceAndRequestException caught" << std::endl;
-		eventInfo.conn->setupErrorPageSource(*_config, e.errorCode());
-		eventInfo.conn->setResponse();
-		_updateEvents(EPOLL_CTL_MOD, EPOLLOUT, &eventInfo, eventInfo.conn->getSocketFd());
+		conn->setupErrorPageSource(*_config, e.errorCode());
+		conn->setResponse();
+		_updateEvents(EPOLL_CTL_MOD, EPOLLOUT, &eventInfo, conn->getSocketFd());
 	}
 }
 
 void Server::_writeToSocket(EventInfo &eventInfo) {
 	Logger::detail() << "Server::_writeToSocket" << std::endl;
-	eventInfo.conn->writeToSocket();
-	if (eventInfo.conn->doneReadingSource() && eventInfo.conn->doneWritingSocket())
-		_removeConnection(eventInfo.conn);
+	Connection *conn = eventInfo.conn;
+
+	conn->writeToSocket();
+	if (conn->doneReadingSource() && conn->doneWritingSource() && conn->doneWritingSocket())
+		_removeConnection(conn);
 }
 
-void Server::_readFromSource(EventInfo &eventInfoSource) {
+void Server::_readFromSource(EventInfo &eventInfo) {
 	Logger::detail() << "Server::_readFromSource" << std::endl;
-	if (!eventInfoSource.conn->getSource())
+	Connection *conn = eventInfo.conn;
+
+	if (!conn->getSource())
 		return;
-	eventInfoSource.conn->getSource()->readSource();
-	if (eventInfoSource.conn->doneReadingSource()) {
-		_updateEvents(EPOLL_CTL_DEL, EPOLLIN, &eventInfoSource, eventInfoSource.conn->getSourceFd());
-		if (eventInfoSource.conn->getSource()->isWriteWhenComplete()) {
-			EventInfo *eventInfoSocket = new EventInfo(SOCKET, eventInfoSource.conn); // This may cause memory leaks, need to find a way to clean this up
-			_updateEvents(EPOLL_CTL_ADD, EPOLLOUT, eventInfoSocket, eventInfoSocket->conn->getSocketFd());
+	conn->getSource()->readSource();
+	if (conn->doneReadingSource()) {
+		_updateEvents(EPOLL_CTL_DEL, EPOLLIN, &eventInfo, conn->getSourceFd());
+		if (conn->getSource()->isWriteWhenComplete() && conn->doneWritingSource()) {
+			_updateEvents(EPOLL_CTL_ADD, EPOLLOUT, conn->getSocketEventInfo(), conn->getSocketFd());
 		}
 	}
 }
 
 void Server::_writeToSource(EventInfo &eventInfo) {
 	Logger::detail() << "Server::_writeToSource" << std::endl;
-	eventInfo.conn->getSource()->writeSource();
-	if (eventInfo.conn->doneWritingSource()) {
+	Connection *conn = eventInfo.conn;
+
+	conn->getSource()->writeSource();
+	if (conn->doneWritingSource()) {
 		Logger::debug() << "Done writing source" << std::endl;
-		_updateEvents(EPOLL_CTL_DEL, EPOLLOUT, &eventInfo, eventInfo.conn->getSource()->getWriteFd());
+		_updateEvents(EPOLL_CTL_DEL, EPOLLOUT, &eventInfo, conn->getSource()->getWriteFd());
+		if (conn->getSource()->isWriteWhenComplete() && conn->doneReadingSource()) {
+			_updateEvents(EPOLL_CTL_ADD, EPOLLOUT, conn->getSocketEventInfo(), conn->getSocketFd());
+		}
 	}
 }
 
@@ -227,6 +231,8 @@ void Server::_updateEpoll(int action, u_int32_t events, EventInfo *eventInfo, in
 
 	if (epoll_ctl(_epollInstance, action, fd, event_ptr))
 		Logger::warning() << "_updateEpoll failed" << std::endl;
+	else
+		Logger::debug() << "_updateEpoll action " << action << " events " << events << " fd " << fd << std::endl;
 }
 
 void Server::_updateNonPollables(int action, u_int32_t events, EventInfo *eventInfo) {
@@ -259,10 +265,10 @@ void Server::_updateEvents(int action, u_int32_t events, EventInfo *eventInfo, i
 	else
 		_updateNonPollables(action, events, eventInfo);
 
-	if (eventInfo->conn && events & EPOLLIN)
+	if (events & EPOLLIN && action == EPOLL_CTL_ADD && eventInfo->conn)
 		std::cout << ">>> Adding " << (pollable ? "" : "non-") << "pollable " <<
 			(fd == eventInfo->conn->getSocketFd() ? "socket" : "source") << " fd to EPOLLIN: " << fd << std::endl;
-	else if (events & EPOLLOUT)
+	else if (events & EPOLLOUT && action == EPOLL_CTL_ADD)
 		std::cout << ">>> Adding " << (pollable ? "" : "non-") << "pollable " <<
 			(fd == eventInfo->conn->getSocketFd() ? "socket" : "source") << " fd to EPOLLOUT: " << fd << std::endl;
 	else if (action == EPOLL_CTL_DEL)
@@ -279,7 +285,7 @@ ListeningSocket *Server::_findListeningSocket(int fd) {
 		return NULL;
 }
 
-void Server::_cleanup() {
+void Server::_cleanup() { // Add eventInfo
 	for (std::map<int, ListeningSocket*>::iterator it = _listeningSockets.begin(); it != _listeningSockets.end(); ++it) {
 		delete it->second;
 	}
@@ -319,24 +325,22 @@ void Server::_cleanIdleConnections() {
 	_lastCleanup = std::time(0);
 }
 
-void Server::_cleanEventInfo(int fd, uint32_t events) {
-	std::map<int, EventInfo *>::iterator it = _eventInfoPtrs.find(fd);
-	if (it != _eventInfoPtrs.end()) {
-		_updateEvents(EPOLL_CTL_DEL, events, it->second, fd);
-		delete it->second;
-		_eventInfoPtrs.erase(it);
-	}
-}
-
 void Server::_cleanConnection(Connection *conn) {
-	_cleanEventInfo(conn->getSocketFd(), EPOLLIN);
+	_updateEvents(EPOLL_CTL_DEL, -1, conn->getSocketEventInfo(), conn->getSocketFd());
+
 	if (conn->getSource() && conn->getSource()->isPollableRead())
-		_cleanEventInfo(conn->getSourceFd(), EPOLLIN);
+		_updateEvents(EPOLL_CTL_DEL, EPOLLIN, conn->getSourceEventInfo(), conn->getSourceFd());
+	else
+		WebServUtils::removeFromContainer(_nonPollableReadFds, conn->getSourceEventInfo());
+
 	if (conn->getSource() && conn->getSource()->isPollableWrite())
-		_cleanEventInfo(conn->getSource()->getWriteFd(), EPOLLOUT);
-	delete conn;
+		_updateEvents(EPOLL_CTL_DEL, EPOLLOUT, conn->getSourceEventInfo(), conn->getSourceFd());
+	else
+		WebServUtils::removeFromContainer(_nonPollableWriteFds, conn->getSourceEventInfo());
+
 	_connections.erase(
 		std::remove(_connections.begin(), _connections.end(), conn),
 		_connections.end()
 	);
+	delete conn;
 }

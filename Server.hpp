@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/02 18:52:13 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/03 19:45:10 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,31 +20,11 @@
 #include "Config.hpp"
 #include "Connection.hpp"
 #include "Constants.hpp"
+#include "EventInfo.hpp"
 #include "ListeningSocket.hpp"
 #include "Logger.hpp"
 
 #define INFINITE_TIMEOUT -1
-
-enum EpollEventType {
-	LISTENING_SOCKET,
-	SOCKET,
-	SOURCE
-};
-
-struct EventInfo {
-	EpollEventType type;
-	union {
-		Connection		*conn;
-		ListeningSocket	*listeningSocket;
-	};
-
-	EventInfo(EpollEventType type, void *ptr) : type(type) {
-		if (type == LISTENING_SOCKET)
-			this->listeningSocket = static_cast<ListeningSocket*>(ptr);
-		else
-			this->conn = static_cast<Connection*>(ptr);
-	}
-};
 
 class Server {
 	public:
@@ -58,7 +38,6 @@ class Server {
 		time_t								_lastCleanup;
 		const Config						*_config;
 		std::map<int, ListeningSocket *>	_listeningSockets;
-		std::map<int, EventInfo *>			_eventInfoPtrs;
 		std::vector<Connection *>			_connections;
 		std::vector<Connection *>			_invalidatedConnections;
 		std::list<EventInfo *>				_nonPollableReadFds;
@@ -83,11 +62,9 @@ class Server {
 		void			_updateEpoll(int action, u_int32_t events, EventInfo *eventInfo, int fd);
 		void			_updateNonPollables(int action, u_int32_t events, EventInfo *eventInfo);
 		ListeningSocket	*_findListeningSocket(int fd);
-		void			_runNonPollableFds();
 		void			_cleanup();
 		void			_removeConnection(Connection *conn);
 		void			_cleanInvalidatedConnections();
 		void			_cleanIdleConnections();
-		void			_cleanEventInfo(int fd, uint32_t events);
 		void			_cleanConnection(Connection *conn);
 };

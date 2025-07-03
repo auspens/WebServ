@@ -3,26 +3,27 @@
 /*                                                        :::      ::::::::   */
 /*   ListeningSocket.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:44:56 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/02 18:42:40 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/03 19:00:50 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ListeningSocket.hpp"
 
 //now its private, keep in case it may be useful
-ListeningSocket::ListeningSocket() : _listeningPort(3490) {
+ListeningSocket::ListeningSocket() : _listeningPort(3490), _eventInfo(new EventInfo(LISTENING_SOCKET, this)) {
+	init();
+}
+
+ListeningSocket::ListeningSocket(int port) : _listeningPort(port), _eventInfo(new EventInfo(LISTENING_SOCKET, this)) {
 	init();
 }
 
 ListeningSocket::~ListeningSocket() {
 	Logger::info() << "Closing listening socket: ";
-}
-
-ListeningSocket::ListeningSocket(int port) : _listeningPort(port) {
-	init();
+	delete _eventInfo;
 }
 
 void ListeningSocket::init() {
@@ -61,4 +62,8 @@ void ListeningSocket::startListening() {
 
 int ListeningSocket::getPort() {
 	return _listeningPort;
+}
+
+EventInfo *ListeningSocket::getEventInfo() const {
+	return _eventInfo;
 }

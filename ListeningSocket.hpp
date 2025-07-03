@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ListeningSocket.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:42:21 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/02 18:47:31 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/03 18:53:15 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <stdexcept>
 #include <sys/epoll.h>
 #include <unistd.h>
+#include "EventInfo.hpp"
 #include "Logger.hpp"
 #include "Socket.hpp"
 #include "WebServUtils.hpp"
@@ -30,13 +31,15 @@ class ListeningSocket : public Socket{
 		ListeningSocket(int port);
 		~ListeningSocket();
 
-		void	init();
-		void	startListening();
-		int		getPort();
+		void		init();
+		void		startListening();
+		int			getPort();
+		EventInfo	*getEventInfo() const;
 
 	private:
 		ListeningSocket();
 
 		struct addrinfo	_hints;
 		int 			_listeningPort;
+		EventInfo		*_eventInfo;
 };
