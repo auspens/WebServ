@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 14:38:47 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/02 16:33:20 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/04 17:18:45 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ public:
 	static void			printVector(const std::vector<char>& vec);
 	static std::string	num_to_str(size_t num);
 	static std::string	getEpollEventNames(uint32_t events);
+	static void			removeFromString(std::string &haystack, const std::string &needle);
 
 	template <typename T, size_t N>
 	static bool isin(const T (&array)[N], const T &value) 	{

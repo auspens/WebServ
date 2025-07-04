@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:15:00 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/02 16:32:23 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/04 17:18:32 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,4 +96,12 @@ std::string WebServUtils::getEpollEventNames(uint32_t events) {
 	}
 
 	return result;
-	}
+}
+
+void WebServUtils::removeFromString(std::string &haystack, const std::string &needle) {
+	size_t pos;
+	size_t len = needle.length();
+
+	while ((pos = haystack.find(needle)) != std::string::npos)
+		haystack.erase(pos, len);
+}

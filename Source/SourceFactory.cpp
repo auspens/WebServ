@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 16:03:12 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/04 15:38:08 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/04 16:39:20 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,20 +22,14 @@ Source *SourceFactory::getNewSource(
 	Logger::debug() << std::boolalpha << "POST allowed: " << (Config::getAcceptMethod(serverConfig, location) & METHOD_POST) << std::endl;
 	Logger::debug() << std::boolalpha << "Upload pass: " << (location? location->isUploadPass() : false) << std::endl;
 
-	if (location && location->isRedirect()) {
+	if (location && location->isRedirect())
 		return new RedirectSource(serverConfig, *location, req);
-	}
-	if (_isCgiRequest(serverConfig, location, req.path)) {
-		Logger::debug() <<"CGISource is being created" <<std::endl;
-		CGISource* ptr = new CGISource(serverConfig, location, req);
-		return ptr;
-	}
-	if (_isUploadRequest(serverConfig, location, req)){
-		Logger::debug() <<"UploadSource is being created" <<std::endl;
-		UploadSource* ptr = new UploadSource(serverConfig, location, req);
-		return ptr;
-	}
-	return new StaticFileSource(serverConfig, location, req);
+	else if (_isCgiRequest(serverConfig, location, req.path))
+		return new CGISource(serverConfig, location, req);
+	else if (_isUploadRequest(serverConfig, location, req))
+		return new UploadSource(serverConfig, location, req);
+	else
+		return new StaticFileSource(serverConfig, location, req);
 }
 
 Source *SourceFactory::getNewErrorPageSource(

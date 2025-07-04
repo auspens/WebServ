@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/04 16:31:20 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/04 17:26:58 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,11 +175,9 @@ void StaticFileSource::generatePage(int code){
 	_code = code;
 	_generated = true;
 	std::string html = "<html><head><title> " + _statusCodes.at(code).message + "</title></head>";
-	html += "<body><h1>" + _statusCodes.at(code).code + "</h1><hr><ul>";
-	html += "<body><h1>" + _statusCodes.at(code).message + "</h1><hr><ul>";
-	html += "<body><h2>" + _statusCodes.at(code).description + "</h2><hr><ul>";
-	html += "<body><h3> this page is generated automatically by the webserver</h3><hr><ul>";
-	html += "</ul><hr></body></html>";
+	html += "<body><h1>" + _statusCodes.at(code).code + " " + _statusCodes.at(code).message + "</h1>";
+	html += "<div>" + _statusCodes.at(code).description + "</div>";
+	html += "</body></html>";
 	_body.assign(html.begin(), html.end());
 	_generated = true;
 	_bytesToSend = _body.size();
