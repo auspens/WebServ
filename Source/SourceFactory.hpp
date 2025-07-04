@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 16:00:07 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/25 21:35:16 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/04 15:37:34 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,16 +24,14 @@ class SourceFactory {
 	public:
 		static Source *getNewSource(
 			const ServerConfig &serverConfig,
+			const Location *location,
 			HttpRequest &req
 		) throw(SourceAndRequestException, ChildProcessNeededException);
 		static Source *getNewErrorPageSource(
 			const ServerConfig &serverConfig,
+			const Location *location,
 			HttpRequest &req,
 			int code
-		);
-		static const Location *_findLocation (
-			const std::string &target,
-			const ServerConfig &serverConfig
 		);
 	private:
 		static bool _isCgiRequest(const ServerConfig &serverConfig, const Location *location, const std::string &path);

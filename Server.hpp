@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/03 19:45:10 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/04 15:59:51 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include "Config.hpp"
 #include "Connection.hpp"
 #include "Constants.hpp"
+#include "EmptyRequestException.hpp"
 #include "EventInfo.hpp"
 #include "ListeningSocket.hpp"
 #include "Logger.hpp"

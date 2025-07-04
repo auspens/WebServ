@@ -29,6 +29,7 @@ SRC =	Config/Config.cpp \
 		Source/SourceFactory.cpp \
 		Source/UploadSource.cpp \
 		Connection.cpp \
+		EmptyRequestException.cpp \
 		ListeningSocket.cpp \
 		main.cpp \
 		RequestParser.cpp \
@@ -58,6 +59,7 @@ HDR =	Config/Config.hpp \
 		Source/SourceFactory.hpp \
 		Source/UploadSource.hpp \
 		Connection.hpp \
+		EmptyRequestException.hpp \
 		ListeningSocket.hpp \
 		RequestParser.hpp \
 		HttpRequest.hpp \

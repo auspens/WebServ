@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/03 18:49:06 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/04 16:26:32 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,8 +78,8 @@ void Connection::setupSource(const Config &config) throw(SourceAndRequestExcepti
 	if (_source)
 		delete(_source);
 
-	_serverConfig = _findServerConfig(_serverPort, _request.hostname, config);
-	_source = SourceFactory::getNewSource(*_serverConfig, _request);
+	(void)config;
+	_source = SourceFactory::getNewSource(*_serverConfig, _location, _request);
 }
 
 void Connection::setupErrorPageSource(const Config &config, int code) throw() {
@@ -87,7 +87,7 @@ void Connection::setupErrorPageSource(const Config &config, int code) throw() {
 		delete(_source);
 
 	_serverConfig = _findServerConfig(_serverPort, _request.hostname, config);
-	_source = SourceFactory::getNewErrorPageSource(*_serverConfig, _request, code);
+	_source = SourceFactory::getNewErrorPageSource(*_serverConfig, _location, _request, code);
 }
 
 void Connection::setResponse() {
@@ -97,7 +97,8 @@ void Connection::setResponse() {
 	_source->setHeader(_response->getHeader());
 }
 
-void Connection::readFromSocket(size_t bufferSize, const Config *config) throw(SourceAndRequestException) {
+void Connection::readFromSocket(size_t bufferSize, const Config *config)
+	throw(SourceAndRequestException, EmptyRequestException) {
 	std::vector<char> buffer;
 
 	buffer.reserve(bufferSize);
@@ -105,21 +106,23 @@ void Connection::readFromSocket(size_t bufferSize, const Config *config) throw(S
 
 	RequestParser::ParseResult parseResult = _parser.parse(buffer.data(), valread);
 	if (parseResult == RequestParser::URL_READY) {
-		const ServerConfig *serverConfig = _findServerConfig(_serverPort,_request.hostname, *config);
-		const Location *location = SourceFactory::_findLocation(_request.path, *serverConfig);
-		_parser.setMaxBody(Config::getClientMaxBodySize(*serverConfig, location));
+		_serverConfig = _findServerConfig(_serverPort,_request.hostname, *config);
+		std::cout << "Request path: " << _request.path << std::endl;
+		_location = _findLocation(_parser.getRequest().path, *_serverConfig);
+		_parser.setMaxBody(Config::getClientMaxBodySize(*_serverConfig, _location));
 		parseResult = _parser.continueParsing();
 	}
 
-	if (parseResult!= RequestParser::COMPLETE)
-		return ;
+	if (parseResult == RequestParser::EMPTY)
+		throw(EmptyRequestException());
+	else if (parseResult == RequestParser::COMPLETE) {
+		_request = _parser.getRequest();
 
-	_request = _parser.getRequest();
-
-	Logger::debug() << "Headers:" << std::endl;
-	for (std::map<std::string, std::string>::iterator it = _request.headers.begin(); it != _request.headers.end(); ++it)
-		Logger::debug() << it->first << " : " << it->second << std::endl;
-	Logger::debug() << std::endl;
+		Logger::debug() << "Headers:" << std::endl;
+		for (std::map<std::string, std::string>::iterator it = _request.headers.begin(); it != _request.headers.end(); ++it)
+			Logger::debug() << it->first << " : " << it->second << std::endl;
+		Logger::debug() << std::endl;
+	}
 }
 
 void Connection::writeToSocket() {
@@ -188,6 +191,23 @@ const ServerConfig *Connection::_findServerConfig(
 		}
 	}
 	return NULL;
+}
+
+const Location *Connection::_findLocation (
+	const std::string &target,
+	const ServerConfig &serverConfig
+) {
+	const std::vector<Location *> locations = serverConfig.getLocations();
+	std::vector<Location *>::const_iterator it;
+	for (it = locations.begin(); it != locations.end(); ++it) {
+		std::string locationPath = (*it)->getPath();
+
+		if (target.compare(0, locationPath.size(), locationPath) == 0
+			&& (target.size() == locationPath.size()
+			|| WebServUtils::isin("/#?", target.at(locationPath.size()))))
+			return *it;
+	}
+	return (NULL);
 }
 
 bool Connection::_matchServerName(std::string host, std::string serverName) const {

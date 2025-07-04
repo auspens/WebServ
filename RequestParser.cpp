@@ -23,11 +23,12 @@ RequestParser::ParseResult RequestParser::parse(const char* data, size_t len) th
     while (true) {
         switch (_state) {
             case START_LINE:
-                if (!parseStartLine(data, len)) return INCOMPLETE;
+                if (!parseStartLine(data, len))
+					return _buffer.empty() && len == 0 ? EMPTY : INCOMPLETE;
                 _parseUrl();
+				std::cout << "Request path: " << _request.path << std::endl;
                 _state = HEADERS;
 				return URL_READY;
-                // break;
             case HEADERS:
                 if (!parseHeaders(data, len)) return INCOMPLETE;
                 _state = BODY;
@@ -38,25 +39,29 @@ RequestParser::ParseResult RequestParser::parse(const char* data, size_t len) th
                 return COMPLETE;
             case DONE:
                 return COMPLETE;
-            case ERROR:
-                return BAD;
+			case ERROR:
+				throw SourceAndRequestException("Bad request", 400); // Nicer if parser doesn't throw errors but saves error and returns state BAD
         }
     }
 }
 
 bool RequestParser::parseStartLine(const char *data, size_t len) throw(SourceAndRequestException) {
-    size_t pos = _buffer.find("\r\n");
-    if (pos == std::string::npos) checkForError(data, len, false);
-    std::istringstream line(_buffer.substr(0, pos));
-    if (!(line >> _request.method >> _request.uri >> _request.http_version)) {
-        throw SourceAndRequestException("Could not parse start line", 400);
-    }
+	size_t pos = _buffer.find("\r\n");
+
+	if (pos == std::string::npos)
+		return checkForError(data, len, false);
+
+	std::istringstream line(_buffer.substr(0, pos));
+
+	if (!(line >> _request.method >> _request.uri >> _request.http_version))
+		throw SourceAndRequestException("Bad request", 400);
 	if (_request.http_version != "HTTP/1.1")
 		throw SourceAndRequestException("Incorrect http version", 503);
 	if (_request.method != "POST" && _request.method != "GET" && _request.method != "DELETE")
 		throw SourceAndRequestException("Incorrect http version", 400);
-    _buffer.erase(0, pos + 2);
-    return true;
+
+	_buffer.erase(0, pos + 2);
+	return true;
 }
 
 bool RequestParser::parseHeaders(const char *data, size_t len) throw(SourceAndRequestException) {
@@ -95,23 +100,27 @@ bool RequestParser::parseBody(const char *data, size_t len) throw(SourceAndReque
 }
 
 void RequestParser::_parseUrl() {
-    size_t      hostStart;
-    size_t      hostEnd;
-    size_t      pathEnd;
-    std::string url = _request.uri;
-    hostStart = url.find("://");
-    if (hostStart != std::string::npos)
-        hostStart += 3;
-    else
-        hostStart = 0;
-    hostEnd = url.find_first_of("/:?#", hostStart);
-    pathEnd = url.find_first_of("?#", hostEnd);
-    if (hostEnd == std::string::npos)
-        hostEnd = url.length();
-    _request.hostname = url.substr(hostStart, hostEnd - hostStart);
-    _request.path = url.substr(hostEnd, pathEnd - hostEnd);
-    if (_request.path == "")
-        _request.path = "/";
+	size_t		hostStart;
+	size_t		hostEnd;
+	size_t		pathEnd;
+	std::string	url = _request.uri;
+
+	hostStart = url.find("://");
+	if (hostStart != std::string::npos)
+		hostStart += 3;
+	else
+		hostStart = 0;
+
+	hostEnd = url.find_first_of("/:?#", hostStart);
+	if (hostEnd == std::string::npos)
+		hostEnd = url.length();
+
+	pathEnd = url.find_first_of("?#", hostEnd);
+	_request.hostname = url.substr(hostStart, hostEnd - hostStart);
+	_request.path = url.substr(hostEnd, pathEnd - hostEnd);
+
+	if (_request.path == "")
+		_request.path = "/";
 }
 
 RequestParser::ParseResult RequestParser::continueParsing() {

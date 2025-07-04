@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/03 19:46:39 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/04 16:08:42 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,7 @@ void Server::_handleSourceEvent(u_int32_t events, EventInfo *eventInfo) throw(Ch
 		_readFromSource(*eventInfo);
 	else if (events & EPOLLOUT)
 		_writeToSource(*eventInfo);
-	// else check for EPOLLERR and close connection
+	// else check for EPOLLERR and close connection?
 }
 
 void Server::_handleSocketEvent(u_int32_t events, EventInfo *eventInfo) {
@@ -119,7 +119,8 @@ void Server::_handleSocketEvent(u_int32_t events, EventInfo *eventInfo) {
 		_readFromSocket(*eventInfo);
 	else if (events & EPOLLOUT)
 		_writeToSocket(*eventInfo);
-	// else check for EPOLLERR and close connection
+	else if (events & EPOLLERR)
+		_removeConnection(eventInfo->conn);
 	eventInfo->conn->setLastActiveTime(std::time(0));
 }
 
@@ -171,11 +172,13 @@ void Server::_readFromSocket(EventInfo &eventInfo) throw(ChildProcessNeededExcep
 		conn->readFromSocket(_config->getBufferSize(), _config);
 		if (conn->requestReady()) // finished reading request, create the source and the response
 			_setupSource(conn);
-	} catch (SourceAndRequestException &e) { // We need to clean up here
+	} catch (SourceAndRequestException &e) {
 		Logger::warning() << "SourceAndRequestException caught" << std::endl;
 		conn->setupErrorPageSource(*_config, e.errorCode());
 		conn->setResponse();
 		_updateEvents(EPOLL_CTL_MOD, EPOLLOUT, &eventInfo, conn->getSocketFd());
+	} catch (EmptyRequestException &e) {
+		_removeConnection(conn);
 	}
 }
 
@@ -285,7 +288,7 @@ ListeningSocket *Server::_findListeningSocket(int fd) {
 		return NULL;
 }
 
-void Server::_cleanup() { // Add eventInfo
+void Server::_cleanup() {
 	for (std::map<int, ListeningSocket*>::iterator it = _listeningSockets.begin(); it != _listeningSockets.end(); ++it) {
 		delete it->second;
 	}

@@ -18,7 +18,8 @@ class RequestParser {
             INCOMPLETE,
             COMPLETE,
 			URL_READY,
-            BAD
+            BAD,
+			EMPTY
         };
         RequestParser();
         ParseResult parse(const char* data, size_t len) throw(SourceAndRequestException);

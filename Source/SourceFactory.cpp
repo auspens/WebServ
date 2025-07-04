@@ -6,14 +6,17 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 16:03:12 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/25 21:48:13 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/04 15:38:08 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "SourceFactory.hpp"
 
-Source *SourceFactory::getNewSource(const ServerConfig &serverConfig, HttpRequest &req) throw(SourceAndRequestException, ChildProcessNeededException) {
-	const Location *location = _findLocation(req.path, serverConfig);
+Source *SourceFactory::getNewSource(
+	const ServerConfig &serverConfig,
+	const Location *location,
+	HttpRequest &req
+) throw(SourceAndRequestException, ChildProcessNeededException) {
 	Logger::debug() << "Location: " << (location? location->getPath():serverConfig.getRootFolder()) << std::endl;
 	Logger::debug() << "request path:" << req.path << std::endl;
 	Logger::debug() << std::boolalpha << "POST allowed: " << (Config::getAcceptMethod(serverConfig, location) & METHOD_POST) << std::endl;
@@ -35,26 +38,13 @@ Source *SourceFactory::getNewSource(const ServerConfig &serverConfig, HttpReques
 	return new StaticFileSource(serverConfig, location, req);
 }
 
-Source *SourceFactory::getNewErrorPageSource(const ServerConfig &serverConfig, HttpRequest &req, int code) {
-	const Location *location = _findLocation(req.path, serverConfig);
-	return new ErrorPageSource(serverConfig, location, req, code);
-}
-
-const Location *SourceFactory::_findLocation (
-	const std::string &target,
-	const ServerConfig &serverConfig
+Source *SourceFactory::getNewErrorPageSource(
+	const ServerConfig &serverConfig,
+	const Location *location,
+	HttpRequest &req,
+	int code
 ) {
-	const std::vector<Location *> locations = serverConfig.getLocations();
-	std::vector<Location *>::const_iterator it;
-	for (it = locations.begin(); it != locations.end(); ++it) {
-		std::string locationPath = (*it)->getPath();
-
-		if (target.compare(0, locationPath.size(), locationPath) == 0
-			&& (target.size() == locationPath.size()
-			|| WebServUtils::isin("/#?", target.at(locationPath.size()))))
-			return *it;
-	}
-	return (NULL);
+	return new ErrorPageSource(serverConfig, location, req, code);
 }
 
 bool SourceFactory::_isCgiRequest(const ServerConfig &serverConfig, const Location *location, const std::string &path) {

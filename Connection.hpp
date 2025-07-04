@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/03 18:42:38 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/04 15:59:37 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "Config.hpp"
 #include "Source/SourceFactory.hpp"
 #include "ChildProcessNeededException.hpp"
+#include "EmptyRequestException.hpp"
 #include "EventInfo.hpp"
 #include "Logger.hpp"
 #include "RequestParser.hpp"
@@ -56,7 +57,8 @@ class Connection{
 		void				setupSource(const Config &config) throw(SourceAndRequestException, ChildProcessNeededException);
 		void				setupErrorPageSource(const Config &config, int code)throw();
 
-		void				readFromSocket(size_t bufferSize, const Config *config) throw(SourceAndRequestException);
+		void				readFromSocket(size_t bufferSize, const Config *config)
+								throw(SourceAndRequestException, EmptyRequestException);
 		void				writeToSocket();
 		void				resetParser();
 
@@ -66,13 +68,18 @@ class Connection{
 		Connection &operator=(const Connection &other);
 		Connection();
 
-		const	ServerConfig *_findServerConfig(
+		const ServerConfig *_findServerConfig(
 			int port,
 			const std::string host,
 			const Config &config
 		) const;
 
-		bool	_matchServerName(std::string host, std::string serverName) const;
+		const Location *_findLocation (
+			const std::string &target,
+			const ServerConfig &serverConfig
+		);
+
+		bool _matchServerName(std::string host, std::string serverName) const;
 
 		Socket				_socket;
 		RequestParser		_parser;
@@ -80,6 +87,7 @@ class Connection{
 		Response			*_response;
 		Source				*_source;
 		const ServerConfig	*_serverConfig;
+		const Location		*_location;
 		int					_serverPort;
 		bool				_invalidated;
 		time_t				_lastActiveTime;
