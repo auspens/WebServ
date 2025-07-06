@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 12:40:08 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/18 15:57:17 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/06 18:24:49 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,19 @@
 #include "ServerConfig.hpp"
 
 Location::Location() :
-		_autoindex(false),
+		_autoindex(DEFAULT_AUTO_INDEX),
 		_uploadPass(false),
 		_isRedirect(false),
 		_path(""),
-		_index("index.html"),
+		_index(DEFAULT_INDEX),
 		_serverConfig(NULL) { }
 
 Location::Location(const ServerConfig &serverConfig) :
-		_autoindex(false),
+		_autoindex(DEFAULT_AUTO_INDEX),
 		_uploadPass(false),
 		_isRedirect(false),
 		_path(""),
-		_index("index.html"),
+		_index(DEFAULT_INDEX),
 		_serverConfig(&serverConfig) { }
 
 Location::~Location() { }

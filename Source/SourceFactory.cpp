@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   SourceFactory.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 16:03:12 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/04 16:39:20 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/06 18:34:55 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,12 +22,17 @@ Source *SourceFactory::getNewSource(
 	Logger::debug() << std::boolalpha << "POST allowed: " << (Config::getAcceptMethod(serverConfig, location) & METHOD_POST) << std::endl;
 	Logger::debug() << std::boolalpha << "Upload pass: " << (location? location->isUploadPass() : false) << std::endl;
 
+	if (!Config::acceptsMethod(serverConfig, location, req.method))
+		throw(SourceAndRequestException("Method not allowed", 405));
+
 	if (location && location->isRedirect())
 		return new RedirectSource(serverConfig, *location, req);
 	else if (_isCgiRequest(serverConfig, location, req.path))
 		return new CGISource(serverConfig, location, req);
 	else if (_isUploadRequest(serverConfig, location, req))
 		return new UploadSource(serverConfig, location, req);
+	else if (_isDeleteRequest(req))
+		return new DeleteSource(serverConfig, *location, req);
 	else
 		return new StaticFileSource(serverConfig, location, req);
 }
@@ -65,4 +70,8 @@ bool SourceFactory::_isUploadRequest(const ServerConfig &serverConfig, const Loc
 	if (!location->isUploadPass())
 		return false;
 	return true;
+}
+
+bool SourceFactory::_isDeleteRequest(const HttpRequest &request) {
+	return request.method == "DELETE";
 }

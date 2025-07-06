@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:08:43 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/02 19:36:51 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/06 17:51:05 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,33 @@
 #include "ServerConfig.hpp"
 #include <dirent.h>
 
+#define JAVASCRIPT_DELETE_FUNCTION \
+"<script>\n" \
+"\n" \
+"async function deleteFile(filename) {\n" \
+"	if (confirm('Are you sure you want to delete ' + filename + '?')) {\n" \
+"		try {\n" \
+"			const response = await fetch(filename, {\n" \
+"				method: 'DELETE'\n" \
+"			});\n" \
+"\n" \
+"			if (response.ok) {\n" \
+"				alert('File deleted successfully');\n" \
+"				location.reload();\n" \
+"			} else {\n" \
+"				alert('Failed to delete file: ' + response.status);\n" \
+"			}\n" \
+"		} catch (error) {\n" \
+"			alert('Error: ' + error.message);\n" \
+"		}\n" \
+"	}\n" \
+"}\n" \
+"</script>\n"
+
 struct DirEntry {
-    std::string name;
-    bool is_directory;
+	std::string	name;
+	bool		is_directory;
+
 	DirEntry(const std::string& n, bool is_dir) : name(n), is_directory(is_dir) {}
 };
 
@@ -39,7 +63,6 @@ class StaticFileSource : public Source {
 
 	protected:
 		bool _generated;
-		bool checkIfExists(std::string &target);
 		void checkIfDirectory() throw(SourceAndRequestException);
 		void defineMimeType();
 		void generateIndex() throw(SourceAndRequestException);

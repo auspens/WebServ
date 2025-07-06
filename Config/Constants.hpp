@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Constants.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 14:52:12 by wouter            #+#    #+#             */
-/*   Updated: 2025/06/25 18:12:24 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/06 19:06:38 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,12 @@ enum eHttpMethod {
 #define DEFAULT_ACCEPT_METHOD METHOD_GET
 #define DEFAULT_CHUNK_SIZE 1024
 #define DEFAULT_CONNECTION_TIMEOUT 60
+#define DEFAULT_ALLOW_DELETE false
+#define DEFAULT_INDEX "index.html"
 
 #define TIMEOUT_CLEANUP_INTERVAL 30
+#define DOCSTRING "<!DOCTYPE html>\n"
+#define DEFAULT_PERMISSIONS 0644
 
 const std::string CGI_EXTENSIONS[] = {
 	".py",

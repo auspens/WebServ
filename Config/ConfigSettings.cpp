@@ -93,16 +93,6 @@ bool ConfigSettings::autoIndexIsSet() const {
 	return _autoIndexIsSet;
 }
 
-bool ConfigSettings::acceptsMethod(std::string method) const {
-	if (method == "GET")
-		return _acceptMethod & METHOD_GET;
-	if (method == "POST")
-		return _acceptMethod & METHOD_POST;
-	if (method == "DELETE")
-		return _acceptMethod & METHOD_DELETE;
-	return false;
-}
-
 void ConfigSettings::parseClientMaxBodySize(std::ifstream &infile) throw(ConfigParseException) {
 	std::string token;
 	char		lastChar;

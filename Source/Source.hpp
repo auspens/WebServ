@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/25 21:35:16 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/06 19:16:31 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,14 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
+enum SourceType {
+	STATIC,
+	REDIRECT,
+	CGI,
+	UPLOAD,
+	DELETE
+};
 
-enum SourceType {STATIC, REDIRECT, CGI, UPLOAD};
 struct HTTPStatusCode{
 	std::string code;
 	std::string message;
@@ -55,17 +61,6 @@ class Source {
 		bool						isWriteWhenComplete();
 		void						setHeader(std::string header);
 
-		static Source *getNewSource(
-			const ServerConfig &serverConfig,
-			HttpRequest &req
-		) throw(SourceAndRequestException, ChildProcessNeededException);
-
-		static Source *getNewErrorPageSource(
-			const ServerConfig &serverConfig,
-			HttpRequest &req,
-			int code
-		);
-
 		size_t										_bytesToSend;
 		int											_offset;
 		bool										_doneReading;
@@ -87,8 +82,10 @@ class Source {
 		bool				_pollableRead;
 		bool				_pollableWrite;
 		bool				_writeWhenComplete;
-
 		std::vector<char>	_body; //where we are writing
+
+		void _checkAccess(std::string &target);
+		bool _checkExists(std::string &target);
 
 		Source(const ServerConfig &serverConfig, const Location *location, HttpRequest &req)
 			throw(SourceAndRequestException);

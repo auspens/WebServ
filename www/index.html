@@ -1,15 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Home</title>
+<title>Home</title>
+<style>
+ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+li {
+    margin: 8px 0;
+}
+a {
+    text-decoration: none;
+    color: #0066cc;
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    display: inline-block;
+}
+a:hover {
+    background-color: #f0f0f0;
+    border-color: #0066cc;
+}
+</style>
 </head>
 <body>
-  <h1>Welcome to the WebServer Test Page</h1>
-  <p>This is the home page.</p>
-  <a href="/about.html">About</a> |
-  <a href="/form.html">Form Test (CGI)</a>
-  <a href="/post_echo_form.html">Post echo Test (CGI)</a> |
-  <a href="/upload_form.html">Upload file Test (CGI)</a> |
-  <a href="/upload_form_direct.html">Upload file Test (Direct)</a>
+<h1>Welcome to the WebServer Test Page</h1>
+<p>This is the home page.</p>
+
+<ul>
+<li><a href="/about.html">About</a></li>
+<li><a href="/form.html">Form Test (CGI)</a></li>
+<li><a href="/post_echo_form.html">Post Echo Test (CGI)</a></li>
+<li><a href="/upload_form.html">Upload File Test (CGI)</a></li>
+<li><a href="/upload_form_direct.html">Upload File Test (Direct)</a></li>
+<li></li><a href="/delete_form.html">Delete File Test</a></li>
+</ul>
 </body>
 </html>

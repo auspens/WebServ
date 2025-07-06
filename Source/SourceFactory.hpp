@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   SourceFactory.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 16:00:07 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/04 15:37:34 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/06 18:34:47 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "CGISource.hpp"
 #include "ChildProcessNeededException.hpp"
 #include "Constants.hpp"
+#include "DeleteSource.hpp"
 #include "ErrorPageSource.hpp"
 #include "RedirectSource.hpp"
 #include "SourceAndRequestException.hpp"
@@ -36,4 +37,5 @@ class SourceFactory {
 	private:
 		static bool _isCgiRequest(const ServerConfig &serverConfig, const Location *location, const std::string &path);
 		static bool _isUploadRequest(const ServerConfig &serverConfig, const Location *location, const HttpRequest &request);
+		static bool _isDeleteRequest(const HttpRequest &request);
 };

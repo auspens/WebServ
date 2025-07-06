@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:11:08 by wouter            #+#    #+#             */
-/*   Updated: 2025/06/18 17:30:52 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/06 18:33:31 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,10 +116,32 @@ int Config::getAcceptMethod(const ServerConfig &serverConfig, const Location *lo
 	return serverConfig.getAcceptMethod();
 }
 
+bool Config::acceptsMethod(const ServerConfig &serverConfig, const Location *location, std::string method) {
+	int acceptMethod = getAcceptMethod(serverConfig, location);
+
+	if (method == "GET")
+		return acceptMethod & METHOD_GET;
+	if (method == "POST")
+		return acceptMethod & METHOD_POST;
+	if (method == "DELETE")
+		return acceptMethod & METHOD_DELETE;
+	return false;
+}
+
+bool Config::acceptsMethod(const ServerConfig &serverConfig, const Location *location, int method) {
+	return getAcceptMethod(serverConfig, location) & method;
+}
+
 bool Config::getAutoIndex(const ServerConfig &serverConfig, const Location *location) {
 	if (location)
 		return location->getAutoIndex();
 	return serverConfig.getAutoIndex();
+}
+
+std::string Config::getRootFolder(const ServerConfig &serverConfig, const Location *location) {
+	if (location)
+		return location->getRootFolder();
+	return serverConfig.getRootFolder();
 }
 
 void Config::_parseConfigFile(const std::string &configFile) throw(ConfigParseException) {
@@ -154,6 +176,8 @@ void Config::_parseConfigFile(const std::string &configFile) throw(ConfigParseEx
 void Config::_validateConfig() const throw(ConfigParseException) {
 	if (_serverConfigs.empty())
 		throw ConfigParseException("No servers configured");
+	if (getAcceptMethod() & METHOD_DELETE)
+		throw ConfigParseException("DELETE method only allowed for upload pass");
 
 	for (size_t i = 0; i < _serverConfigs.size(); i++)
 		_validateServerConfig(*_serverConfigs[i]);
@@ -166,6 +190,8 @@ void Config::_validateServerConfig(ServerConfig &serverConfig) const throw(Confi
 		throw ConfigParseException("Missing listen port for server");
 	if (serverConfig.getRootFolder() == "" && locations.empty())
 		throw ConfigParseException("Missing root folder and no locations configured for server");
+	if (getAcceptMethod() & METHOD_DELETE)
+		throw ConfigParseException("DELETE method only allowed for upload pass");
 
 	for (size_t i = 0; i < locations.size(); i++)
 		_validateLocation(*locations[i]);
@@ -174,6 +200,8 @@ void Config::_validateServerConfig(ServerConfig &serverConfig) const throw(Confi
 void Config::_validateLocation(Location &location) const throw(ConfigParseException) {
 	if (location.getRootFolder() == "")
 		throw ConfigParseException("Missing root folder for location: " + location.getPath());
+	if (getAcceptMethod() & METHOD_DELETE)
+		throw ConfigParseException("DELETE method only allowed for upload pass");
 }
 
 ServerConfig *Config::_parseServerConfig(std::ifstream &infile) throw(ConfigParseException) {

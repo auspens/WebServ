@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 16:57:51 by wpepping          #+#    #+#             */
-/*   Updated: 2025/06/18 15:33:36 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/06 18:28:44 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,9 @@ class Config {
 		static int								getAcceptMethod(const ServerConfig &serverConfig, const Location *location);
 		static bool								getAutoIndex(const ServerConfig &serverConfig, const Location *location);
 		static int								getBufferSize(const ServerConfig &serverConfig, const Location *location);
+		static std::string						getRootFolder(const ServerConfig &serverConfig, const Location *location);
+		static bool								acceptsMethod(const ServerConfig &serverConfig, const Location *location, std::string method);
+		static bool								acceptsMethod(const ServerConfig &serverConfig, const Location *location, int method);
 
 	private:
 		ConfigSettings				_configSettings;

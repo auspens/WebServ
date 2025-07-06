@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Delete File</title>
+</head>
+<body>
+    <h1>Delete File</h1>
+
+    <form id="deleteForm">
+        <label for="filename">Filename:</label>
+        <input type="text" id="filename" name="filename" required>
+        <button type="submit">Delete</button>
+    </form>
+
+    <div id="response"></div>
+
+    <script>
+        document.getElementById('deleteForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const filename = document.getElementById('filename').value;
+
+            try {
+                const response = await fetch(filename, {
+                    method: 'DELETE'
+                });
+
+                document.getElementById('response').innerHTML =
+                    'Status: ' + response.status + ' ' + response.statusText;
+
+            } catch (error) {
+                document.getElementById('response').innerHTML = 'Error: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>

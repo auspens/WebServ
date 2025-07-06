@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/02 18:02:52 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/06 19:16:37 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,3 +158,23 @@ void Source::setHeader(std::string header) {
 
 void Source::writeSource(){}
 
+void Source::_checkAccess(std::string &target) {
+	DIR *dir = opendir(Config::getRootFolder(_serverConfig, _location).c_str());
+	if (!dir)
+		throw(SourceAndRequestException("No root folder", 404));
+	closedir(dir);
+	if (access(target.c_str(), F_OK))
+		throw (SourceAndRequestException("Page doesn't exist", 404));
+	if (access(target.c_str(), R_OK))
+		throw (SourceAndRequestException("Forbidden", 403));
+}
+
+bool Source::_checkExists(std::string &target) {
+	DIR *dir = opendir(Config::getRootFolder(_serverConfig, _location).c_str());
+	if (!dir)
+		return false;
+	closedir(dir);
+	if (access(target.c_str(), F_OK))
+		return false;
+	return true;
+}

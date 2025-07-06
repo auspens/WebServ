@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   UploadSource.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:03:49 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/04 17:23:40 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/06 19:08:53 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,7 +98,7 @@ std::string UploadSource::_getFileName(std::string token){
 		pos = token.length();
 
 	std::ostringstream name;
-	name << _target << "/" << "upload_" << token.substr(0, pos) << "_" << time(NULL) << token.substr(pos);
+	name << _target << "/" << token.substr(0, pos) << "_" << time(NULL) << token.substr(pos);
 
 	return name.str();
 }
@@ -132,7 +132,7 @@ void 	UploadSource::writeSource(){
 			return ;
 		}
 
-		_writeFd = open(_uploads.at(0).name.c_str(), O_RDWR | O_CREAT);
+		_writeFd = open(_uploads.at(0).name.c_str(), O_RDWR | O_CREAT, DEFAULT_PERMISSIONS);
 		if (_writeFd < 0) throw SourceAndRequestException("Could not create upload file", 500);
 		_isWriting = true;
 		_uploadOffset = 0;
