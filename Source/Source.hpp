@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/25 21:35:16 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/08 14:57:25 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include "Logger.hpp"
 #include "HttpRequest.hpp"
 #include "ServerConfig.hpp"
+#include "../Config/Constants.hpp"
 #include <unistd.h>
 #include <sys/stat.h>
 
@@ -100,4 +101,5 @@ class Source {
 	private:
 		bool	_safePath(const std::string &path) const;
 		void	init(int code) throw(SourceAndRequestException);
+		void	_methodAllowed()const;
 };
