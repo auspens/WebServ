@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/02 18:02:52 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/08 15:00:30 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ Source::Source(
 	_location(location),
 	_request(req) {
 		init(200);
+		_methodAllowed();
 }
 
 Source::Source(
@@ -157,4 +158,12 @@ void Source::setHeader(std::string header) {
 }
 
 void Source::writeSource(){}
+
+void Source::_methodAllowed()const{
+	int allowedMethods = Config::getAcceptMethod(_serverConfig, _location);
+	if ((_request.method == "POST" && !(allowedMethods & METHOD_POST))
+	||(_request.method == "GET" && !(allowedMethods & METHOD_GET))
+	||(_request.method == "DELETE" && !(allowedMethods & METHOD_DELETE)))
+		throw SourceAndRequestException("Requested method not allowed here", 403);
+}
 

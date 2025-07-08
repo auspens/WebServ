@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Delete File</title>
+</head>
+<body>
+  <h2>Delete File</h2>
+  <form id="deleteForm">
+    <label for="filename">File name to delete:</label>
+    <input type="text" id="filename" name="filename" required>
+    <button type="submit">Delete</button>
+  </form>
+
+  <p id="result"></p>
+
+  <script>
+    document.getElementById('deleteForm').addEventListener('submit', function(event) {
+      event.preventDefault(); // Prevent form from submitting normally
+
+      const filename = document.getElementById('filename').value.trim();
+      if (!filename) {
+        alert('Please enter a filename.');
+        return;
+      }
+
+      fetch('/upload/' + encodeURIComponent(filename), {
+        method: 'DELETE',
+      })
+      .then(response => {
+        if (response.ok) {
+          return response.text();
+        } else {
+          throw new Error('Delete failed: ' + response.status);
+        }
+      })
+      .then(text => {
+        document.getElementById('result').textContent = 'File deleted succesfully!';
+      })
+      .catch(err => {
+        document.getElementById('result').textContent = err.message;
+      });
+    });
+  </script>
+</body>
+</html>
