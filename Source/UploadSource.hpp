@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   UploadSource.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 15:44:12 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/06 19:08:52 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/09 19:07:33 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ class UploadSource : public Source {
 		~UploadSource();
 		void 	readSource();
 		void 	writeSource();
+		void	init() throw(SourceAndRequestException, ChildProcessNeededException, ShutDownRequestException);
 
 
 	private:

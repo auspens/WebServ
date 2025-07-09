@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   UploadSource.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:03:49 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/06 19:08:53 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/09 19:07:30 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,13 @@ UploadSource::UploadSource(
 	HttpRequest &req
 ) : Source(serverConfig, location, req) {
 	Logger::debug() << "Creating UploadSource" <<std::endl;
+}
 
+void UploadSource::init() throw(SourceAndRequestException, ChildProcessNeededException, ShutDownRequestException) {
 	std::string header;
 	std::string boundary;
+
+	Source::init();
 
 	if (!opendir(_target.c_str()))
 		throw SourceAndRequestException("Upload folder doesn't exist", 403);
@@ -33,16 +37,16 @@ UploadSource::UploadSource(
 	_writeWhenComplete = true;
 	_type = UPLOAD;
 	_uploadOffset = 0;
-	_writeSize = Config::getClientMaxBodySize(serverConfig, location);
+	_writeSize = Config::getClientMaxBodySize(_serverConfig, _location);
 
 	try {
-		header = req.headers.at("Content-Type");
+		header = _request.headers.at("Content-Type");
 	} catch (std::out_of_range &e){
 		throw SourceAndRequestException("No Content-Type header found", 400);
 	}
 
 	boundary = _findBoundary(header);
-	_getUploadFiles(boundary, req);
+	_getUploadFiles(boundary, _request);
 }
 
 void UploadSource::_getUploadFiles(std::string boundary, HttpRequest &req){

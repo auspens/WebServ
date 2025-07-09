@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/06 19:16:37 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/09 19:10:08 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,9 @@ Source::Source(
 ) throw(SourceAndRequestException) :
 	_serverConfig(serverConfig),
 	_location(location),
-	_request(req) {
-		init(200);
+	_request(req),
+	_code(200) {
+		init();
 }
 
 Source::Source(
@@ -34,16 +35,14 @@ Source::Source(
 ) throw(SourceAndRequestException) :
 	_serverConfig(serverConfig),
 	_location(location),
-	_request(req) {
-		init(code);
-}
+	_request(req),
+	_code(code) { }
 
-void Source::init(int code) throw(SourceAndRequestException) {
+void Source::init() throw(SourceAndRequestException, ChildProcessNeededException, ShutDownRequestException) {
 	_bytesToSend = 0;
 	_offset = 0;
 	_doneReading = false;
 	_doneWriting = true;
-	_code = code;
 	_fd = -1;
 	_writeFd = -1;
 	_size = 0;
@@ -65,14 +64,14 @@ Source::Source(const Source &src):
 		_bytesToSend(src._bytesToSend)
 		,_offset(src._offset)
 		,_doneReading(src._doneReading)
-		,_code(src._code)
 		,_fd(src._fd)
 		,_size(src._size)
 		,_type(src._type)
 		,_serverConfig(src._serverConfig)
 		,_location(src._location)
 		,_mime(src._mime)
-		,_request(src._request) {}
+		,_request(src._request)
+		,_code(src._code) {}
 
 Source &Source::operator=(const Source &other){
 	if (this != &other){

@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/04 15:59:51 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/09 18:13:41 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ class Server {
 		int									_epollInstance;
 		time_t								_lastCleanup;
 		const Config						*_config;
+		bool								_shutdown;
 		std::map<int, ListeningSocket *>	_listeningSockets;
 		std::vector<Connection *>			_connections;
 		std::vector<Connection *>			_invalidatedConnections;

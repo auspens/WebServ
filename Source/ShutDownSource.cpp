@@ -1,45 +1,37 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   DeleteSource.cpp                                   :+:      :+:    :+:   */
+/*   ShutDownSource.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 17:46:12 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/09 19:11:29 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/09 19:11:36 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "DeleteSource.hpp"
+#include "ShutDownSource.hpp"
 
-DeleteSource::DeleteSource(
+ShutDownSource::ShutDownSource(
 	const ServerConfig &serverConfig,
 	const Location &location,
 	HttpRequest &req
-) throw(SourceAndRequestException) :
+) :
 	Source(serverConfig, &location, req)
 {
-	Logger::debug() << "Creating Delete source"<<std::endl;
+	Logger::debug() << "Creating Shutdown source"<<std::endl;
 }
 
-void DeleteSource::init() throw(SourceAndRequestException, ChildProcessNeededException, ShutDownRequestException) {
+void ShutDownSource::init() throw(ShutDownRequestException) {
 	Source::init();
 
 	_type = DELETE;
 	_doneReading = true;
 
-	_checkAccess(_target);
-	_deleteFile();
+	throw ShutDownRequestException("Server shutting down");
 }
 
-void DeleteSource::_deleteFile() throw(SourceAndRequestException) {
-	if (access(_target.c_str(), W_OK))
-		throw SourceAndRequestException("Forbidden", 403);
-	if (remove(_target.c_str()) != 0)
-		throw SourceAndRequestException("Could not delete file", 500);
-}
-
-void DeleteSource::setHeader(std::string header) {
+void ShutDownSource::setHeader(std::string header) {
 	std::string response;
 
 	(void)header;
@@ -48,11 +40,11 @@ void DeleteSource::setHeader(std::string header) {
 		"Content-Type: application/json\n"
 		"Content-Length: 41\n"
 		"\n"
-		"{\"message\": \"File deleted successfully\"}\n";
+		"{\"message\": \"Server shutting down\"}\n";
 
 	_body.assign(response.begin(), response.end());
 }
 
-DeleteSource::~DeleteSource() { }
+ShutDownSource::~ShutDownSource() { }
 
-void DeleteSource::readSource() { }
+void ShutDownSource::readSource() { }

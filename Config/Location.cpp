@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 12:40:08 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/06 18:24:49 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/09 18:18:47 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,36 +14,40 @@
 #include "ServerConfig.hpp"
 
 Location::Location() :
-		_autoindex(DEFAULT_AUTO_INDEX),
-		_uploadPass(false),
-		_isRedirect(false),
-		_path(""),
-		_index(DEFAULT_INDEX),
-		_serverConfig(NULL) { }
+	_autoindex(DEFAULT_AUTO_INDEX),
+	_uploadPass(false),
+	_isRedirect(false),
+	_isShutDown(false),
+	_path(""),
+	_index(DEFAULT_INDEX),
+	_serverConfig(NULL) { }
 
 Location::Location(const ServerConfig &serverConfig) :
-		_autoindex(DEFAULT_AUTO_INDEX),
-		_uploadPass(false),
-		_isRedirect(false),
-		_path(""),
-		_index(DEFAULT_INDEX),
-		_serverConfig(&serverConfig) { }
+	_autoindex(DEFAULT_AUTO_INDEX),
+	_uploadPass(false),
+	_isRedirect(false),
+	_isShutDown(false),
+	_path(""),
+	_index(DEFAULT_INDEX),
+	_serverConfig(&serverConfig) { }
 
 Location::~Location() { }
 
 Location::Location(const Location &src) :
-			_autoindex(src._autoindex),
-			_uploadPass(src._uploadPass),
-			_isRedirect(src._isRedirect),
-			_path(src._path),
-			_index(src._index),
-			_serverConfig(src._serverConfig) { }
+	_autoindex(src._autoindex),
+	_uploadPass(src._uploadPass),
+	_isRedirect(src._isRedirect),
+	_isShutDown(src._isShutDown),
+	_path(src._path),
+	_index(src._index),
+	_serverConfig(src._serverConfig) { }
 
 Location &Location::operator =(const Location &other) {
 	if (this != &other) {
 		_autoindex = other._autoindex;
 		_uploadPass = other._uploadPass;
 		_isRedirect = other._isRedirect;
+		_isShutDown = other._isShutDown;
 		_path = other._path;
 		_index = other._index;
 		_serverConfig = other._serverConfig;
@@ -74,6 +78,8 @@ void Location::parse(std::ifstream &infile) throw(ConfigParseException) {
 			_parseUploadPass(infile);
 		else if (token == "redirect")
 			_parseRedirect(infile);
+		else if (token == "shutdown")
+			_parseShutDown(infile);
 		else
 			throw ConfigParseException("Unexpected token: " + token);
 		ParseUtils::skipWhitespace(infile);
@@ -101,6 +107,10 @@ bool Location::isUploadPass() const {
 
 bool Location::isRedirect() const {
 	return _isRedirect;
+}
+
+bool Location::isShutDown() const {
+	return _isShutDown;
 }
 
 int Location::getRedirectCode() const {
@@ -167,9 +177,11 @@ void Location::_parseRoot(std::ifstream &infile) throw(ConfigParseException) {
 
 	if (_rootFolder != "")
 		throw ConfigParseException("Location: " + _path + ": Root folder already set");
-	else if (_isRedirect)
+	if (_isRedirect)
 		throw ConfigParseException("Location: " + _path + ": Cannot have root folder for redirect");
-	else if (!WebServUtils::folderExists(token))
+	if (_isShutDown)
+		throw ConfigParseException("Location: " + _path + ": Cannot have root folder for shutdown");
+	if (!WebServUtils::folderExists(token))
 		throw ConfigParseException("Location: " + _path + ": Root folder " + token + " does not exist");
 
 	_rootFolder = token;
@@ -178,6 +190,24 @@ void Location::_parseRoot(std::ifstream &infile) throw(ConfigParseException) {
 void Location::_parseUploadPass(std::ifstream &infile) throw(ConfigParseException) {
 	_uploadPass = true;
 	_parseRoot(infile);
+}
+
+void Location::_parseShutDown(std::ifstream &infile) throw(ConfigParseException) {
+	std::string value = ParseUtils::parseValue(infile);
+
+	if (_isShutDown)
+		throw  ConfigParseException("shutdown value already set");
+	if (_isRedirect)
+		throw ConfigParseException("Location: " + _path + ": Shutdown can't be redirect");
+	if (_rootFolder != "")
+		throw ConfigParseException("Location: " + _path + ": Cannot have root folder for shutdown");
+
+	if (value == "yes")
+		_isShutDown = true;
+	else
+		throw ConfigParseException("Invalid value for shutdown");
+
+	ParseUtils::expectChar(infile, ';');
 }
 
 void Location::_parseRedirect(std::ifstream &infile) throw(ConfigParseException) {
@@ -190,6 +220,8 @@ void Location::_parseRedirect(std::ifstream &infile) throw(ConfigParseException)
 	_redirect.path = ParseUtils::parseValue(infile);
 	if (_rootFolder != "")
 		throw ConfigParseException("Location: " + _path + ": Cannot have root folder for redirect");
+	if (_isShutDown)
+		throw ConfigParseException("Location: " + _path + ": Shutdown can't be redirect");
 	if (_redirect.path == "")
 		throw ConfigParseException("Location: " + _path + ": Missing path for redirect");
 

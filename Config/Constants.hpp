@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Constants.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 14:52:12 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/06 19:06:38 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/09 19:14:49 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,14 @@ enum eHttpMethod {
 		METHOD_GET    = 1 << 0, // 0001
 		METHOD_POST   = 1 << 1, // 0010
 		METHOD_DELETE = 1 << 2  // 0100
+};
+
+enum LogLevel {
+	LOG_DETAIL,
+	LOG_DEBUG,
+	LOG_INFO,
+	LOG_WARNING,
+	LOG_ERROR
 };
 
 #define PROTOCOL "HTTP/1.1"
@@ -39,14 +47,6 @@ enum eHttpMethod {
 const std::string CGI_EXTENSIONS[] = {
 	".py",
 	".php"
-};
-
-enum LogLevel {
-	LOG_DETAIL,
-	LOG_DEBUG,
-	LOG_INFO,
-	LOG_WARNING,
-	LOG_ERROR
 };
 
 #define LOG_LEVEL LOG_DETAIL

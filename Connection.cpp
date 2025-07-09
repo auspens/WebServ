@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/04 16:26:32 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/09 18:47:55 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,12 +74,13 @@ std::string Connection::getRequestBody()const{
 	return _request.body;
 }
 
-void Connection::setupSource(const Config &config) throw(SourceAndRequestException, ChildProcessNeededException) {
+void Connection::setupSource(const Config &config) throw(SourceAndRequestException, ChildProcessNeededException, ShutDownRequestException) {
 	if (_source)
 		delete(_source);
 
 	(void)config;
 	_source = SourceFactory::getNewSource(*_serverConfig, _location, _request);
+	_source->init();
 }
 
 void Connection::setupErrorPageSource(const Config &config, int code) throw() {

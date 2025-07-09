@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/04 15:59:37 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/09 18:12:46 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ class Connection{
 		bool				doneWritingSource() const;
 		bool				doneWritingSocket() const;
 
-		void				setupSource(const Config &config) throw(SourceAndRequestException, ChildProcessNeededException);
+		void				setupSource(const Config &config) throw(SourceAndRequestException, ChildProcessNeededException, ShutDownRequestException);
 		void				setupErrorPageSource(const Config &config, int code)throw();
 
 		void				readFromSocket(size_t bufferSize, const Config *config)

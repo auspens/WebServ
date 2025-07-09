@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/04 16:08:42 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/09 19:12:06 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,8 @@ Server::Server() { }
 
 Server::Server(const Config &config) :
 	_lastCleanup(std::time(0)),
-	_config(&config) { }
+	_config(&config),
+	_shutdown(false) { }
 
 Server::~Server() {
 	Logger::debug() << "Cleaning up server" << std::endl;
@@ -61,7 +62,7 @@ void Server::_runEpollLoop() throw(ChildProcessNeededException) {
 	int								timeoutInterval;
 
 	events.resize(100);
-	while (true) {
+	while (!_shutdown) {
 		size = _connections.size() + _listeningSockets.size();
 		if (events.capacity() < size)
 			events.resize(size);
@@ -143,8 +144,12 @@ void Server::_handleIncomingConnection(ListeningSocket *listeningSocket) {
 
 void Server::_setupSource(Connection *conn) throw(ChildProcessNeededException, SourceAndRequestException) {
 	//Logger::detail() <<"Request body: "<< conn->getRequestBody() << std::endl << std::endl;
+	try {
+		conn->setupSource(*_config);
+	} catch (ShutDownRequestException &e) {
+		_shutdown =true;
+	}
 
-	conn->setupSource(*_config);
 	conn->setResponse();
 
 	if (!conn->doneReadingSource()) {

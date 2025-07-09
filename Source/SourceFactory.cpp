@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   SourceFactory.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 16:03:12 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/06 18:34:55 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/09 18:47:35 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,8 @@ Source *SourceFactory::getNewSource(
 		return new UploadSource(serverConfig, location, req);
 	else if (_isDeleteRequest(req))
 		return new DeleteSource(serverConfig, *location, req);
+	else if (_isShutDownRequest(location, req))
+		return new ShutDownSource(serverConfig, *location, req);
 	else
 		return new StaticFileSource(serverConfig, location, req);
 }
@@ -74,4 +76,8 @@ bool SourceFactory::_isUploadRequest(const ServerConfig &serverConfig, const Loc
 
 bool SourceFactory::_isDeleteRequest(const HttpRequest &request) {
 	return request.method == "DELETE";
+}
+
+bool SourceFactory::_isShutDownRequest(const Location *location, const HttpRequest &request) {
+	return request.method == "GET" && location && location->isShutDown();
 }

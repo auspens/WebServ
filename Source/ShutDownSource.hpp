@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   DeleteSource.hpp                                   :+:      :+:    :+:   */
+/*   ShutDownSource.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 17:45:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/09 19:10:26 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/09 18:45:42 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,24 +14,22 @@
 
 #include <cstdio>
 #include "Logger.hpp"
+#include "ShutDownRequestException.hpp"
 #include "Source.hpp"
 
-class DeleteSource : public Source
+class ShutDownSource : public Source
 {
 	public:
-		DeleteSource(
+		ShutDownSource(
 			const ServerConfig &serverConfig,
 			const Location &location,
 			HttpRequest &req
-		) throw(SourceAndRequestException);
-		~DeleteSource();
+		);
+		~ShutDownSource();
 
-		void init() throw(SourceAndRequestException, ChildProcessNeededException, ShutDownRequestException);
 		void readSource();
 		void setHeader(std::string header);
-
-	private:
-		void _deleteFile() throw(SourceAndRequestException);
+		void init() throw(ShutDownRequestException);
 };
 
 

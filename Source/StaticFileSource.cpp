@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/06 19:16:55 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/09 19:07:16 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,23 +14,31 @@
 
 StaticFileSource::StaticFileSource(const ServerConfig &serverConfig, Location const *location, HttpRequest &req)
 	: Source(serverConfig, location, req)
-	, _generated(false){
+	, _generated(false) {
 	Logger::debug() << "Creating Static File Source for " << _target << std::endl;
 	_location = location;
-	checkIfDirectory();
-	if (!_generated) {
-		_checkAccess(_target);
-		_fd = open(_target.c_str(), O_RDONLY);
-		struct stat st;
-		stat(_target.c_str(), &st);
-		_size = st.st_size;
-		defineMimeType();
-	}
+	_code = -1;
 }
 StaticFileSource::StaticFileSource(const ServerConfig &serverConfig, Location const *location, HttpRequest &req, int code)throw()
 	: Source(serverConfig, location, req, code)
 	, _generated(false){
 	_location = location;
+}
+
+void StaticFileSource::init() throw(SourceAndRequestException, ChildProcessNeededException, ShutDownRequestException) {
+	Source::init();
+	if (_code == -1) {
+		_code = 200;
+		checkIfDirectory();
+		if (!_generated) {
+			_checkAccess(_target);
+			_fd = open(_target.c_str(), O_RDONLY);
+			struct stat st;
+			stat(_target.c_str(), &st);
+			_size = st.st_size;
+			defineMimeType();
+		}
+	}
 }
 
 StaticFileSource::StaticFileSource(const StaticFileSource &src):

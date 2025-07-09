@@ -12,9 +12,9 @@ class CGISource : public Source {
 	public:
 		void readSource();
 		void forkAndExec() throw(ChildProcessNeededException);
+		void init() throw(SourceAndRequestException, ShutDownRequestException, ChildProcessNeededException);
 
-		CGISource(const ServerConfig &serverConfig, const Location *location, HttpRequest &req)
-			throw(ChildProcessNeededException);
+		CGISource(const ServerConfig &serverConfig, const Location *location, HttpRequest &req);
 		//copy construct missing
 		~CGISource();
 

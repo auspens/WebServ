@@ -1,20 +1,23 @@
 #include "CGISource.hpp"
 
-CGISource::CGISource(const ServerConfig &serverConfig, Location const *location, HttpRequest &req) throw(ChildProcessNeededException)
+CGISource::CGISource(const ServerConfig &serverConfig, Location const *location, HttpRequest &req)
  : Source(serverConfig, location, req) {
 	Logger::debug() << "Creating CGI Source" << std::endl;
+}
+
+void CGISource::init() throw(SourceAndRequestException, ChildProcessNeededException, ShutDownRequestException) {
+	Source::init();
 
 	_pollableRead = true;
 	_pollableWrite = true;
 	_writeWhenComplete = true;
 	_type = CGI;
-	_location = location;
-	_scriptPath = req.path;
-	_uri = req.uri;
+	_scriptPath = _request.path;
+	_uri = _request.uri;
 	_writeOffset = 0;
 	_readBuffer.resize(_serverConfig.getBufferSize());
 
-	if (req.method == "POST")
+	if (_request.method == "POST")
 		_doneWriting = false;
 
 	size_t script_end = _scriptPath.find(".py") + 3; // Needs to be based on config file
@@ -37,7 +40,7 @@ CGISource::~CGISource(){
 	close(_outputPipe[0]);
 }
 
-void CGISource::forkAndExec()  throw(ChildProcessNeededException) {
+void CGISource::forkAndExec() throw(ChildProcessNeededException) {
 	Logger::debug() << "in forkAndExec()" << std::endl;
 	std::vector<std::string>	envp;
 	pid_t						pid;

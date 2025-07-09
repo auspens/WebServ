@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/06 19:16:31 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/09 19:07:07 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <fstream>
 #include <string>
 #include "ChildProcessNeededException.hpp"
+#include "ShutDownRequestException.hpp"
 #include "SourceAndRequestException.hpp"
 #include "Config.hpp"
 #include "Logger.hpp"
@@ -46,6 +47,7 @@ class Source {
 		virtual 					~Source();
 		virtual void 				readSource() = 0;
 		virtual void 				writeSource();
+		virtual void				init() throw(SourceAndRequestException, ChildProcessNeededException, ShutDownRequestException);
 
 		int 						getCode()const;
 		std::string 				getMime()const;
@@ -69,7 +71,6 @@ class Source {
 		static std::map<int, HTTPStatusCode>		_statusCodes;
 
 	protected:
-		int					_code;
 		int					_fd;
 		int					_writeFd;
 		int					_size;
@@ -79,6 +80,7 @@ class Source {
 		std::string			_target;
 		std::string			_mime;
 		HttpRequest			_request;
+		int					_code;
 		bool				_pollableRead;
 		bool				_pollableWrite;
 		bool				_writeWhenComplete;
@@ -95,6 +97,5 @@ class Source {
 		Source &operator=(const Source &other);
 
 	private:
-		bool	_safePath(const std::string &path) const;
-		void	init(int code) throw(SourceAndRequestException);
+		bool			_safePath(const std::string &path) const;
 };
