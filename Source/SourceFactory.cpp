@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   SourceFactory.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 16:03:12 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/09 18:47:35 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/09 20:53:52 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,9 @@
 Source *SourceFactory::getNewSource(
 	const ServerConfig &serverConfig,
 	const Location *location,
-	HttpRequest &req
-) throw(SourceAndRequestException, ChildProcessNeededException) {
+	HttpRequest &req,
+	bool &shutDownFlag
+) throw(SourceAndRequestException, IsChildProcessException) {
 	Logger::debug() << "Location: " << (location? location->getPath():serverConfig.getRootFolder()) << std::endl;
 	Logger::debug() << "request path:" << req.path << std::endl;
 	Logger::debug() << std::boolalpha << "POST allowed: " << (Config::getAcceptMethod(serverConfig, location) & METHOD_POST) << std::endl;
@@ -33,8 +34,10 @@ Source *SourceFactory::getNewSource(
 		return new UploadSource(serverConfig, location, req);
 	else if (_isDeleteRequest(req))
 		return new DeleteSource(serverConfig, *location, req);
-	else if (_isShutDownRequest(location, req))
+	else if (_isShutDownRequest(location, req)) {
+		shutDownFlag = true;
 		return new ShutDownSource(serverConfig, *location, req);
+	}
 	else
 		return new StaticFileSource(serverConfig, location, req);
 }

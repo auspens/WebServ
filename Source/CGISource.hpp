@@ -2,7 +2,7 @@
 
 #include <dirent.h>
 #include <sys/wait.h>
-#include "ChildProcessNeededException.hpp"
+#include "IsChildProcessException.hpp"
 #include "Logger.hpp"
 #include "Source.hpp"
 #include "SystemCallsUtilities.hpp"
@@ -11,8 +11,8 @@
 class CGISource : public Source {
 	public:
 		void readSource();
-		void forkAndExec() throw(ChildProcessNeededException);
-		void init() throw(SourceAndRequestException, ShutDownRequestException, ChildProcessNeededException);
+		void forkAndExec() throw(IsChildProcessException);
+		void init() throw(SourceAndRequestException);
 
 		CGISource(const ServerConfig &serverConfig, const Location *location, HttpRequest &req);
 		//copy construct missing
@@ -29,7 +29,6 @@ class CGISource : public Source {
 		std::string			_scriptPath;
 		std::string			_queryString;
 		std::string			_pathInfo;
-		std::string			_uri;
 		size_t				_writeOffset;
 
 		bool checkIfExists();

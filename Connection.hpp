@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/09 18:12:46 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/09 20:52:30 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 #include "Config.hpp"
 #include "Source/SourceFactory.hpp"
-#include "ChildProcessNeededException.hpp"
+#include "IsChildProcessException.hpp"
 #include "EmptyRequestException.hpp"
 #include "EventInfo.hpp"
 #include "Logger.hpp"
@@ -54,7 +54,7 @@ class Connection{
 		bool				doneWritingSource() const;
 		bool				doneWritingSocket() const;
 
-		void				setupSource(const Config &config) throw(SourceAndRequestException, ChildProcessNeededException, ShutDownRequestException);
+		void				setupSource(bool &shutDownFlag) throw(SourceAndRequestException, IsChildProcessException);
 		void				setupErrorPageSource(const Config &config, int code)throw();
 
 		void				readFromSocket(size_t bufferSize, const Config *config)

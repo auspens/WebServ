@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/09 18:47:55 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/09 20:53:22 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,12 +74,11 @@ std::string Connection::getRequestBody()const{
 	return _request.body;
 }
 
-void Connection::setupSource(const Config &config) throw(SourceAndRequestException, ChildProcessNeededException, ShutDownRequestException) {
+void Connection::setupSource(bool &shutDownFlag) throw(SourceAndRequestException, IsChildProcessException) {
 	if (_source)
 		delete(_source);
 
-	(void)config;
-	_source = SourceFactory::getNewSource(*_serverConfig, _location, _request);
+	_source = SourceFactory::getNewSource(*_serverConfig, _location, _request, shutDownFlag);
 	_source->init();
 }
 

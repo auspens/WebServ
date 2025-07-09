@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/09 19:07:07 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/09 21:04:14 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,7 @@
 #include <exception>
 #include <fstream>
 #include <string>
-#include "ChildProcessNeededException.hpp"
-#include "ShutDownRequestException.hpp"
+#include "IsChildProcessException.hpp"
 #include "SourceAndRequestException.hpp"
 #include "Config.hpp"
 #include "Logger.hpp"
@@ -26,6 +25,7 @@
 #include <sys/stat.h>
 
 enum SourceType {
+	UNKOWN,
 	STATIC,
 	REDIRECT,
 	CGI,
@@ -47,7 +47,7 @@ class Source {
 		virtual 					~Source();
 		virtual void 				readSource() = 0;
 		virtual void 				writeSource();
-		virtual void				init() throw(SourceAndRequestException, ChildProcessNeededException, ShutDownRequestException);
+		virtual void				init() throw(SourceAndRequestException);
 
 		int 						getCode()const;
 		std::string 				getMime()const;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ShutDownSource.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 17:45:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/09 18:45:42 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/09 21:04:14 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 
 #include <cstdio>
 #include "Logger.hpp"
-#include "ShutDownRequestException.hpp"
 #include "Source.hpp"
 
 class ShutDownSource : public Source
@@ -29,7 +28,8 @@ class ShutDownSource : public Source
 
 		void readSource();
 		void setHeader(std::string header);
-		void init() throw(ShutDownRequestException);
+		void init() throw(SourceAndRequestException);
+
 };
 
 

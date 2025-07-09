@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/09 19:12:06 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/09 20:53:03 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ Server::Server() { }
 Server::Server(const Config &config) :
 	_lastCleanup(std::time(0)),
 	_config(&config),
-	_shutdown(false) { }
+	_shutDownFlag(false) { }
 
 Server::~Server() {
 	Logger::debug() << "Cleaning up server" << std::endl;
@@ -29,7 +29,7 @@ Server &Server::operator=(Server const &other) {
 	return *this;
 }
 
-void Server::listen() throw(ChildProcessNeededException) {
+void Server::listen() throw(IsChildProcessException) {
 	int					port;
 	ListeningSocket		*socket;
 	std::vector<int>	portsDone;
@@ -55,14 +55,14 @@ void Server::listen() throw(ChildProcessNeededException) {
 // pointer to an array of epoll events (first element of the vector),
 // MAX_SIZE is set to the total amount of connections + listening sockets
 // TIMEOUT is set to -1, so the wait blocks until one of monitored fds is ready
-void Server::_runEpollLoop() throw(ChildProcessNeededException) {
+void Server::_runEpollLoop() throw(IsChildProcessException) {
 	std::vector<struct epoll_event>	events;
 	size_t							size;
 	int								readyFds;
 	int								timeoutInterval;
 
 	events.resize(100);
-	while (!_shutdown) {
+	while (!_shutDownFlag) {
 		size = _connections.size() + _listeningSockets.size();
 		if (events.capacity() < size)
 			events.resize(size);
@@ -95,7 +95,7 @@ void Server::_iterateNonPollables(std::list<EventInfo *> fds, u_int32_t eventTyp
 	}
 }
 
-void Server::_handleEpollEvent(u_int32_t events, EventInfo *eventInfo) throw(ChildProcessNeededException) {
+void Server::_handleEpollEvent(u_int32_t events, EventInfo *eventInfo) throw(IsChildProcessException) {
 	Logger::detail() << "Epoll event type " << eventInfo->type << ", events: " << WebServUtils::getEpollEventNames(events) << std::endl;
 	if (eventInfo->type == LISTENING_SOCKET)
 		_handleIncomingConnection(eventInfo->listeningSocket);
@@ -107,7 +107,7 @@ void Server::_handleEpollEvent(u_int32_t events, EventInfo *eventInfo) throw(Chi
 		_handleSocketEvent(events, eventInfo);
 }
 
-void Server::_handleSourceEvent(u_int32_t events, EventInfo *eventInfo) throw(ChildProcessNeededException) {
+void Server::_handleSourceEvent(u_int32_t events, EventInfo *eventInfo) throw(IsChildProcessException) {
 	if (events & EPOLLIN || events & EPOLLHUP)
 		_readFromSource(*eventInfo);
 	else if (events & EPOLLOUT)
@@ -142,14 +142,9 @@ void Server::_handleIncomingConnection(ListeningSocket *listeningSocket) {
 	_updateEvents(EPOLL_CTL_ADD, EPOLLIN, inc_conn->getSocketEventInfo(), new_fd);
 }
 
-void Server::_setupSource(Connection *conn) throw(ChildProcessNeededException, SourceAndRequestException) {
+void Server::_setupSource(Connection *conn) throw(IsChildProcessException, SourceAndRequestException) {
 	//Logger::detail() <<"Request body: "<< conn->getRequestBody() << std::endl << std::endl;
-	try {
-		conn->setupSource(*_config);
-	} catch (ShutDownRequestException &e) {
-		_shutdown =true;
-	}
-
+	conn->setupSource(_shutDownFlag);
 	conn->setResponse();
 
 	if (!conn->doneReadingSource()) {
@@ -169,7 +164,7 @@ void Server::_setupSource(Connection *conn) throw(ChildProcessNeededException, S
 	}
 }
 
-void Server::_readFromSocket(EventInfo &eventInfo) throw(ChildProcessNeededException) {
+void Server::_readFromSocket(EventInfo &eventInfo) throw(IsChildProcessException) {
 	Logger::detail() << "Server::_readFromSocket" << std::endl;
 	Connection *conn = eventInfo.conn;
 

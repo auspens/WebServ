@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   UploadSource.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:03:49 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/09 19:07:30 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/09 21:04:14 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ UploadSource::UploadSource(
 	Logger::debug() << "Creating UploadSource" <<std::endl;
 }
 
-void UploadSource::init() throw(SourceAndRequestException, ChildProcessNeededException, ShutDownRequestException) {
+void UploadSource::init() throw(SourceAndRequestException) {
 	std::string header;
 	std::string boundary;
 

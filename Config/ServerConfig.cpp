@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 12:55:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/06/18 15:57:17 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/09 21:27:24 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,12 @@ ServerConfig::ServerConfig(const Config &config, int port, std::string host) : _
 	_serverNames.push_back(host);
 }
 
-ServerConfig::~ServerConfig() { }
+ServerConfig::~ServerConfig() {
+	std::vector<Location*>::iterator it;
+
+	for (it = _locations.begin(); it != _locations.end(); ++it)
+		delete *it;
+}
 
 ServerConfig::ServerConfig(const ServerConfig& src) {
 	// TODO

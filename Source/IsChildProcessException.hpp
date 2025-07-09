@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-class ChildProcessNeededException : std::exception {
+class IsChildProcessException : std::exception {
 	private:
 		std::string					_cmd;
 		std::vector<std::string>	_envp;
@@ -12,13 +12,13 @@ class ChildProcessNeededException : std::exception {
 		int							_outputPipe;
 
 	public:
-		ChildProcessNeededException(
+		IsChildProcessException(
 			std::string cmd,
 			std::vector<std::string> envp,
 			int	inputPipe,
 			int	outputPipe
 		) throw();
-		~ChildProcessNeededException() throw();
+		~IsChildProcessException() throw();
 		const char						*what() const throw();
 		const std::string				cmd() const throw();
 		const std::vector<std::string>	envp() const throw();

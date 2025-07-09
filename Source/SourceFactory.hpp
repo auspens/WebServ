@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   SourceFactory.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 16:00:07 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/09 18:47:42 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/09 20:56:34 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 #include "CGISource.hpp"
-#include "ChildProcessNeededException.hpp"
+#include "IsChildProcessException.hpp"
 #include "Constants.hpp"
 #include "DeleteSource.hpp"
 #include "ErrorPageSource.hpp"
@@ -27,8 +27,9 @@ class SourceFactory {
 		static Source *getNewSource(
 			const ServerConfig &serverConfig,
 			const Location *location,
-			HttpRequest &req
-		) throw(SourceAndRequestException, ChildProcessNeededException);
+			HttpRequest &req,
+			bool &shutDownFlag
+		) throw(SourceAndRequestException, IsChildProcessException);
 		static Source *getNewErrorPageSource(
 			const ServerConfig &serverConfig,
 			const Location *location,

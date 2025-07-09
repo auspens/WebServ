@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/09 19:10:08 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/09 21:04:14 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ Source::Source(
 	_request(req),
 	_code(code) { }
 
-void Source::init() throw(SourceAndRequestException, ChildProcessNeededException, ShutDownRequestException) {
+void Source::init() throw(SourceAndRequestException) {
 	_bytesToSend = 0;
 	_offset = 0;
 	_doneReading = false;
@@ -46,7 +46,7 @@ void Source::init() throw(SourceAndRequestException, ChildProcessNeededException
 	_fd = -1;
 	_writeFd = -1;
 	_size = 0;
-	_type = STATIC;
+	_type = UNKOWN;
 	_mime = "";
 	_pollableRead = false;
 	_pollableWrite = false;

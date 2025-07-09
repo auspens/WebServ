@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/09 19:07:16 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/09 21:08:28 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,9 @@ StaticFileSource::StaticFileSource(const ServerConfig &serverConfig, Location co
 	_location = location;
 }
 
-void StaticFileSource::init() throw(SourceAndRequestException, ChildProcessNeededException, ShutDownRequestException) {
+void StaticFileSource::init() throw(SourceAndRequestException) {
 	Source::init();
+	_type = STATIC;
 	if (_code == -1) {
 		_code = 200;
 		checkIfDirectory();

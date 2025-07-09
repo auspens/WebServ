@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:11:08 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/06 18:33:31 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/09 21:26:06 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,12 @@ Config::Config(std::string &configFile) : _chunkSize(0), _connectionTimeout(0) {
 	_parseConfigFile(configFile);
 }
 
-Config::~Config() {}
+Config::~Config() {
+	std::vector<ServerConfig*>::iterator it;
+
+	for (it = _serverConfigs.begin(); it != _serverConfigs.end(); ++it)
+		delete *it;
+}
 
 Config::Config(const Config &src) {
 	_serverConfigs = src._serverConfigs;

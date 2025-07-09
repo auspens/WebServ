@@ -3,23 +3,8 @@
 CGISource::CGISource(const ServerConfig &serverConfig, Location const *location, HttpRequest &req)
  : Source(serverConfig, location, req) {
 	Logger::debug() << "Creating CGI Source" << std::endl;
-}
 
-void CGISource::init() throw(SourceAndRequestException, ChildProcessNeededException, ShutDownRequestException) {
-	Source::init();
-
-	_pollableRead = true;
-	_pollableWrite = true;
-	_writeWhenComplete = true;
-	_type = CGI;
 	_scriptPath = _request.path;
-	_uri = _request.uri;
-	_writeOffset = 0;
-	_readBuffer.resize(_serverConfig.getBufferSize());
-
-	if (_request.method == "POST")
-		_doneWriting = false;
-
 	size_t script_end = _scriptPath.find(".py") + 3; // Needs to be based on config file
 	if (script_end != std::string::npos) {
 		_pathInfo = _scriptPath.substr(script_end);
@@ -34,13 +19,32 @@ void CGISource::init() throw(SourceAndRequestException, ChildProcessNeededExcept
 		throw SourceAndRequestException("Url not found", 404);
 }
 
-CGISource::~CGISource(){
-	Logger::debug() << "CGISource destructor called" << std::endl;
-	close(_inputPipe[1]);
-	close(_outputPipe[0]);
+void CGISource::init() throw(SourceAndRequestException) {
+	Source::init();
+
+	_pollableRead = true;
+	_pollableWrite = true;
+	_writeWhenComplete = true;
+	_type = CGI;
+	_fd = _outputPipe[0];
+	_writeFd = _inputPipe[1];
+
+	_writeOffset = 0;
+	_readBuffer.resize(_serverConfig.getBufferSize());
+
+	if (_request.method == "POST")
+		_doneWriting = false;
+
+
 }
 
-void CGISource::forkAndExec() throw(ChildProcessNeededException) {
+CGISource::~CGISource(){
+	Logger::debug() << "CGISource destructor called" << std::endl;
+	close(_fd);
+	close(_writeFd);
+}
+
+void CGISource::forkAndExec() throw(IsChildProcessException) {
 	Logger::debug() << "in forkAndExec()" << std::endl;
 	std::vector<std::string>	envp;
 	pid_t						pid;
@@ -57,22 +61,20 @@ void CGISource::forkAndExec() throw(ChildProcessNeededException) {
 		buildEnvironmentVariables(envp);
 		close(_inputPipe[1]);
 		close(_outputPipe[0]);
-		Logger::debug() << "Child: Throwing ChildProcessNeededException" << std::endl;
-		throw ChildProcessNeededException(_scriptPath, envp, _inputPipe[0], _outputPipe[1]);
+		Logger::debug() << "Child: Throwing IsChildProcessException" << std::endl;
+		throw IsChildProcessException(_scriptPath, envp, _inputPipe[0], _outputPipe[1]);
 	} else { // PARENT
 		Logger::debug() << "Closing child pipe ends in parent" << std::endl;
 		close(_inputPipe[0]);
 		close(_outputPipe[1]);
-		_fd = _outputPipe[0];
-		_writeFd = _inputPipe[1];
 	}
 }
 
 void CGISource::buildEnvironmentVariables(std::vector<std::string> &envp) {
-	size_t qmark = _uri.find('?');
+	size_t qmark = _request.uri.find('?');
 
 	if (qmark != std::string::npos) {
-		_queryString = _uri.substr(qmark + 1);
+		_queryString = _request.uri.substr(qmark + 1);
 	} else {
 		_queryString = "";
 	}

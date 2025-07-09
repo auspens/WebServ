@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 10:33:18 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/06 18:35:27 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/09 20:57:13 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ Response::Response (const Source *source)
 			break;
 		case UPLOAD:
 		case DELETE:
+		case UNKOWN:
 			_header = "";
 			break;
 	}

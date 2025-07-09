@@ -22,7 +22,7 @@ SRC =	Config/Config.cpp \
 		Source/ErrorPageSource.cpp \
 		Source/RedirectSource.cpp \
 		Source/CGISource.cpp \
-		Source/ChildProcessNeededException.cpp \
+		Source/IsChildProcessException.cpp \
 		Source/StatusCodesInitialiser.cpp \
 		Source/MimeTypeInitialiser.cpp \
 		Source/SourceAndRequestException.cpp \
@@ -30,7 +30,6 @@ SRC =	Config/Config.cpp \
 		Source/UploadSource.cpp \
 		Source/DeleteSource.cpp \
 		Source/ShutDownSource.cpp \
-		Source/ShutDownRequestException.cpp \
 		Connection.cpp \
 		EmptyRequestException.cpp \
 		ListeningSocket.cpp \
@@ -57,13 +56,12 @@ HDR =	Config/Config.hpp \
 		Source/StaticFileSource.hpp \
 		Source/RedirectSource.hpp \
 		Source/CGISource.hpp \
-		Source/ChildProcessNeededException.hpp \
+		Source/IsChildProcessException.hpp \
 		Source/SourceAndRequestException.hpp \
 		Source/SourceFactory.hpp \
 		Source/UploadSource.hpp \
 		Source/DeleteSource.hpp \
 		Source/ShutDownSource.hpp \
-		Source/ShutDownRequestException.hpp \
 		Connection.hpp \
 		EmptyRequestException.hpp \
 		ListeningSocket.hpp \

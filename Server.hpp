@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/09 18:13:41 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/09 20:53:05 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include <list>
 #include <map>
 #include <vector>
-#include "ChildProcessNeededException.hpp"
+#include "IsChildProcessException.hpp"
 #include "Config.hpp"
 #include "Connection.hpp"
 #include "Constants.hpp"
@@ -32,13 +32,13 @@ class Server {
 		Server(const Config &config);
 		~Server();
 
-		void listen() throw(ChildProcessNeededException);
+		void listen() throw(IsChildProcessException);
 
 	private:
 		int									_epollInstance;
 		time_t								_lastCleanup;
 		const Config						*_config;
-		bool								_shutdown;
+		bool								_shutDownFlag;
 		std::map<int, ListeningSocket *>	_listeningSockets;
 		std::vector<Connection *>			_connections;
 		std::vector<Connection *>			_invalidatedConnections;
@@ -49,13 +49,13 @@ class Server {
 		Server(Server const &src);
 		Server &operator=(Server const &other);
 
-		void			_runEpollLoop() throw(ChildProcessNeededException);
-		void			_handleEpollEvent(u_int32_t event, EventInfo *eventInfo) throw(ChildProcessNeededException);
+		void			_runEpollLoop() throw(IsChildProcessException);
+		void			_handleEpollEvent(u_int32_t event, EventInfo *eventInfo) throw(IsChildProcessException);
 		void			_handleIncomingConnection(ListeningSocket *listeningSocket);
-		void			_handleSourceEvent(u_int32_t events, EventInfo *eventInfo) throw(ChildProcessNeededException);
+		void			_handleSourceEvent(u_int32_t events, EventInfo *eventInfo) throw(IsChildProcessException);
 		void			_handleSocketEvent(u_int32_t events, EventInfo *eventInfo);
-		void			_setupSource(Connection *conn) throw(ChildProcessNeededException, SourceAndRequestException);
-		void			_readFromSocket(EventInfo &eventInfo) throw(ChildProcessNeededException);
+		void			_setupSource(Connection *conn) throw(IsChildProcessException, SourceAndRequestException);
+		void			_readFromSocket(EventInfo &eventInfo) throw(IsChildProcessException);
 		void			_writeToSocket(EventInfo &eventInfo);
 		void			_readFromSource(EventInfo &eventInfo);
 		void			_writeToSource(EventInfo &eventInfo);

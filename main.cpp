@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
 	Server *server = new Server(config);
 	try {
 		server->listen();
-	} catch (ChildProcessNeededException &e) {
+	} catch (IsChildProcessException &e) {
 		Logger::debug() << "Child: Calling run CGI" << std::endl;
 		delete server;
 		runCGI(e.cmd(), e.envp(), e.inputPipe(), e.outputPipe());
