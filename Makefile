@@ -28,7 +28,6 @@ SRC =	Config/Config.cpp \
 		Source/SourceAndRequestException.cpp \
 		Source/SourceFactory.cpp \
 		Source/UploadSource.cpp \
-		Source/DeleteSource.cpp \
 		Connection.cpp \
 		EmptyRequestException.cpp \
 		ListeningSocket.cpp \
@@ -59,7 +58,6 @@ HDR =	Config/Config.hpp \
 		Source/SourceAndRequestException.hpp \
 		Source/SourceFactory.hpp \
 		Source/UploadSource.hpp \
-		Source/DeleteSource.hpp \
 		Connection.hpp \
 		EmptyRequestException.hpp \
 		ListeningSocket.hpp \
