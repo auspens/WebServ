@@ -30,8 +30,10 @@ class CGISource : public Source {
 		std::string			_queryString;
 		std::string			_pathInfo;
 		size_t				_writeOffset;
+		int					_childPid;
 
 		bool checkIfExists();
-		void buildEnvironmentVariables(std::vector<std::string> &envp);
+		void buildArgv(std::vector<std::string> &argv);
+		void buildEnvp(std::vector<std::string> &envp);
 		CGISource();
 };

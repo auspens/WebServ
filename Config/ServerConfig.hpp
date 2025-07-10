@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 17:00:59 by wpepping          #+#    #+#             */
-/*   Updated: 2025/06/17 19:17:44 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/10 14:57:40 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,8 @@ public:
 	int									getPort() const;
 	const std::vector<std::string>		&getServerNames() const;
 	size_t								getBufferSize() const;
-	const std::string 					&getRootFolder() const;
+	const std::string					getPythonExecutable() const;
+	const std::string					&getRootFolder() const;
 	const std::map<int, std::string>	&getErrorPages() const;
 	const std::vector<Location *>		&getLocations() const;
 	size_t								getClientMaxBodySize() const;

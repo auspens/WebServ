@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 12:55:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/09 21:27:24 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/10 14:57:44 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,9 +124,11 @@ const std::vector<std::string> &ServerConfig::getServerNames() const {
 }
 
 size_t ServerConfig::getBufferSize() const {
-	if (_config->getBufferSize())
-		return _config->getBufferSize();
-	return DEFAULT_CHUNK_SIZE;
+	return _config->getBufferSize();
+}
+
+const std::string ServerConfig::getPythonExecutable() const {
+	return _config->getPythonExecutable();
 }
 
 const std::vector<Location *> &ServerConfig::getLocations() const{
