@@ -24,17 +24,20 @@ static void sigchld_handler(int sig) {
 }
 
 void runCGI(
-	const std::string command,
-	std::vector<std::string> envp_str,
+	const std::vector<std::string> argv_str,
+	const std::vector<std::string> envp_str,
 	int inputPipe,
 	int outputPipe
 ) {
 	std::vector<char *> argv;
-	std::vector<char*> envp;
+	std::vector<char *> envp;
 
-	Logger::debug() << "Child: In runCGI, preparing to run: " << command.c_str() << std::endl;
+	Logger::debug() << "Child: In runCGI, preparing to run: " << argv_str[0] << std::endl;
 
-	argv.push_back((char *)command.c_str());
+	for (size_t i = 0; i < argv_str.size(); i++) {
+		std::cout << "argv push back: " << argv_str[i] << std::endl;
+		argv.push_back((char *)argv_str[i].c_str());
+	}
 	argv.push_back(NULL);
 
 	for (size_t i = 0; i < envp_str.size(); i++) {
@@ -42,14 +45,14 @@ void runCGI(
 	}
 	envp.push_back(NULL);
 
-	Logger::debug() << "Child: Running execve in child process: " << command.c_str() << std::endl;
+	Logger::debug() << "Child: Running execve in child process: " << argv[0] << std::endl;
 
 	dup2(outputPipe, STDOUT_FILENO); // Redirect stdout to output pipe
 	close(outputPipe);
 	dup2(inputPipe, STDIN_FILENO);
 	close(inputPipe);
 
-	execve(command.c_str(), argv.data(), envp.data());
+	execve(argv[0], argv.data(), envp.data());
 
 	// If execve fails:
 	Logger::error() << "Child: execve failed: " << strerror(errno) << std::endl;
@@ -89,7 +92,7 @@ int main(int argc, char *argv[]) {
 	} catch (IsChildProcessException &e) {
 		Logger::debug() << "Child: Calling run CGI" << std::endl;
 		delete server;
-		runCGI(e.cmd(), e.envp(), e.inputPipe(), e.outputPipe());
+		runCGI(e.argv(), e.envp(), e.inputPipe(), e.outputPipe());
 	}
 	delete server;
 }

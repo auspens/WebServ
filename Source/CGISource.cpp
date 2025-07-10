@@ -34,8 +34,6 @@ void CGISource::init() throw(SourceAndRequestException) {
 
 	if (_request.method == "POST")
 		_doneWriting = false;
-
-
 }
 
 CGISource::~CGISource(){
@@ -46,6 +44,7 @@ CGISource::~CGISource(){
 
 void CGISource::forkAndExec() throw(IsChildProcessException) {
 	Logger::debug() << "in forkAndExec()" << std::endl;
+	std::vector<std::string>	argv;
 	std::vector<std::string>	envp;
 	pid_t						pid;
 
@@ -58,19 +57,28 @@ void CGISource::forkAndExec() throw(IsChildProcessException) {
 	if (pid < 0) {
 		perror("fork");
 	} else if (pid == 0) { //CHILD
-		buildEnvironmentVariables(envp);
+		buildArgv(argv);
+		buildEnvp(envp);
 		close(_inputPipe[1]);
 		close(_outputPipe[0]);
 		Logger::debug() << "Child: Throwing IsChildProcessException" << std::endl;
-		throw IsChildProcessException(_scriptPath, envp, _inputPipe[0], _outputPipe[1]);
+		throw IsChildProcessException(argv, envp, _inputPipe[0], _outputPipe[1]);
 	} else { // PARENT
 		Logger::debug() << "Closing child pipe ends in parent" << std::endl;
+		_childPid = pid;
 		close(_inputPipe[0]);
 		close(_outputPipe[1]);
 	}
 }
 
-void CGISource::buildEnvironmentVariables(std::vector<std::string> &envp) {
+void CGISource::buildArgv(std::vector<std::string> &argv) {
+	argv.push_back(_serverConfig.getPythonExecutable());
+	argv.push_back(_scriptPath);
+	// argv.push_back("/usr/bin/sleep");
+	// argv.push_back("100");
+}
+
+void CGISource::buildEnvp(std::vector<std::string> &envp) {
 	size_t qmark = _request.uri.find('?');
 
 	if (qmark != std::string::npos) {
@@ -99,9 +107,9 @@ bool CGISource::checkIfExists(){
 	if (!dir)
 		return (0);
 	closedir(dir);
-	if (access(_scriptPath.c_str(), X_OK) == -1)
+	if (access(_scriptPath.c_str(), R_OK) == -1)
 		return (0);
-	Logger::debug() << _scriptPath << " exists and is executable" << std::endl;
+	Logger::debug() << _scriptPath << " exists" << std::endl;
 	return (1);
 }
 

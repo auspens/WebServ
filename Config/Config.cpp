@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:11:08 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/09 21:26:06 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/10 14:58:48 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,12 @@ unsigned int Config::getConnectionTimeout() const {
 	return DEFAULT_CONNECTION_TIMEOUT;
 }
 
+const std::string Config::getPythonExecutable() const {
+	if (!_pythonExecutable.empty())
+		return _pythonExecutable;
+	return DEFAULT_PYTHON_EXECUTABLE;
+}
+
 size_t Config::getClientMaxBodySize(const ServerConfig &serverConfig, const Location *location) {
 	if (location)
 		return location->getClientMaxBodySize();
@@ -170,6 +176,8 @@ void Config::_parseConfigFile(const std::string &configFile) throw(ConfigParseEx
 			_parseChunkSize(file);
 		else if (token == "connection_timeout")
 			_parseConnectionTimeout(file);
+		else if (token == "python_executable")
+			_parsePythonExecutable(file);
 		else
 			throw ConfigParseException("Unexpected keyword: " + token);
 		ParseUtils::skipWhitespace(file);
@@ -232,6 +240,14 @@ void Config::_parseConnectionTimeout(std::ifstream &infile) throw(ConfigParseExc
 
 	timeout = ParseUtils::parseValue(infile);
 	_connectionTimeout = ParseUtils::parseLong(timeout, 1, std::numeric_limits<int>::max());
+
+	ParseUtils::expectChar(infile, ';');
+}
+
+void Config::_parsePythonExecutable(std::ifstream &infile) throw(ConfigParseException) {
+	std::string exec;
+
+	_pythonExecutable = ParseUtils::parseValue(infile);
 
 	ParseUtils::expectChar(infile, ';');
 }

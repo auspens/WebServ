@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 14:52:12 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/09 19:14:49 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/10 14:43:50 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ enum LogLevel {
 #define DEFAULT_CONNECTION_TIMEOUT 60
 #define DEFAULT_ALLOW_DELETE false
 #define DEFAULT_INDEX "index.html"
+#define DEFAULT_PYTHON_EXECUTABLE "/usr/bin/python3"
 
 #define TIMEOUT_CLEANUP_INTERVAL 30
 #define DOCSTRING "<!DOCTYPE html>\n"
