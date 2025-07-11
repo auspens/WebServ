@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/06 16:37:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 14:36:01 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 16:27:40 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@ class RedirectSource : public Source
 		void readSource();
 		void init(const ServerConfig &serverConfig, const Location *location, HttpRequest &req) throw(SourceAndRequestException);
 		void setHeader();
+	private:
+		int _code;
 };
 
 

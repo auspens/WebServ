@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 15:13:09 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 16:19:23 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,6 @@ class Source {
 		std::string			_target;
 		std::string			_mime;
 		HttpRequest			_request;
-		int					_code;
 		bool				_pollableRead;
 		bool				_pollableWrite;
 		bool				_writeWhenComplete;

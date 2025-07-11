@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 16:05:12 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 16:19:38 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,15 +61,13 @@ Source::Source(const Source &src):
 		,_serverConfig(src._serverConfig)
 		,_location(src._location)
 		,_mime(src._mime)
-		,_request(src._request)
-		,_code(src._code) {}
+		,_request(src._request) {}
 
 Source &Source::operator=(const Source &other){
 	if (this != &other){
 		_bytesToSend = other._bytesToSend;
 		_offset = other._offset;
 		_doneReading = other._doneReading;
-		_code = other._code;
 		_fd = other._fd;
 		_size = other._size;
 		_location = other._location;
@@ -79,9 +77,7 @@ Source &Source::operator=(const Source &other){
 	return *this;
 }
 
-int Source::getCode()const{
-	return _code;
-}
+
 std::string Source::getMime()const{
 	return _mime;
 }
