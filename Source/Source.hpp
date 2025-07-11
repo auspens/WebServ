@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 12:03:11 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 13:32:41 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,8 @@ class Source {
 		virtual 					~Source();
 		virtual void 				readSource() = 0;
 		virtual void 				writeSource();
-		virtual void				init() throw(SourceAndRequestException);
+		virtual void				init(const ServerConfig &serverConfig, const Location *location, HttpRequest &req)
+									throw(SourceAndRequestException);
 
 		int 						getCode()const;
 		std::string 				getMime()const;
@@ -91,8 +92,6 @@ class Source {
 
 		Source(const ServerConfig &serverConfig, const Location *location, HttpRequest &req)
 			throw(SourceAndRequestException);
-		Source(const ServerConfig &serverConfig, const Location *location, HttpRequest &req, int code)
-			throw();
 		Source(const Source &src);
 		Source &operator=(const Source &other);
 

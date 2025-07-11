@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/09 20:53:22 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/11 14:01:52 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ void Connection::setupSource(bool &shutDownFlag) throw(SourceAndRequestException
 		delete(_source);
 
 	_source = SourceFactory::getNewSource(*_serverConfig, _location, _request, shutDownFlag);
-	_source->init();
+	_source->init(*_serverConfig, _location, _request);
 }
 
 void Connection::setupErrorPageSource(const Config &config, int code) throw() {
@@ -88,6 +88,7 @@ void Connection::setupErrorPageSource(const Config &config, int code) throw() {
 
 	_serverConfig = _findServerConfig(_serverPort, _request.hostname, config);
 	_source = SourceFactory::getNewErrorPageSource(*_serverConfig, _location, _request, code);
+	_source->init(*_serverConfig, _location, _request);
 }
 
 void Connection::setResponse() {

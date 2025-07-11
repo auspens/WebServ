@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 10:17:24 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 13:55:45 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,15 +19,9 @@ StaticFileSource::StaticFileSource(const ServerConfig &serverConfig, Location co
 	_location = location;
 	_code = -1;
 }
-StaticFileSource::StaticFileSource(const ServerConfig &serverConfig, Location const *location, HttpRequest &req, int code)throw()
-	: Source(serverConfig, location, req, code)
-	, _generated(false){
-	_location = location;
-	_type = STATIC;
-}
 
-void StaticFileSource::init() throw(SourceAndRequestException) {
-	Source::init();
+void StaticFileSource::init(const ServerConfig &serverConfig, const Location *location, HttpRequest &req) throw(SourceAndRequestException) {
+	Source::init(serverConfig, location, req);
 	_type = STATIC;
 	if (_code == -1) {
 		_code = 200;

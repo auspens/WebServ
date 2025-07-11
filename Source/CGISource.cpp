@@ -19,8 +19,12 @@ CGISource::CGISource(const ServerConfig &serverConfig, Location const *location,
 		throw SourceAndRequestException("Url not found", 404);
 }
 
-void CGISource::init() throw(SourceAndRequestException) {
-	Source::init();
+void CGISource::init(
+	const ServerConfig &serverConfig,
+	const Location *location,
+	HttpRequest &req
+) throw(SourceAndRequestException) {
+	Source::init(serverConfig, location, req);
 
 	_pollableRead = true;
 	_pollableWrite = true;

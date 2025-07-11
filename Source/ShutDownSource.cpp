@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ShutDownSource.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 17:46:12 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/09 21:04:58 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/11 13:53:29 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,11 @@ ShutDownSource::ShutDownSource(
 	Logger::debug() << "Creating Shutdown source"<<std::endl;
 }
 
-void ShutDownSource::init() throw(SourceAndRequestException) {
-	Source::init();
+void ShutDownSource::init(
+	const ServerConfig &serverConfig,
+	const Location *location,
+	HttpRequest &req) throw(SourceAndRequestException) {
+	Source::init(serverConfig, location, req);
 
 	_type = DELETE;
 	_doneReading = true;
