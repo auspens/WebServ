@@ -11,7 +11,7 @@ static std::string join(const std::vector<std::string>& vec, const std::string& 
 
 void printFullConfig(const Config& config) {
 	std::cout << "Global Config Settings:\n";
-	std::cout << "  client_max_body_size: " << config.getClientMaxBodySize() << "\n";
+	std::cout << "  client_max_request_size: " << config.getClientMaxBodySize() << "\n";
 
 	const std::map<int, std::string>& globalErrors = config.getErrorPages();
 	for (std::map<int, std::string>::const_iterator it = globalErrors.begin(); it != globalErrors.end(); ++it) {
@@ -35,7 +35,7 @@ void printFullConfig(const Config& config) {
 		std::cout << "  index: " << join(server->getIndexPages()) << "\n";
 		std::cout << "  accept_cgi: " << join(server->getAcceptCgi()) << "\n";
 		std::cout << "  accept_method: " << server->getAcceptMethod() << "\n";
-		std::cout << "  client_max_body_size: " << server->getClientMaxBodySize() << "\n";
+		std::cout << "  client_max_request_size: " << server->getClientMaxBodySize() << "\n";
 		std::cout << "  autoindex: " << (server->getAutoIndex() ? "on" : "off") << "\n";
 
 		const std::map<int, std::string>& serverErrors = server->getErrorPages();
@@ -51,7 +51,7 @@ void printFullConfig(const Config& config) {
 			std::cout << "    index: " << join(loc.getIndexPages()) << "\n";
 			std::cout << "    accept_method: " << loc.getAcceptMethod() << "\n";
 			std::cout << "    accept_cgi: " << join(loc.getAcceptCgi()) << "\n";
-			std::cout << "    client_max_body_size: " << loc.getClientMaxBodySize() << "\n";
+			std::cout << "    client_max_request_size: " << loc.getClientMaxBodySize() << "\n";
 			std::cout << "    autoindex: " << (loc.getAutoIndex() ? "on" : "off") << "\n";
 
 			const std::map<int, std::string>& locErrors = loc.getErrorPages();

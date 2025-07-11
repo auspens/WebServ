@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 17:37:47 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/11 20:06:56 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,15 +75,15 @@ void Server::_runEpollLoop() throw(IsChildProcessException) {
 			_nonPollableWriteFds.empty() ? TIMEOUT_CLEANUP_INTERVAL * 1000 : 0);
 
 		readyFds = epoll_wait(_epollInstance, events.data(), size, timeoutInterval);
-		if (readyFds > 0)
-			Logger::detail() << "Epoll returned " << readyFds << " ready fds" << std::endl;
-		else if (readyFds < 0) {
+		if (readyFds < 0) {
 			if (errno == EINTR)
-				Logger::debug() << "Epoll interrupted by signal, continuing..." << std::endl;
+			Logger::debug() << "Epoll interrupted by signal, continuing..." << std::endl;
 			else
-				Logger::debug() << "Epoll returned error: " << strerror(errno) << std::endl;
+			Logger::debug() << "Epoll returned error: " << strerror(errno) << std::endl;
 			continue;
 		}
+		else
+			Logger::detail() << "Epoll returned " << readyFds << " ready fds" << std::endl;
 
 		for(int i = 0; i < readyFds; ++i){
 			Logger::detail() << "Going through ready list, i = " << i << ", event: " << events[i].events << std::endl;

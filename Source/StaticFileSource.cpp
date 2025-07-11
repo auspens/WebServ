@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 17:06:16 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/11 19:15:30 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ void StaticFileSource::readSource() throw(SourceAndRequestException) {
 
 bool StaticFileSource::indexExists(const std::vector<std::string> &indexes, const std::string &root){
 	for (size_t i = 0; i < indexes.size(); ++i){
-		std::string target = root + std::string("/") + indexes.at(i);
+		std::string target = WebServUtils::pathJoin(root, WebServUtils::pathJoin(_request.path, indexes.at(i)));
 		if (_checkExists(target)) {
 			_target = target;
 			return true;
