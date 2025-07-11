@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/09 21:08:28 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/11 10:17:24 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ StaticFileSource::StaticFileSource(const ServerConfig &serverConfig, Location co
 	: Source(serverConfig, location, req, code)
 	, _generated(false){
 	_location = location;
+	_type = STATIC;
 }
 
 void StaticFileSource::init() throw(SourceAndRequestException) {
