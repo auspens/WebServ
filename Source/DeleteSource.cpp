@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   DeleteSource.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 17:46:12 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/09 21:04:14 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/11 11:59:20 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ void DeleteSource::setHeader(std::string header) {
 		"{\"message\": \"File deleted successfully\"}\n";
 
 	_body.assign(response.begin(), response.end());
+	_bytesToSend = _body.size();
 }
 
 DeleteSource::~DeleteSource() { }

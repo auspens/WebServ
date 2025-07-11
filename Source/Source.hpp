@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 09:58:08 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 12:03:11 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ class Source {
 		bool						isPollableRead();
 		bool						isPollableWrite();
 		bool						isWriteWhenComplete();
-		void						setHeader(std::string header);
+		virtual void						setHeader(std::string header);
 
 		size_t										_bytesToSend;
 		int											_offset;
