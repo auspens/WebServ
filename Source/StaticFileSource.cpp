@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 16:10:41 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 16:29:08 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,22 +17,18 @@ StaticFileSource::StaticFileSource(const ServerConfig &serverConfig, Location co
 	, _generated(false) {
 	Logger::debug() << "Creating Static File Source for " << _target << std::endl;
 	_location = location;
-	_code = -1;
 }
 
 void StaticFileSource::init(const ServerConfig &serverConfig, const Location *location, HttpRequest &req) throw(SourceAndRequestException) {
 	Source::init(serverConfig, location, req);
-	if (_code == -1) {
-		_code = 200;
-		checkIfDirectory();
-		if (!_generated) {
-			_checkAccess(_target);
-			_fd = open(_target.c_str(), O_RDONLY);
-			struct stat st;
-			stat(_target.c_str(), &st);
-			_size = st.st_size;
-			defineMimeType();
-		}
+	checkIfDirectory();
+	if (!_generated) {
+		_checkAccess(_target);
+		_fd = open(_target.c_str(), O_RDONLY);
+		struct stat st;
+		stat(_target.c_str(), &st);
+		_size = st.st_size;
+		defineMimeType();
 	}
 	setHeader();
 }
@@ -180,7 +176,6 @@ void StaticFileSource::generateIndex() throw(SourceAndRequestException) {
 }
 
 void StaticFileSource::generatePage(int code){
-	_code = code;
 	_generated = true;
 	std::string html =
 		DOCSTRING

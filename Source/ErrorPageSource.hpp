@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 15:37:02 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 13:37:47 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 16:23:51 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,5 +26,8 @@ class ErrorPageSource : public StaticFileSource{
 
 		void getErrorPage(int index);
 		void init(const ServerConfig &serverConfig, const Location *location, HttpRequest &req) throw(SourceAndRequestException);
+	private:
+		int _code;
+		void setHeader();
 };
 
