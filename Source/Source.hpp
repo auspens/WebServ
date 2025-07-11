@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/09 21:04:14 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/11 09:58:08 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ class Source {
 		Source(const ServerConfig &serverConfig, const Location *location, HttpRequest &req)
 			throw(SourceAndRequestException);
 		Source(const ServerConfig &serverConfig, const Location *location, HttpRequest &req, int code)
-			throw(SourceAndRequestException);
+			throw();
 		Source(const Source &src);
 		Source &operator=(const Source &other);
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/09 21:04:14 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/11 10:04:48 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@ Source::Source(
 	_location(location),
 	_request(req),
 	_code(200) {
+		if (!Config::acceptsMethod(serverConfig, location, req.method))
+			throw(SourceAndRequestException("Method not allowed", 405));
 		init();
 }
 
@@ -32,7 +34,7 @@ Source::Source(
 	const Location *location,
 	HttpRequest &req,
 	int code
-) throw(SourceAndRequestException) :
+) throw() :
 	_serverConfig(serverConfig),
 	_location(location),
 	_request(req),
