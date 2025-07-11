@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 15:55:07 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 11:12:29 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 13:57:19 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,15 +17,8 @@ ErrorPageSource::ErrorPageSource
 		(const ServerConfig &serverConfig,
 		Location const *location,
 		HttpRequest &req, int code)
-		:	StaticFileSource(serverConfig, location, req, code){ //this constructor is specific for ErrorPage and skips all usual checks for static file to avoid looping in error
+		: StaticFileSource(serverConfig, location, req){
 	_code = code;
-	_body.clear();
-	getErrorPage(code);
-	_size = _body.size();
-	_offset = 0;
-	_bytesToSend = _body.size();
-	_doneReading = true;
-	_doneWriting = true;
 }
 
 void ErrorPageSource::getErrorPage(int code){
@@ -43,6 +36,20 @@ void ErrorPageSource::getErrorPage(int code){
 	}
 	else
 		generatePage(code);
+}
+
+void ErrorPageSource::init(const ServerConfig &serverConfig, const Location *location, HttpRequest &req) throw(SourceAndRequestException){
+	(void)serverConfig;
+	(void)location;
+	(void)req;
+	_body.clear();
+	_mime = "text/html";
+	getErrorPage(_code);
+	_offset = 0;
+	_bytesToSend = _body.size();
+	_doneReading = true;
+	_doneWriting = true;
+	_type = STATIC;
 }
 
 ErrorPageSource::ErrorPageSource(const ErrorPageSource &src):StaticFileSource(src){

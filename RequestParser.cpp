@@ -92,7 +92,7 @@ bool RequestParser::parseBody(const char *data, size_t len) throw(SourceAndReque
     }
     contentLength = atoi(it->second.c_str());
 	if (contentLength > _maxBody)
-		throw SourceAndRequestException("Body too big", 403);
+		throw SourceAndRequestException("Body too big", 413);
     if (_buffer.size() < contentLength) return checkForError(data, len, false);
     _request.body = _buffer.substr(0, contentLength);
     _buffer.erase(0, contentLength);

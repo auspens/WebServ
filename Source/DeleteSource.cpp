@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 17:46:12 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/11 11:59:20 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 13:34:39 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,12 @@ DeleteSource::DeleteSource(
 	Logger::debug() << "Creating Delete source"<<std::endl;
 }
 
-void DeleteSource::init() throw(SourceAndRequestException) {
-	Source::init();
+void DeleteSource::init(
+	const ServerConfig &serverConfig,
+	const Location *location,
+	HttpRequest &req
+) throw(SourceAndRequestException) {
+	Source::init(serverConfig, location, req);
 
 	_type = DELETE;
 	_doneReading = true;

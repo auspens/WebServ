@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 10:04:48 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 13:53:59 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,25 +22,16 @@ Source::Source(
 ) throw(SourceAndRequestException) :
 	_serverConfig(serverConfig),
 	_location(location),
-	_request(req),
-	_code(200) {
-		if (!Config::acceptsMethod(serverConfig, location, req.method))
-			throw(SourceAndRequestException("Method not allowed", 405));
-		init();
+	_request(req){
 }
 
-Source::Source(
+void Source::init(
 	const ServerConfig &serverConfig,
 	const Location *location,
-	HttpRequest &req,
-	int code
-) throw() :
-	_serverConfig(serverConfig),
-	_location(location),
-	_request(req),
-	_code(code) { }
-
-void Source::init() throw(SourceAndRequestException) {
+	HttpRequest &req
+) throw(SourceAndRequestException) {
+	if (!Config::acceptsMethod(serverConfig, location, req.method))
+		throw(SourceAndRequestException("Method not allowed", 405));
 	_bytesToSend = 0;
 	_offset = 0;
 	_doneReading = false;
