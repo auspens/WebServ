@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 15:44:12 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/11 13:56:08 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 14:42:54 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ class UploadSource : public Source {
 
 		void _getUploadFiles(std::string boundary, HttpRequest &req);
 		std::string _getFileName(std::string token);
+		void setHeader();
 		void _createHTTPResponse();
 		std::string _findBoundary(std::string header);
 };

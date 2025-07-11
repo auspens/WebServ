@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 17:45:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/11 13:34:50 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 14:34:52 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ class DeleteSource : public Source
 
 		void init(const ServerConfig &serverConfig, const Location *location, HttpRequest &req) throw(SourceAndRequestException);
 		void readSource();
-		void setHeader(std::string header);
+		void setHeader();
 
 	private:
 		void _deleteFile() throw(SourceAndRequestException);

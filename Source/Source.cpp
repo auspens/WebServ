@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 13:53:59 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 16:05:12 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@ void Source::init(
 	_fd = -1;
 	_writeFd = -1;
 	_size = 0;
-	_type = UNKOWN;
 	_mime = "";
 	_pollableRead = false;
 	_pollableWrite = false;
@@ -59,7 +58,6 @@ Source::Source(const Source &src):
 		,_doneReading(src._doneReading)
 		,_fd(src._fd)
 		,_size(src._size)
-		,_type(src._type)
 		,_serverConfig(src._serverConfig)
 		,_location(src._location)
 		,_mime(src._mime)
@@ -74,7 +72,6 @@ Source &Source::operator=(const Source &other){
 		_code = other._code;
 		_fd = other._fd;
 		_size = other._size;
-		_type = other._type;
 		_location = other._location;
 		_mime = other._mime;
 		_request = other._request;
@@ -103,10 +100,6 @@ int Source::getWriteFd()const{
 
 int Source::getSize()const{
 	return _size;
-}
-
-SourceType Source::getType()const{
-	return _type;
 }
 
 std::string Source::getRedirectLocation()const{
@@ -139,7 +132,11 @@ bool Source::isWriteWhenComplete() {
 	return _writeWhenComplete;
 }
 
-void Source::setHeader(std::string header) {
+void Source::setHeader() { //default are Content-Type and Content-Length headers
+	std::string header;
+	header += "HTTP/1.1 200 OK\r\n";
+	header += "Content-Type: " + _mime + "\r\n";
+	header += "Content-Length: " + WebServUtils::num_to_str(_size) + "\r\n\r\n";
 	Logger::debug()<< "At setHeader" << std::endl;
 	Logger::debug() << "Body: " << std::string(_body.begin(), _body.end())<< " bytesTosend: "<< _bytesToSend<<std::endl;
 	Logger::debug()<< "Header: " << header << "header length: "<< header.length()<<std::endl;

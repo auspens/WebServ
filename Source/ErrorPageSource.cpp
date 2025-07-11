@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 15:55:07 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 13:57:19 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 16:09:34 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ void ErrorPageSource::init(const ServerConfig &serverConfig, const Location *loc
 	_bytesToSend = _body.size();
 	_doneReading = true;
 	_doneWriting = true;
-	_type = STATIC;
+	setHeader();
 }
 
 ErrorPageSource::ErrorPageSource(const ErrorPageSource &src):StaticFileSource(src){
