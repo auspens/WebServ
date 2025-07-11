@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 13:32:41 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 15:13:09 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,14 +24,6 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-enum SourceType {
-	UNKOWN,
-	STATIC,
-	REDIRECT,
-	CGI,
-	UPLOAD,
-	DELETE
-};
 
 struct HTTPStatusCode{
 	std::string code;
@@ -56,13 +48,12 @@ class Source {
 		int 						getFd()const;
 		int 						getWriteFd()const;
 		int							getSize()const;
-		SourceType					getType()const;
 		std::string					getRedirectLocation()const;
 		virtual char				*readFromBuffer();
 		bool						isPollableRead();
 		bool						isPollableWrite();
 		bool						isWriteWhenComplete();
-		virtual void						setHeader(std::string header);
+		virtual void				setHeader();
 
 		size_t										_bytesToSend;
 		int											_offset;
@@ -75,7 +66,6 @@ class Source {
 		int					_fd;
 		int					_writeFd;
 		int					_size;
-		SourceType			_type;
 		const ServerConfig	&_serverConfig;
 		const Location		*_location;
 		std::string			_target;

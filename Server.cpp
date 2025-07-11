@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 13:11:48 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 14:16:41 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,7 +145,6 @@ void Server::_handleIncomingConnection(ListeningSocket *listeningSocket) {
 void Server::_setupSource(Connection *conn) throw(IsChildProcessException, SourceAndRequestException) {
 	//Logger::detail() <<"Request body: "<< conn->getRequestBody() << std::endl << std::endl;
 	conn->setupSource(_shutDownFlag);
-	conn->setResponse();
 
 	if (!conn->doneReadingSource()) {
 		Logger::debug() << "Add source to epoll. fd: " << conn->getSource()->getFd() << std::endl;
@@ -175,7 +174,6 @@ void Server::_readFromSocket(EventInfo &eventInfo) throw(IsChildProcessException
 	} catch (SourceAndRequestException &e) {
 		Logger::warning() << "SourceAndRequestException caught" << std::endl;
 		conn->setupErrorPageSource(*_config, e.errorCode());
-		conn->setResponse();
 		_updateEvents(EPOLL_CTL_MOD, EPOLLOUT, &eventInfo, conn->getSocketFd());
 	} catch (EmptyRequestException &e) {
 		_removeConnection(conn);

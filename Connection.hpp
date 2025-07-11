@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/09 20:52:30 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/11 16:11:59 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@
 #include "EventInfo.hpp"
 #include "Logger.hpp"
 #include "RequestParser.hpp"
-#include "Response.hpp"
 #include "Socket.hpp"
 #include "SystemCallsUtilities.hpp"
 #include <algorithm>
@@ -44,7 +43,6 @@ class Connection{
 		int					isInvalidated() const;
 
 		void				setLastActiveTime(time_t time);
-		void				setResponse();
 		void				setSourceEventInfo(EventInfo *eventInfo);
 		void				setSocketEventInfo(EventInfo *eventInfo);
 		void				invalidate();
@@ -84,7 +82,6 @@ class Connection{
 		Socket				_socket;
 		RequestParser		_parser;
 		HttpRequest			_request;
-		Response			*_response;
 		Source				*_source;
 		const ServerConfig	*_serverConfig;
 		const Location		*_location;

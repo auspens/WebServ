@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 13:55:45 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 16:10:41 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@ StaticFileSource::StaticFileSource(const ServerConfig &serverConfig, Location co
 
 void StaticFileSource::init(const ServerConfig &serverConfig, const Location *location, HttpRequest &req) throw(SourceAndRequestException) {
 	Source::init(serverConfig, location, req);
-	_type = STATIC;
 	if (_code == -1) {
 		_code = 200;
 		checkIfDirectory();
@@ -35,6 +34,7 @@ void StaticFileSource::init(const ServerConfig &serverConfig, const Location *lo
 			defineMimeType();
 		}
 	}
+	setHeader();
 }
 
 StaticFileSource::StaticFileSource(const StaticFileSource &src):

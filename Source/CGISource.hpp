@@ -21,6 +21,7 @@ class CGISource : public Source {
 
 		bool getIfExists() const;
 		void writeSource();
+		void setHeader();
 
 	private:
 		bool				_pathExists;
