@@ -3,14 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 13:11:48 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 17:37:47 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+
+int Server::childProcessMonitorPipe[2];
 
 Server::Server() { }
 
@@ -48,6 +50,9 @@ void Server::listen() throw(IsChildProcessException) {
 		}
 	}
 
+	pipe(childProcessMonitorPipe);
+	_updateEvents(EPOLL_CTL_ADD, EPOLLIN, new EventInfo(CHILD, NULL), childProcessMonitorPipe[0]);
+
 	_runEpollLoop();
 }
 
@@ -68,9 +73,17 @@ void Server::_runEpollLoop() throw(IsChildProcessException) {
 			events.resize(size);
 		timeoutInterval = (_nonPollableReadFds.empty() &&
 			_nonPollableWriteFds.empty() ? TIMEOUT_CLEANUP_INTERVAL * 1000 : 0);
+
 		readyFds = epoll_wait(_epollInstance, events.data(), size, timeoutInterval);
-		Logger::detail() << "Epoll returned " << readyFds << " ready fds" << std::endl;
-		SystemCallsUtilities::check_for_error(readyFds, "Critical error"); // We can't just exit here
+		if (readyFds > 0)
+			Logger::detail() << "Epoll returned " << readyFds << " ready fds" << std::endl;
+		else if (readyFds < 0) {
+			if (errno == EINTR)
+				Logger::debug() << "Epoll interrupted by signal, continuing..." << std::endl;
+			else
+				Logger::debug() << "Epoll returned error: " << strerror(errno) << std::endl;
+			continue;
+		}
 
 		for(int i = 0; i < readyFds; ++i){
 			Logger::detail() << "Going through ready list, i = " << i << ", event: " << events[i].events << std::endl;
@@ -99,6 +112,8 @@ void Server::_handleEpollEvent(u_int32_t events, EventInfo *eventInfo) throw(IsC
 	Logger::detail() << "Epoll event type " << eventInfo->type << ", events: " << WebServUtils::getEpollEventNames(events) << std::endl;
 	if (eventInfo->type == LISTENING_SOCKET)
 		_handleIncomingConnection(eventInfo->listeningSocket);
+	else if (eventInfo->type == CHILD)
+		_handleChildProcessEvent();
 	else if (eventInfo->conn->isInvalidated())
 		return;
 	else if (eventInfo->type == SOURCE)
@@ -140,6 +155,33 @@ void Server::_handleIncomingConnection(ListeningSocket *listeningSocket) {
 
 	_connections.push_back(inc_conn);
 	_updateEvents(EPOLL_CTL_ADD, EPOLLIN, inc_conn->getSocketEventInfo(), new_fd);
+}
+
+void Server::_handleChildProcessEvent() {
+	int		status;
+	pid_t	pid;
+	char	buffer[265];
+	std::map<pid_t, int>::iterator it;
+
+	read(Server::childProcessMonitorPipe[0], buffer, sizeof(buffer)); // Clear pipe
+	pid = waitpid(-1, &status, WNOHANG);
+	while (pid > 0) {
+		it = CGISource::outputPipeWriteEnd.find(pid);
+		if (it != CGISource::outputPipeWriteEnd.end()) {
+			if (WIFEXITED(status)) {
+				Logger::debug() << "Child process pid " << pid
+					<< " exited with status " << WEXITSTATUS(status) << std::endl;
+				CGISource::exitStatus[pid] = WEXITSTATUS(status);
+			}
+			else {
+				Logger::warning() << "Child process interrupted, pid: " << pid << std::endl;
+				CGISource::exitStatus[pid] = -1;
+			}
+			close(it->second);
+			CGISource::outputPipeWriteEnd.erase(it);
+		}
+		pid = waitpid(-1, &status, WNOHANG);
+	}
 }
 
 void Server::_setupSource(Connection *conn) throw(IsChildProcessException, SourceAndRequestException) {
@@ -195,9 +237,19 @@ void Server::_readFromSource(EventInfo &eventInfo) {
 	Logger::detail() << "Server::_readFromSource" << std::endl;
 	Connection *conn = eventInfo.conn;
 
-	if (!conn->getSource())
+	if (!conn->getSource()) // Can this be removed?
 		return;
-	conn->getSource()->readSource();
+	try {
+		conn->getSource()->readSource();
+	} catch (SourceAndRequestException &e) { // May need some work. Clean up epoll?
+		Logger::warning() << "SourceAndRequestException caught" << std::endl;
+		if (conn->getSource()->isWriteWhenComplete()) {
+			conn->setupErrorPageSource(*_config, e.errorCode());
+			conn->setResponse();
+			_updateEvents(EPOLL_CTL_ADD, EPOLLOUT, conn->getSocketEventInfo(), conn->getSocketFd());
+		} else
+			_removeConnection(conn);
+	}
 	if (conn->doneReadingSource()) {
 		_updateEvents(EPOLL_CTL_DEL, EPOLLIN, &eventInfo, conn->getSourceFd());
 		if (conn->getSource()->isWriteWhenComplete() && conn->doneWritingSource()) {
@@ -260,6 +312,7 @@ void Server::_updateNonPollables(int action, u_int32_t events, EventInfo *eventI
 void Server::_updateEvents(int action, u_int32_t events, EventInfo *eventInfo, int fd) {
 	bool pollable = eventInfo->type == LISTENING_SOCKET ||
 		eventInfo->type == SOCKET ||
+		eventInfo->type == CHILD ||
 		(events & EPOLLIN && eventInfo->conn->getSource()->isPollableRead()) ||
 		(events & EPOLLOUT && eventInfo->conn->getSource()->isPollableWrite());
 
@@ -295,6 +348,8 @@ void Server::_cleanup() {
 	for (std::vector<Connection*>::iterator it = _connections.begin(); it != _connections.end(); ++it) {
 		delete (*it);
 	}
+	close(childProcessMonitorPipe[0]);
+	close(childProcessMonitorPipe[1]);
 	close(_epollInstance);
 }
 

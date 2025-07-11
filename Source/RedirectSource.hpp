@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RedirectSource.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/06 16:37:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 13:47:11 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 17:08:18 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ class RedirectSource : public Source
 		RedirectSource(const ServerConfig &serverConfig, const Location &location, HttpRequest &req);
 		~RedirectSource();
 		void readSource();
-		void init(const ServerConfig &serverConfig, const Location *location, HttpRequest &req) throw(SourceAndRequestException);
+		void init() throw(SourceAndRequestException);
 };
 
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ErrorPageSource.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 15:55:07 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 13:57:19 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 17:08:45 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,10 +38,7 @@ void ErrorPageSource::getErrorPage(int code){
 		generatePage(code);
 }
 
-void ErrorPageSource::init(const ServerConfig &serverConfig, const Location *location, HttpRequest &req) throw(SourceAndRequestException){
-	(void)serverConfig;
-	(void)location;
-	(void)req;
+void ErrorPageSource::init() throw(SourceAndRequestException) {
 	_body.clear();
 	_mime = "text/html";
 	getErrorPage(_code);

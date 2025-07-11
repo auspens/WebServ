@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   UploadSource.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:03:49 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/11 13:56:33 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 17:06:47 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,14 +22,11 @@ UploadSource::UploadSource(
 	Logger::debug() << "Creating UploadSource" <<std::endl;
 }
 
-void UploadSource::init(
-	const ServerConfig &serverConfig,
-	Location const *location,
-	HttpRequest &req) throw(SourceAndRequestException) {
+void UploadSource::init() throw(SourceAndRequestException) {
 	std::string header;
 	std::string boundary;
 
-	Source::init(serverConfig, location, req);
+	Source::init();
 
 	if (!opendir(_target.c_str()))
 		throw SourceAndRequestException("Upload folder doesn't exist", 403);

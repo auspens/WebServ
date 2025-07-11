@@ -10,10 +10,8 @@
 
 class CGISource : public Source {
 	public:
-		void readSource();
-		void forkAndExec() throw(IsChildProcessException);
-		void init(const ServerConfig &serverConfig, const Location *location, HttpRequest &req)
-		throw(SourceAndRequestException);
+		void readSource() throw(SourceAndRequestException);
+		void init() throw(SourceAndRequestException);
 
 		CGISource(const ServerConfig &serverConfig, const Location *location, HttpRequest &req);
 		//copy construct missing
@@ -22,10 +20,13 @@ class CGISource : public Source {
 		bool getIfExists() const;
 		void writeSource();
 
+		static std::map<pid_t, int> outputPipeWriteEnd;
+		static std::map<pid_t, int> exitStatus;
+
 	private:
 		bool				_pathExists;
-		std::vector<int>	_outputPipe;
-		std::vector<int>	_inputPipe;
+		int					_outputPipe[2];
+		int					_inputPipe[2];
 		std::vector<char>	_readBuffer;
 		std::string			_scriptPath;
 		std::string			_queryString;
@@ -33,8 +34,10 @@ class CGISource : public Source {
 		size_t				_writeOffset;
 		int					_childPid;
 
-		bool checkIfExists();
-		void buildArgv(std::vector<std::string> &argv);
-		void buildEnvp(std::vector<std::string> &envp);
+		bool _checkIfExists();
+		void _buildArgv(std::vector<std::string> &argv);
+		void _buildEnvp(std::vector<std::string> &envp);
+		void _forkAndExec() throw(IsChildProcessException);
+		bool _childProcessHealthy();
 		CGISource();
 };

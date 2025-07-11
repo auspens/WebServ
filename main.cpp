@@ -8,19 +8,8 @@
 #include <sys/wait.h>
 
 static void sigchld_handler(int sig) {
-	int status;
-	pid_t pid;
-
 	(void)sig;
-	pid = waitpid(-1, &status, WNOHANG);
-	while (pid > 0) {
-		if (WIFEXITED(status))
-			Logger::info() << "Child process pid " << pid
-				<< " exited with status " << WEXITSTATUS(status) << std::endl;
-		else
-			Logger::warning() << "Unexpected signal from child pid " << pid << std::endl;
-		pid = waitpid(-1, &status, WNOHANG);
-	}
+	write(Server::childProcessMonitorPipe[1], "-", 1);
 }
 
 void runCGI(
@@ -34,18 +23,13 @@ void runCGI(
 
 	Logger::debug() << "Child: In runCGI, preparing to run: " << argv_str[0] << std::endl;
 
-	for (size_t i = 0; i < argv_str.size(); i++) {
-		std::cout << "argv push back: " << argv_str[i] << std::endl;
+	for (size_t i = 0; i < argv_str.size(); i++)
 		argv.push_back((char *)argv_str[i].c_str());
-	}
 	argv.push_back(NULL);
 
-	for (size_t i = 0; i < envp_str.size(); i++) {
+	for (size_t i = 0; i < envp_str.size(); i++)
 		envp.push_back((char *)envp_str[i].c_str());
-	}
 	envp.push_back(NULL);
-
-	Logger::debug() << "Child: Running execve in child process: " << argv[0] << std::endl;
 
 	dup2(outputPipe, STDOUT_FILENO); // Redirect stdout to output pipe
 	close(outputPipe);

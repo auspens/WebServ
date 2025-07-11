@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 13:32:41 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 17:05:02 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,7 @@ class Source {
 		virtual 					~Source();
 		virtual void 				readSource() = 0;
 		virtual void 				writeSource();
-		virtual void				init(const ServerConfig &serverConfig, const Location *location, HttpRequest &req)
-									throw(SourceAndRequestException);
+		virtual void				init() throw(SourceAndRequestException);
 
 		int 						getCode()const;
 		std::string 				getMime()const;

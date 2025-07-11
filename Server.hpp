@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/09 20:53:05 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/11 16:15:19 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,12 @@
 #include <list>
 #include <map>
 #include <vector>
-#include "IsChildProcessException.hpp"
 #include "Config.hpp"
 #include "Connection.hpp"
 #include "Constants.hpp"
 #include "EmptyRequestException.hpp"
 #include "EventInfo.hpp"
+#include "IsChildProcessException.hpp"
 #include "ListeningSocket.hpp"
 #include "Logger.hpp"
 
@@ -33,6 +33,8 @@ class Server {
 		~Server();
 
 		void listen() throw(IsChildProcessException);
+
+		static int childProcessMonitorPipe[2];
 
 	private:
 		int									_epollInstance;
@@ -54,6 +56,7 @@ class Server {
 		void			_handleIncomingConnection(ListeningSocket *listeningSocket);
 		void			_handleSourceEvent(u_int32_t events, EventInfo *eventInfo) throw(IsChildProcessException);
 		void			_handleSocketEvent(u_int32_t events, EventInfo *eventInfo);
+		void			_handleChildProcessEvent();
 		void			_setupSource(Connection *conn) throw(IsChildProcessException, SourceAndRequestException);
 		void			_readFromSocket(EventInfo &eventInfo) throw(IsChildProcessException);
 		void			_writeToSocket(EventInfo &eventInfo);

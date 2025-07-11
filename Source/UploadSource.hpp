@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   UploadSource.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 15:44:12 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/11 13:56:08 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 17:06:43 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,9 +30,9 @@ class UploadSource : public Source {
 			HttpRequest &req
 		);
 		~UploadSource();
-		void 	readSource();
-		void 	writeSource();
-		void init(const ServerConfig &serverConfig, const Location *location, HttpRequest &req) throw(SourceAndRequestException);
+		void	readSource();
+		void	writeSource();
+		void	init() throw(SourceAndRequestException);
 
 	private:
 		std::vector <fileToUpload> _uploads;

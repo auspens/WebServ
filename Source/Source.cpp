@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 13:53:59 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 17:04:55 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,12 +25,8 @@ Source::Source(
 	_request(req){
 }
 
-void Source::init(
-	const ServerConfig &serverConfig,
-	const Location *location,
-	HttpRequest &req
-) throw(SourceAndRequestException) {
-	if (!Config::acceptsMethod(serverConfig, location, req.method))
+void Source::init() throw(SourceAndRequestException) {
+	if (!Config::acceptsMethod(_serverConfig, _location, _request.method))
 		throw(SourceAndRequestException("Method not allowed", 405));
 	_bytesToSend = 0;
 	_offset = 0;

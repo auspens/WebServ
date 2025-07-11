@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   DeleteSource.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 17:46:12 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/11 13:34:39 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 17:07:27 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,12 +22,8 @@ DeleteSource::DeleteSource(
 	Logger::debug() << "Creating Delete source"<<std::endl;
 }
 
-void DeleteSource::init(
-	const ServerConfig &serverConfig,
-	const Location *location,
-	HttpRequest &req
-) throw(SourceAndRequestException) {
-	Source::init(serverConfig, location, req);
+void DeleteSource::init() throw(SourceAndRequestException) {
+	Source::init();
 
 	_type = DELETE;
 	_doneReading = true;

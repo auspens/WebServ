@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 14:01:52 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/11 18:37:06 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ void Connection::setupSource(bool &shutDownFlag) throw(SourceAndRequestException
 		delete(_source);
 
 	_source = SourceFactory::getNewSource(*_serverConfig, _location, _request, shutDownFlag);
-	_source->init(*_serverConfig, _location, _request);
+	_source->init();
 }
 
 void Connection::setupErrorPageSource(const Config &config, int code) throw() {
@@ -88,7 +88,7 @@ void Connection::setupErrorPageSource(const Config &config, int code) throw() {
 
 	_serverConfig = _findServerConfig(_serverPort, _request.hostname, config);
 	_source = SourceFactory::getNewErrorPageSource(*_serverConfig, _location, _request, code);
-	_source->init(*_serverConfig, _location, _request);
+	_source->init();
 }
 
 void Connection::setResponse() {
@@ -138,7 +138,7 @@ void Connection::writeToSocket() {
 
 		bytes_sent = send(_socket.getFd(), buf, size, 0);
 		if (bytes_sent == -1)
-			throw (std::runtime_error("Error sending body")); // This should probably be a different type of exception. Also needs to be caught in Server or program will crash
+			throw std::runtime_error(std::string("Error sending body: ") + strerror(errno)); // This should probably be a different type of exception. Also needs to be caught in Server or program will crash
 
 		Logger::debug() << "Sent " << bytes_sent << " bytes:" << std::endl;
 

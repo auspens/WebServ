@@ -1,5 +1,8 @@
 #include "CGISource.hpp"
 
+std::map<pid_t, int> CGISource::outputPipeWriteEnd;
+std::map<pid_t, int> CGISource::exitStatus;
+
 CGISource::CGISource(const ServerConfig &serverConfig, Location const *location, HttpRequest &req)
  : Source(serverConfig, location, req) {
 	Logger::debug() << "Creating CGI Source" << std::endl;
@@ -13,18 +16,14 @@ CGISource::CGISource(const ServerConfig &serverConfig, Location const *location,
 
 	_scriptPath = _serverConfig.getRootFolder() + _scriptPath;
 
-	if (checkIfExists())
-		forkAndExec();
+	if (_checkIfExists())
+		_forkAndExec();
 	else
 		throw SourceAndRequestException("Url not found", 404);
 }
 
-void CGISource::init(
-	const ServerConfig &serverConfig,
-	const Location *location,
-	HttpRequest &req
-) throw(SourceAndRequestException) {
-	Source::init(serverConfig, location, req);
+void CGISource::init() throw(SourceAndRequestException) {
+	Source::init();
 
 	_pollableRead = true;
 	_pollableWrite = true;
@@ -46,23 +45,21 @@ CGISource::~CGISource(){
 	close(_writeFd);
 }
 
-void CGISource::forkAndExec() throw(IsChildProcessException) {
+void CGISource::_forkAndExec() throw(IsChildProcessException) {
 	Logger::debug() << "in forkAndExec()" << std::endl;
 	std::vector<std::string>	argv;
 	std::vector<std::string>	envp;
 	pid_t						pid;
 
-	_inputPipe.resize(2);
-	_outputPipe.resize(2);
-	pipe(_inputPipe.data());
-	pipe(_outputPipe.data());
+	pipe(_inputPipe);
+	pipe(_outputPipe);
 
 	pid = fork();
 	if (pid < 0) {
 		perror("fork");
 	} else if (pid == 0) { //CHILD
-		buildArgv(argv);
-		buildEnvp(envp);
+		_buildArgv(argv);
+		_buildEnvp(envp);
 		close(_inputPipe[1]);
 		close(_outputPipe[0]);
 		Logger::debug() << "Child: Throwing IsChildProcessException" << std::endl;
@@ -70,26 +67,23 @@ void CGISource::forkAndExec() throw(IsChildProcessException) {
 	} else { // PARENT
 		Logger::debug() << "Closing child pipe ends in parent" << std::endl;
 		_childPid = pid;
+		Logger::debug() << "_childPid in parent " << _childPid << std::endl;
 		close(_inputPipe[0]);
-		close(_outputPipe[1]);
+		CGISource::outputPipeWriteEnd[pid] = _outputPipe[1]; // will be closed in signal handler
 	}
 }
 
-void CGISource::buildArgv(std::vector<std::string> &argv) {
+void CGISource::_buildArgv(std::vector<std::string> &argv) {
 	argv.push_back(_serverConfig.getPythonExecutable());
 	argv.push_back(_scriptPath);
 	// argv.push_back("/usr/bin/sleep");
 	// argv.push_back("100");
 }
 
-void CGISource::buildEnvp(std::vector<std::string> &envp) {
+void CGISource::_buildEnvp(std::vector<std::string> &envp) {
 	size_t qmark = _request.uri.find('?');
 
-	if (qmark != std::string::npos) {
-		_queryString = _request.uri.substr(qmark + 1);
-	} else {
-		_queryString = "";
-	}
+	_queryString = (qmark == std::string::npos ? "" : _request.uri.substr(qmark + 1));
 
 	if (_pathInfo.length())
 		envp.push_back(std::string("PATH_INFO=") + _pathInfo);
@@ -106,7 +100,7 @@ bool CGISource::getIfExists() const {
 	return (_pathExists);
 }
 
-bool CGISource::checkIfExists(){
+bool CGISource::_checkIfExists(){
 	DIR *dir = opendir(_serverConfig.getRootFolder().c_str());
 	if (!dir)
 		return (0);
@@ -117,7 +111,9 @@ bool CGISource::checkIfExists(){
 	return (1);
 }
 
-void CGISource::readSource() {
+void CGISource::readSource() throw(SourceAndRequestException) {
+	if (!_childProcessHealthy())
+		throw SourceAndRequestException("Child process returned error", 500);
 	if (!_doneReading) {
 		Logger::debug() << "Bytes to send: " << _bytesToSend << std::endl;
 		size_t bytesRead = read(_outputPipe[0], _readBuffer.data(), _serverConfig.getBufferSize());
@@ -130,8 +126,10 @@ void CGISource::readSource() {
 
 		Logger::debug() << "Read " << bytesRead << " bytes from cgi source: " << std::endl << std::endl;
 		Logger::debug() << "Bytes to send: " << _bytesToSend << std::endl;
-		if (bytesRead > 0) Logger::detail() << "Data read from source: " << std::endl << std::string(_readBuffer.data(), bytesRead) << std::endl;
-		if (bytesRead > 0) Logger::detail() << "Body data (size=" << _body.size() << "): " << std::endl << std::string(_body.data(), _bytesToSend) << std::endl;
+		if (bytesRead > 0) Logger::detail() << "Data read from source: "
+			<< std::endl << std::string(_readBuffer.data(), bytesRead) << std::endl;
+		if (bytesRead > 0) Logger::detail() << "Body data (size=" << _body.size() << "): "
+			<< std::endl << std::string(_body.data(), _bytesToSend) << std::endl;
 		if (_doneReading) Logger::debug() << "Done reading CGI source" << std::endl;
 	}
 }
@@ -147,4 +145,19 @@ void CGISource::writeSource() {
 		_doneWriting = true;
 		close(_writeFd);
 	}
+}
+
+bool CGISource::_childProcessHealthy() {
+	std::map<pid_t, int>::iterator	it;
+	int								status;
+
+	it = CGISource::exitStatus.find(_childPid);
+	if (it == exitStatus.end())
+		return true;
+
+	status = it->second;
+	CGISource::exitStatus.erase(it);
+	if (status == 0)
+		return true;
+	return false;
 }

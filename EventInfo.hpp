@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventInfo.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 18:39:53 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/03 19:00:52 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/11 16:12:41 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,8 @@ class ListeningSocket;
 enum EpollEventType {
 	LISTENING_SOCKET,
 	SOCKET,
-	SOURCE
+	SOURCE,
+	CHILD
 };
 
 struct EventInfo {
@@ -26,6 +27,7 @@ struct EventInfo {
 	union {
 		Connection		*conn;
 		ListeningSocket	*listeningSocket;
+		int				fd;
 	};
 
 	EventInfo(EpollEventType type, void *ptr) : type(type) {
