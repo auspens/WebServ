@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 15:44:12 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/12 18:35:11 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/12 20:59:32 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,8 @@ class UploadSource : public Source {
 		UploadSource(
 			const ServerConfig &serverConfig,
 			Location const *location,
-			HttpRequest &req
+			HttpRequest &req,
+			std::string target
 		);
 		~UploadSource();
 		void	readSource();

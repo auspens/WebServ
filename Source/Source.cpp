@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/12 19:11:36 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/12 21:07:14 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,12 +22,9 @@ Source::Source(
 ) throw(SourceAndRequestException) :
 	_serverConfig(serverConfig),
 	_location(location),
-	_request(req){
-}
+	_request(req) { }
 
 void Source::init() throw(SourceAndRequestException) {
-	if (!Config::acceptsMethod(_serverConfig, _location, _request.method))
-		throw(SourceAndRequestException("Method not allowed", 405));
 	_bytesToSend = 0;
 	_offset = 0;
 	_doneReading = false;
@@ -43,11 +40,6 @@ void Source::init() throw(SourceAndRequestException) {
 	_code = 200;
 
 	_body.reserve(_serverConfig.getBufferSize());
-
-	if (_location)
-		_target = WebServUtils::pathJoin(_location->getRootFolder(), _request.path.substr(_location->getPath().size()));
-	else
-		_target = WebServUtils::pathJoin(_serverConfig.getRootFolder(), _request.path);
 }
 
 Source::Source(const Source &src):

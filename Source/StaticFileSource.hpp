@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:08:43 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/12 18:08:24 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/12 21:21:09 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,16 +26,20 @@ class StaticFileSource : public Source {
 		char *readFromBuffer();
 		void init() throw(SourceAndRequestException);
 
-		StaticFileSource(const ServerConfig &serverConfig, Location const *location, HttpRequest &req);
+		StaticFileSource(
+			const ServerConfig &serverConfig,
+			Location const *location,
+			HttpRequest &req,
+			std::string target
+		);
 		StaticFileSource(const StaticFileSource &src);
 		StaticFileSource &operator=(StaticFileSource const &other);
 		~StaticFileSource();
 
 	protected:
 		bool _generated;
-		void checkIfDirectory() throw(SourceAndRequestException);
+		void checkAutoIndex() throw(SourceAndRequestException);
 		void defineMimeType();
 		void generateIndex() throw(SourceAndRequestException);
-		void generateErrorPage(int code);
 		bool indexExists(const std::vector<std::string> &indexes, const std::string &root);
 };

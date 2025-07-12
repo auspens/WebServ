@@ -3,18 +3,21 @@
 std::map<pid_t, int> CGISource::outputPipeWriteEnd;
 std::map<pid_t, int> CGISource::exitStatus;
 
-CGISource::CGISource(const ServerConfig &serverConfig, Location const *location, HttpRequest &req)
- : Source(serverConfig, location, req) {
+CGISource::CGISource(
+	const ServerConfig &serverConfig,
+	Location const *location,
+	HttpRequest &req,
+	std::string target
+) : Source(serverConfig, location, req) {
 	Logger::debug() << "Creating CGI Source" << std::endl;
 
-	_scriptPath = _request.path;
-	size_t script_end = _scriptPath.find(".py") + 3; // Needs to be based on config file
-	if (script_end != std::string::npos) {
-		_pathInfo = _scriptPath.substr(script_end);
-		_scriptPath = _scriptPath.substr(0, script_end);
-	}
+	_target = target;
 
-	_scriptPath = _serverConfig.getRootFolder() + _scriptPath;
+	size_t script_end = _target.find(".py") + 3; // Needs to be based on config file
+	if (script_end != std::string::npos) {
+		_pathInfo = _target.substr(script_end);
+		_target = _target.substr(0, script_end);
+	}
 
 	if (_checkIfExists())
 		_forkAndExec();
@@ -76,7 +79,7 @@ void CGISource::_forkAndExec() throw(IsChildProcessException) {
 
 void CGISource::_buildArgv(std::vector<std::string> &argv) {
 	argv.push_back(_serverConfig.getPythonExecutable());
-	argv.push_back(_scriptPath);
+	argv.push_back(_target);
 	// argv.push_back("/usr/bin/sleep");
 	// argv.push_back("100");
 }
@@ -90,7 +93,7 @@ void CGISource::_buildEnvp(std::vector<std::string> &envp) {
 		envp.push_back(std::string("PATH_INFO=") + _pathInfo);
 	envp.push_back(std::string("REQUEST_METHOD=") + _request.method);
 	envp.push_back(std::string("QUERY_STRING=") + _queryString);
-	envp.push_back(std::string("SCRIPT_NAME=") + _scriptPath);
+	envp.push_back(std::string("SCRIPT_NAME=") + _target);
 	envp.push_back("SERVER_PROTOCOL=HTTP/1.1");
 
 	envp.push_back(std::string("CONTENT_LENGTH=") + _request.headers["Content-Length"]);
@@ -106,9 +109,9 @@ bool CGISource::_checkIfExists(){
 	if (!dir)
 		return (0);
 	closedir(dir);
-	if (access(_scriptPath.c_str(), R_OK) == -1)
+	if (access(_target.c_str(), R_OK) == -1)
 		return (0);
-	Logger::debug() << _scriptPath << " exists" << std::endl;
+	Logger::debug() << _target << " exists" << std::endl;
 	return (1);
 }
 

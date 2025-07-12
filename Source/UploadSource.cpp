@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:03:49 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/12 18:34:51 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/12 20:59:26 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,11 @@ UploadSource::~UploadSource() { }
 UploadSource::UploadSource(
 	const ServerConfig &serverConfig,
 	Location const *location,
-	HttpRequest &req
+	HttpRequest &req,
+	std::string target
 ) : Source(serverConfig, location, req) {
 	Logger::debug() << "Creating UploadSource" <<std::endl;
+	_target = target;
 }
 
 void UploadSource::init() throw(SourceAndRequestException) {

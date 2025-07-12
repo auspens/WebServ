@@ -6,14 +6,18 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/12 18:24:25 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/12 18:36:40 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/12 19:21:25 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
+#include <cctype>
 #include <cstdlib>
+#include <iostream>
+#include <fstream>
 #include <map>
+#include <sstream>
 #include <string>
 
 #define STATUS_CODES_JSON "StatusCodes.json"

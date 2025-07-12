@@ -11,7 +11,12 @@
 
 class CGISource : public Source {
 	public:
-		CGISource(const ServerConfig &serverConfig, const Location *location, HttpRequest &req);
+		CGISource(
+			const ServerConfig &serverConfig,
+			Location const *location,
+			HttpRequest &req,
+			std::string target
+		);
 		//copy construct missing
 		~CGISource();
 
@@ -29,7 +34,6 @@ class CGISource : public Source {
 		int					_outputPipe[2];
 		int					_inputPipe[2];
 		std::vector<char>	_readBuffer;
-		std::string			_scriptPath;
 		std::string			_queryString;
 		std::string			_pathInfo;
 		size_t				_writeOffset;

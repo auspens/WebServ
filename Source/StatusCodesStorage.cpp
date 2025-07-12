@@ -6,15 +6,11 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/12 18:25:01 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/12 18:25:03 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/12 19:21:04 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "StatusCodesStorage.hpp"
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <cctype>
 
 std::map<int, HTTPStatusCode> StatusCodesStorage::_statusCodes;
 

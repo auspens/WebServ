@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   DeleteSource.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 17:45:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/11 17:07:25 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/12 20:34:01 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,9 @@ class DeleteSource : public Source
 	public:
 		DeleteSource(
 			const ServerConfig &serverConfig,
-			const Location &location,
-			HttpRequest &req
+			Location const &location,
+			HttpRequest &req,
+			std::string target
 		) throw(SourceAndRequestException);
 		~DeleteSource();
 

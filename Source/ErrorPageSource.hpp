@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ErrorPageSource.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 15:37:02 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 17:09:01 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/12 21:24:27 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ class ErrorPageSource : public StaticFileSource{
 		~ErrorPageSource();
 
 		void getErrorPage(int index);
+		void generateErrorPage(int code);
 		void init() throw(SourceAndRequestException);
 };
 
