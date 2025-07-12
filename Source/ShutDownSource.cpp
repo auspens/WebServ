@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 17:46:12 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/12 17:40:56 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/12 21:37:03 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,14 +25,13 @@ ShutDownSource::ShutDownSource(
 void ShutDownSource::init() throw(SourceAndRequestException) {
 	Source::init();
 
-	_type = SHUTDOWN;
 	_doneReading = true;
+	setHeader();
 }
 
-void ShutDownSource::setHeader(std::string header) {
+void ShutDownSource::setHeader() {
 	std::string response;
 
-	(void)header;
 	response =
 		"HTTP/1.1 200 OK\n"
 		"Content-Type: application/json\n"

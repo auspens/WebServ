@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ShutDownSource.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 17:45:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/11 17:09:08 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/12 21:36:50 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,8 @@ class ShutDownSource : public Source
 		~ShutDownSource();
 
 		void readSource();
-		void setHeader(std::string header);
 		void init() throw(SourceAndRequestException);
+		void setHeader();
 };
 
 

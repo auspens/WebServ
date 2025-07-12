@@ -25,6 +25,7 @@ class CGISource : public Source {
 		void init() throw(SourceAndRequestException);
 		bool getIfExists() const;
 		bool checkTimeout(int timeout) const;
+		void setHeader();
 
 		static std::map<pid_t, int> outputPipeWriteEnd;
 		static std::map<pid_t, int> exitStatus;

@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/12 18:44:36 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/12 21:45:21 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@ Connection::Connection() { }
 
 Connection::Connection(int fd, int serverPort) :
 	_socket(fd),
-	_response(NULL),
 	_source(NULL),
 	_serverPort(serverPort),
 	_invalidated(false),
@@ -28,7 +27,6 @@ Connection::Connection(int fd, int serverPort) :
 
 Connection::Connection(int fd, int serverPort, struct addrinfo *addrinfo) :
 	_socket(fd, addrinfo),
-	_response(NULL),
 	_source(NULL),
 	_serverPort(serverPort),
 	_invalidated(false),
@@ -44,7 +42,6 @@ Connection::Connection(const Connection &src) {
 
 Connection::~Connection() {
 	delete _source ;
-	delete _response;
 	delete _sourceEventInfo;
 	delete _socketEventInfo;
 }
@@ -91,13 +88,6 @@ void Connection::setupErrorPageSource(const Config &config, int code) throw() {
 	_source->init();
 }
 
-void Connection::setResponse() {
-	if (_response)
-		delete(_response);
-	_response = new Response(_source);
-	_source->setHeader(_response->getHeader());
-}
-
 void Connection::readFromSocket(size_t bufferSize, const Config *config)
 	throw(SourceAndRequestException, EmptyRequestException) {
 	std::vector<char> buffer;
@@ -135,7 +125,7 @@ void Connection::writeToSocket() {
 		ssize_t 	size = std::min(_source->_bytesToSend, _serverConfig->getBufferSize());
 		ssize_t		bytes_sent;
 
-		Logger::debug() << ">> Sending to socket. Source type: " << _source->getType() << " Bytes to send: " << _source->_bytesToSend << std::endl;
+		Logger::debug() << ">> Sending to socket. Bytes to send: " << _source->_bytesToSend << std::endl;
 		Logger::debug() << "Sending buffer: " << std::endl << std::string(buf).substr(0, _source->_bytesToSend) << std::endl;
 
 		bytes_sent = send(_socket.getFd(), buf, size, 0);

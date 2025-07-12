@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 15:44:12 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/12 20:59:32 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/12 21:47:38 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ class UploadSource : public Source {
 
 		void _getUploadFiles(std::string boundary, HttpRequest &req);
 		std::string _getFileName(std::string token);
+		void setHeader();
 		void _createHTTPResponse();
 		std::string _findBoundary(std::string header);
 };

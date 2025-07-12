@@ -16,7 +16,6 @@ SRC =	Config/Config.cpp \
 		Config/ConfigParseException.cpp \
 		Logger/Logger.cpp \
 		Logger/LogStream.cpp \
-		Response.cpp \
 		Source/Source.cpp \
 		Source/StaticFileSource.cpp \
 		Source/ErrorPageSource.cpp \
@@ -52,7 +51,6 @@ HDR =	Config/Config.hpp \
 		Config/ConfigParseException.hpp \
 		Logger/Logger.hpp \
 		Logger/LogStream.hpp \
-		Response.hpp \
 		Source/Source.hpp \
 		Source/StaticFileSource.hpp \
 		Source/RedirectSource.hpp \
@@ -70,7 +68,6 @@ HDR =	Config/Config.hpp \
 		ListeningSocket.hpp \
 		RequestParser.hpp \
 		HttpRequest.hpp \
-		Response.hpp \
 		Server.hpp \
 		Socket.hpp \
 		SystemCallsUtilities.hpp \

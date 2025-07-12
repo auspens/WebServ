@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 17:45:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/12 20:34:01 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/12 21:47:22 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ class DeleteSource : public Source
 
 		void init() throw(SourceAndRequestException);
 		void readSource();
-		void setHeader(std::string header);
+		void setHeader();
 
 	private:
 		void _deleteFile() throw(SourceAndRequestException);

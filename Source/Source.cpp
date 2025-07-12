@@ -6,12 +6,11 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/12 21:07:14 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/12 21:35:39 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Source.hpp"
-#include "SourceAndRequestException.hpp"
 
 Source::~Source() {}
 
@@ -32,12 +31,10 @@ void Source::init() throw(SourceAndRequestException) {
 	_fd = -1;
 	_writeFd = -1;
 	_size = 0;
-	_type = UNKOWN;
 	_mime = "";
 	_pollableRead = false;
 	_pollableWrite = false;
 	_writeWhenComplete = false;
-	_code = 200;
 
 	_body.reserve(_serverConfig.getBufferSize());
 }
@@ -48,22 +45,18 @@ Source::Source(const Source &src):
 		,_doneReading(src._doneReading)
 		,_fd(src._fd)
 		,_size(src._size)
-		,_type(src._type)
 		,_serverConfig(src._serverConfig)
 		,_location(src._location)
 		,_mime(src._mime)
-		,_request(src._request)
-		,_code(src._code) {}
+		,_request(src._request) {}
 
 Source &Source::operator=(const Source &other){
 	if (this != &other){
 		_bytesToSend = other._bytesToSend;
 		_offset = other._offset;
 		_doneReading = other._doneReading;
-		_code = other._code;
 		_fd = other._fd;
 		_size = other._size;
-		_type = other._type;
 		_location = other._location;
 		_mime = other._mime;
 		_request = other._request;
@@ -71,10 +64,7 @@ Source &Source::operator=(const Source &other){
 	return *this;
 }
 
-int Source::getCode() const{
-	return _code;
-}
-std::string Source::getMime() const{
+std::string Source::getMime()const{
 	return _mime;
 }
 
@@ -92,16 +82,6 @@ int Source::getWriteFd() const{
 
 int Source::getSize() const{
 	return _size;
-}
-
-SourceType Source::getType() const{
-	return _type;
-}
-
-std::string Source::getRedirectLocation() const{
-	if (!_location->isRedirect())
-		return std::string("");
-	return _location->getRedirectPath();
 }
 
 bool Source::_safePath(const std::string &path) const {
@@ -128,7 +108,11 @@ bool Source::isWriteWhenComplete() const {
 	return _writeWhenComplete;
 }
 
-void Source::setHeader(std::string header) {
+void Source::setHeader() { //default are Content-Type and Content-Length headers
+	std::string header;
+	header += "HTTP/1.1 200 OK\r\n";
+	header += "Content-Type: " + _mime + "\r\n";
+	header += "Content-Length: " + WebServUtils::num_to_str(_size) + "\r\n\r\n";
 	Logger::debug()<< "At setHeader" << std::endl;
 	Logger::debug() << "Body: " << std::string(_body.begin(), _body.end())<< " bytesTosend: "<< _bytesToSend<<std::endl;
 	Logger::debug()<< "Header: " << header << "header length: "<< header.length()<<std::endl;

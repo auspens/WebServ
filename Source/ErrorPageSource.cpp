@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 15:55:07 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/12 21:26:33 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/12 21:43:47 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ void ErrorPageSource::init() throw(SourceAndRequestException) {
 	_bytesToSend = _body.size();
 	_doneReading = true;
 	_doneWriting = true;
-	_type = STATIC;
+	setHeader();
 }
 
 ErrorPageSource::ErrorPageSource(const ErrorPageSource &src):StaticFileSource(src){
@@ -83,3 +83,18 @@ ErrorPageSource &ErrorPageSource::operator=(const ErrorPageSource &other){
 }
 
 ErrorPageSource::~ErrorPageSource(){}
+
+void ErrorPageSource::setHeader(){
+	std::string						header;
+	std::map<int, HTTPStatusCode>	statusCodes = StatusCodesStorage::getStatusCodes();
+
+	header += std::string("HTTP/1.1 ") + statusCodes[_code].code + " " + statusCodes[_code].description + "\r\n";
+	header += "Content-Type: " + _mime + "\r\n";
+	header += "Content-Length: " + WebServUtils::num_to_str(_size) + "\r\n\r\n";
+	Logger::debug()<< "At setHeader" << std::endl;
+	Logger::debug() << "Body: " << std::string(_body.begin(), _body.end())<< " bytesTosend: "<< _bytesToSend<<std::endl;
+	Logger::debug()<< "Header: " << header << "header length: "<< header.length()<<std::endl;
+	_body.insert(_body.begin(), header.begin(), header.end());
+	_bytesToSend += header.length();
+	Logger::debug() << "Bytes to send: " << _bytesToSend << std::endl;
+}

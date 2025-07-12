@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/12 18:45:35 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/12 21:46:34 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@
 #include "EventInfo.hpp"
 #include "Logger.hpp"
 #include "RequestParser.hpp"
-#include "Response.hpp"
 #include "Socket.hpp"
 #include "SystemCallsUtilities.hpp"
 #include <algorithm>
@@ -44,9 +43,7 @@ class Connection{
 		bool				isInvalidated() const;
 		bool				checkSocketTimeout(int timeout) const;
 
-		void				setResponse();
 		void				invalidate();
-
 		bool				requestReady() const;
 		bool				doneReadingSource() const;
 		bool				doneWritingSource() const;
@@ -83,7 +80,6 @@ class Connection{
 		Socket				_socket;
 		RequestParser		_parser;
 		HttpRequest			_request;
-		Response			*_response;
 		Source				*_source;
 		const ServerConfig	*_serverConfig;
 		const Location		*_location;

@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 17:46:12 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/12 20:35:52 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/12 21:37:47 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,11 +27,11 @@ DeleteSource::DeleteSource(
 void DeleteSource::init() throw(SourceAndRequestException) {
 	Source::init();
 
-	_type = DELETE;
 	_doneReading = true;
 
 	_checkAccess(_target);
 	_deleteFile();
+	setHeader();
 }
 
 void DeleteSource::_deleteFile() throw(SourceAndRequestException) {
@@ -41,10 +41,9 @@ void DeleteSource::_deleteFile() throw(SourceAndRequestException) {
 		throw SourceAndRequestException("Could not delete file", 500);
 }
 
-void DeleteSource::setHeader(std::string header) {
+void DeleteSource::setHeader() {
 	std::string response;
 
-	(void)header;
 	response =
 		"HTTP/1.1 200 OK\n"
 		"Content-Type: application/json\n"

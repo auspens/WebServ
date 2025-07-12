@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/12 18:45:41 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/12 21:49:02 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,7 +186,6 @@ void Server::_handleChildProcessEvent() {
 void Server::_setupSource(Connection *conn) throw(IsChildProcessException, SourceAndRequestException) {
 	//Logger::detail() <<"Request body: "<< conn->getRequestBody() << std::endl << std::endl;
 	conn->setupSource(_shutDownFlag);
-	conn->setResponse();
 
 	if (!conn->doneReadingSource()) {
 		Logger::debug() << "Add source to epoll. fd: " << conn->getSource()->getFd() << std::endl;
@@ -216,7 +215,6 @@ void Server::_readFromSocket(EventInfo &eventInfo) throw(IsChildProcessException
 	} catch (SourceAndRequestException &e) {
 		Logger::warning() << "SourceAndRequestException caught" << std::endl;
 		conn->setupErrorPageSource(*_config, e.errorCode());
-		conn->setResponse();
 		_updateEvents(EPOLL_CTL_MOD, EPOLLOUT, &eventInfo, conn->getSocketFd());
 	} catch (EmptyRequestException &e) {
 		_removeConnection(conn);
@@ -269,7 +267,6 @@ void Server::_writeToSource(EventInfo &eventInfo) {
 void Server::_handleSourceError(Connection *conn, int errorCode) {
 	if (conn->getSource()->isWriteWhenComplete()) {
 		conn->setupErrorPageSource(*_config, errorCode);
-		conn->setResponse();
 		_updateEvents(EPOLL_CTL_ADD, EPOLLOUT, conn->getSocketEventInfo(), conn->getSocketFd());
 	} else
 		_removeConnection(conn);

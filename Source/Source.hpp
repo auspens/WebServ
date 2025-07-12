@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/12 18:45:08 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/12 21:36:23 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,21 +17,12 @@
 #include <string>
 #include "IsChildProcessException.hpp"
 #include "SourceAndRequestException.hpp"
+#include "StatusCodesStorage.hpp"
 #include "Config.hpp"
 #include "Logger.hpp"
 #include "HttpRequest.hpp"
 #include "ServerConfig.hpp"
 #include <unistd.h>
-
-enum SourceType {
-	UNKOWN,
-	SHUTDOWN,
-	STATIC,
-	REDIRECT,
-	CGI,
-	UPLOAD,
-	DELETE
-};
 
 class Source {
 	public:
@@ -40,20 +31,17 @@ class Source {
 		virtual void 				writeSource();
 		virtual void				init() throw(SourceAndRequestException);
 
-		int 						getCode() const;
 		std::string 				getMime() const;
 		std::vector<char> const &	getBytesRead() const;
 		int 						getFd() const;
 		int 						getWriteFd() const;
 		int							getSize() const;
-		SourceType					getType() const;
-		std::string					getRedirectLocation() const;
 		virtual char				*readFromBuffer();
 		bool						isPollableRead() const;
 		bool						isPollableWrite() const;
 		bool						isWriteWhenComplete() const;
-		virtual void				setHeader(std::string header);
 		virtual bool				checkTimeout(int timeout) const;
+		virtual void				setHeader();
 
 		size_t										_bytesToSend;
 		int											_offset;
@@ -65,13 +53,11 @@ class Source {
 		int					_fd;
 		int					_writeFd;
 		int					_size;
-		SourceType			_type;
 		const ServerConfig	&_serverConfig;
 		const Location		*_location;
 		std::string			_target;
 		std::string			_mime;
 		HttpRequest			_request;
-		int					_code;
 		bool				_pollableRead;
 		bool				_pollableWrite;
 		bool				_writeWhenComplete;

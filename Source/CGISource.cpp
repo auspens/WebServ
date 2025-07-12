@@ -32,7 +32,6 @@ void CGISource::init() throw(SourceAndRequestException) {
 	_pollableRead = true;
 	_pollableWrite = true;
 	_writeWhenComplete = true;
-	_type = CGI;
 	_fd = _outputPipe[0];
 	_writeFd = _inputPipe[1];
 
@@ -41,12 +40,27 @@ void CGISource::init() throw(SourceAndRequestException) {
 
 	if (_request.method == "POST")
 		_doneWriting = false;
+	setHeader();
 }
 
 CGISource::~CGISource(){
 	Logger::debug() << "CGISource destructor called" << std::endl;
 	close(_fd);
 	close(_writeFd);
+}
+
+void CGISource::setHeader(){
+	std::string header;
+	header += "HTTP/1.1 200 OK\r\n";
+	header += "Connection: Keep-Alive\r\n";
+	header += "Keep-Alive: timeout=5, max=997\r\n";
+//no content-length header, as we don't know the length of the content at this stage. Connection is closed after completing the CGI
+	Logger::debug()<< "At setHeader" << std::endl;
+	Logger::debug() << "Body: " << std::string(_body.begin(), _body.end())<< " bytesTosend: "<< _bytesToSend<<std::endl;
+	Logger::debug()<< "Header: " << header << "header length: "<< header.length()<<std::endl;
+	_body.assign(header.begin(), header.end());
+	_bytesToSend += header.length();
+	Logger::debug() << "Bytes to send: " << _bytesToSend << std::endl;
 }
 
 void CGISource::_forkAndExec() throw(IsChildProcessException) {

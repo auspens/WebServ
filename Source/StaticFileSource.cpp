@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/12 21:21:01 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/12 21:59:07 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,14 +20,13 @@ StaticFileSource::StaticFileSource(
 )
 	: Source(serverConfig, location, req)
 	, _generated(false) {
-	Logger::debug() << "Creating Static File Source for " << _target << std::endl;
+	Logger::debug() << "Creating Static File Source for " << target << std::endl;
 	_location = location;
 	_target = target;
 }
 
 void StaticFileSource::init() throw(SourceAndRequestException) {
 	Source::init();
-	_type = STATIC;
 
 	if (WebServUtils::folderExists(_target))
 		checkAutoIndex();
@@ -40,6 +39,7 @@ void StaticFileSource::init() throw(SourceAndRequestException) {
 		_size = st.st_size;
 		defineMimeType();
 	}
+	setHeader();
 }
 
 StaticFileSource::StaticFileSource(const StaticFileSource &src):
@@ -94,10 +94,10 @@ void StaticFileSource::generateIndex() throw(SourceAndRequestException) {
 	std::string	html = PageGenerator::generateIndex(_request.path, _target, acceptsDelete);
 
 	_body.assign(html.begin(), html.end());
-	_generated = true;
 	_bytesToSend = _body.size();
 	_size = _body.size();
 	_mime = _mimeTypes.find(".html")->second;
+	_generated = true;
 	_doneReading = true;
 }
 
