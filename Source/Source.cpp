@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 17:04:55 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/12 19:11:36 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ void Source::init() throw(SourceAndRequestException) {
 	_pollableRead = false;
 	_pollableWrite = false;
 	_writeWhenComplete = false;
+	_code = 200;
 
 	_body.reserve(_serverConfig.getBufferSize());
 
@@ -78,34 +79,34 @@ Source &Source::operator=(const Source &other){
 	return *this;
 }
 
-int Source::getCode()const{
+int Source::getCode() const{
 	return _code;
 }
-std::string Source::getMime()const{
+std::string Source::getMime() const{
 	return _mime;
 }
 
-std::vector<char> const &Source::getBytesRead()const{
+std::vector<char> const &Source::getBytesRead() const{
 	return _body;
 }
 
-int Source::getFd()const{
+int Source::getFd() const{
 	return _fd;
 }
 
-int Source::getWriteFd()const{
+int Source::getWriteFd() const{
 	return _writeFd;
 }
 
-int Source::getSize()const{
+int Source::getSize() const{
 	return _size;
 }
 
-SourceType Source::getType()const{
+SourceType Source::getType() const{
 	return _type;
 }
 
-std::string Source::getRedirectLocation()const{
+std::string Source::getRedirectLocation() const{
 	if (!_location->isRedirect())
 		return std::string("");
 	return _location->getRedirectPath();
@@ -123,15 +124,15 @@ char *Source::readFromBuffer(){
 	return _body.data() + _offset;
 }
 
-bool Source::isPollableRead() {
+bool Source::isPollableRead() const {
 	return _pollableRead;
 }
 
-bool Source::isPollableWrite() {
+bool Source::isPollableWrite() const {
 	return _pollableWrite;
 }
 
-bool Source::isWriteWhenComplete() {
+bool Source::isWriteWhenComplete() const {
 	return _writeWhenComplete;
 }
 
@@ -144,7 +145,12 @@ void Source::setHeader(std::string header) {
 	Logger::debug() << "Bytes to send: " << _bytesToSend << std::endl;
 }
 
-void Source::writeSource(){}
+void Source::writeSource() {}
+
+bool Source::checkTimeout(int timeout) const {
+	(void)timeout;
+	return false;
+}
 
 void Source::_checkAccess(std::string &target) {
 	DIR *dir = opendir(Config::getRootFolder(_serverConfig, _location).c_str());

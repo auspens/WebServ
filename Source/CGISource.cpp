@@ -25,6 +25,7 @@ CGISource::CGISource(const ServerConfig &serverConfig, Location const *location,
 void CGISource::init() throw(SourceAndRequestException) {
 	Source::init();
 
+	_childLastActive = std::time(0);
 	_pollableRead = true;
 	_pollableWrite = true;
 	_writeWhenComplete = true;
@@ -132,6 +133,8 @@ void CGISource::readSource() throw(SourceAndRequestException) {
 			<< std::endl << std::string(_body.data(), _bytesToSend) << std::endl;
 		if (_doneReading) Logger::debug() << "Done reading CGI source" << std::endl;
 	}
+
+	_childLastActive = std::time(0);
 }
 
 void CGISource::writeSource() {
@@ -145,6 +148,8 @@ void CGISource::writeSource() {
 		_doneWriting = true;
 		close(_writeFd);
 	}
+
+	_childLastActive = std::time(0);
 }
 
 bool CGISource::_childProcessHealthy() {
@@ -159,5 +164,12 @@ bool CGISource::_childProcessHealthy() {
 	CGISource::exitStatus.erase(it);
 	if (status == 0)
 		return true;
+	return false;
+}
+
+bool CGISource::checkTimeout(int timeout) const {
+	if ((_doneReading == false || _doneWriting == false)
+		&& std::time(0) - _childLastActive > timeout)
+			return true;
 	return false;
 }

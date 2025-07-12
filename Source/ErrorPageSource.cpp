@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ErrorPageSource.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 15:55:07 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 17:08:45 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/12 17:47:21 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,11 +31,11 @@ void ErrorPageSource::getErrorPage(int code){
 		_body.resize(_size);
 		ssize_t readSize = read(_fd, _body.data(), _size);
 		if (readSize < 0)
-			return generatePage(code);
+			return generateErrorPage(code);
 		defineMimeType();
 	}
 	else
-		generatePage(code);
+		generateErrorPage(code);
 }
 
 void ErrorPageSource::init() throw(SourceAndRequestException) {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ctime>
 #include <dirent.h>
 #include <sys/wait.h>
 #include "IsChildProcessException.hpp"
@@ -10,15 +11,15 @@
 
 class CGISource : public Source {
 	public:
-		void readSource() throw(SourceAndRequestException);
-		void init() throw(SourceAndRequestException);
-
 		CGISource(const ServerConfig &serverConfig, const Location *location, HttpRequest &req);
 		//copy construct missing
 		~CGISource();
 
-		bool getIfExists() const;
+		void readSource() throw(SourceAndRequestException);
 		void writeSource();
+		void init() throw(SourceAndRequestException);
+		bool getIfExists() const;
+		bool checkTimeout(int timeout) const;
 
 		static std::map<pid_t, int> outputPipeWriteEnd;
 		static std::map<pid_t, int> exitStatus;
@@ -33,6 +34,7 @@ class CGISource : public Source {
 		std::string			_pathInfo;
 		size_t				_writeOffset;
 		int					_childPid;
+		int					_childLastActive;
 
 		bool _checkIfExists();
 		void _buildArgv(std::vector<std::string> &argv);

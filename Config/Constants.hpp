@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Constants.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 14:52:12 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/11 19:17:43 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/12 17:20:04 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,15 +33,16 @@ enum LogLevel {
 
 #define DEFAULT_PORT 3490
 #define DEFAULT_AUTO_INDEX false
-#define DEFAULT_CLIENT_MAX_BODY_SIZE 10ULL*1024*1024*1024
+#define DEFAULT_client_max_request_size 10ULL*1024*1024*1024
 #define DEFAULT_ACCEPT_METHOD METHOD_GET
 #define DEFAULT_CHUNK_SIZE 1024
 #define DEFAULT_CONNECTION_TIMEOUT 60
+#define DEFAULT_CGI_TIMEOUT 60
 #define DEFAULT_ALLOW_DELETE false
 #define DEFAULT_INDEX "index.html"
 #define DEFAULT_PYTHON_EXECUTABLE "/usr/bin/python3"
 
-#define TIMEOUT_CLEANUP_INTERVAL 5
+#define TIMEOUT_CLEANUP_INTERVAL 1
 #define DOCSTRING "<!DOCTYPE html>\n"
 #define DEFAULT_PERMISSIONS 0644
 

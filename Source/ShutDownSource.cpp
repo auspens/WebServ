@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ShutDownSource.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 17:46:12 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/11 17:09:05 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/12 17:40:56 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ ShutDownSource::ShutDownSource(
 void ShutDownSource::init() throw(SourceAndRequestException) {
 	Source::init();
 
-	_type = DELETE;
+	_type = SHUTDOWN;
 	_doneReading = true;
 }
 

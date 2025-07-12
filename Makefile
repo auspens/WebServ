@@ -23,7 +23,8 @@ SRC =	Config/Config.cpp \
 		Source/RedirectSource.cpp \
 		Source/CGISource.cpp \
 		Source/IsChildProcessException.cpp \
-		Source/StatusCodesInitialiser.cpp \
+		Source/PageGenerator.cpp \
+		Source/StatusCodesStorage.cpp \
 		Source/MimeTypeInitialiser.cpp \
 		Source/SourceAndRequestException.cpp \
 		Source/SourceFactory.cpp \
@@ -57,6 +58,8 @@ HDR =	Config/Config.hpp \
 		Source/RedirectSource.hpp \
 		Source/CGISource.hpp \
 		Source/IsChildProcessException.hpp \
+		Source/PageGenerator.hpp \
+		Source/StatusCodesStorage.hpp \
 		Source/SourceAndRequestException.hpp \
 		Source/SourceFactory.hpp \
 		Source/UploadSource.hpp \

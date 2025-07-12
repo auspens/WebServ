@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 16:15:19 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/12 17:17:23 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ class Server {
 		void			_writeToSocket(EventInfo &eventInfo);
 		void			_readFromSource(EventInfo &eventInfo);
 		void			_writeToSource(EventInfo &eventInfo);
+		void			_handleSourceError(Connection *conn, int errorCode);
 		void			_iterateNonPollables(std::list<EventInfo *> fds, u_int32_t eventType);
 		void			_updateEvents(int action, u_int32_t events, EventInfo *eventInfo, int fd);
 		void			_updateEpoll(int action, u_int32_t events, EventInfo *eventInfo, int fd);
@@ -70,6 +71,6 @@ class Server {
 		void			_cleanup();
 		void			_removeConnection(Connection *conn);
 		void			_cleanInvalidatedConnections();
-		void			_cleanIdleConnections();
+		void			_checkTimeouts();
 		void			_cleanConnection(Connection *conn);
 };

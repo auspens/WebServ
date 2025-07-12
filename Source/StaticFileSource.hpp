@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:08:43 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 17:06:23 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/12 18:08:24 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,41 +14,11 @@
 
 #include "Config.hpp"
 #include "Logger.hpp"
+#include "PageGenerator.hpp"
 #include "Source.hpp"
 #include "SystemCallsUtilities.hpp"
 #include "WebServUtils.hpp"
 #include "ServerConfig.hpp"
-#include <dirent.h>
-
-#define JAVASCRIPT_DELETE_FUNCTION \
-"<script>\n" \
-"\n" \
-"async function deleteFile(filename) {\n" \
-"	if (confirm('Are you sure you want to delete ' + filename + '?')) {\n" \
-"		try {\n" \
-"			const response = await fetch(filename, {\n" \
-"				method: 'DELETE'\n" \
-"			});\n" \
-"\n" \
-"			if (response.ok) {\n" \
-"				alert('File deleted successfully');\n" \
-"				location.reload();\n" \
-"			} else {\n" \
-"				alert('Failed to delete file: ' + response.status);\n" \
-"			}\n" \
-"		} catch (error) {\n" \
-"			alert('Error: ' + error.message);\n" \
-"		}\n" \
-"	}\n" \
-"}\n" \
-"</script>\n"
-
-struct DirEntry {
-	std::string	name;
-	bool		is_directory;
-
-	DirEntry(const std::string& n, bool is_dir) : name(n), is_directory(is_dir) {}
-};
 
 class StaticFileSource : public Source {
 	public:
@@ -66,7 +36,6 @@ class StaticFileSource : public Source {
 		void checkIfDirectory() throw(SourceAndRequestException);
 		void defineMimeType();
 		void generateIndex() throw(SourceAndRequestException);
-		bool readDirectories(std::vector<DirEntry>&entries);
-		void generatePage(int code);
+		void generateErrorPage(int code);
 		bool indexExists(const std::vector<std::string> &indexes, const std::string &root);
 };

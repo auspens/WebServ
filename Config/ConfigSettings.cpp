@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigSettings.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/11 20:05:23 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/11 20:05:24 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/12 17:20:04 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,13 +43,13 @@ bool ConfigSettings::isConfigSetting(std::string token) const {
 	return token == "accept"
 		|| token == "accept_cgi"
 		|| token == "autoindex"
-		|| token == "client_max_body_size"
+		|| token == "client_max_request_size"
 		|| token == "error_page"
 		|| token == "index";
 }
 
 void ConfigSettings::parseConfigSetting(std::ifstream &infile, std::string token) throw(ConfigParseException) {
-	if (token == "client_max_body_size")
+	if (token == "client_max_request_size")
 		parseClientMaxBodySize(infile);
 	else if (token == "error_page")
 		parseErrorPage(infile);
@@ -98,7 +98,7 @@ void ConfigSettings::parseClientMaxBodySize(std::ifstream &infile) throw(ConfigP
 	char		lastChar;
 
 	if (_clientMaxBodySize)
-		throw  ConfigParseException("client_max_body_size already set");
+		throw  ConfigParseException("client_max_request_size already set");
 
 	_clientMaxBodySize = 1;
 

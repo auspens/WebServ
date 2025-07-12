@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 16:57:51 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/10 14:57:08 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/12 17:25:16 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ class Config {
 		bool								getAutoIndex() const;
 		size_t								getBufferSize() const;
 		unsigned int						getConnectionTimeout() const;
+		unsigned int						getCgiTimeout() const;
 		const std::string					getPythonExecutable() const;
 
 		static size_t							getClientMaxBodySize(const ServerConfig &serverConfig, const Location *location);
@@ -55,12 +56,14 @@ class Config {
 		std::vector<ServerConfig *>	_serverConfigs;
 		size_t						_chunkSize;
 		unsigned int				_connectionTimeout;
+		unsigned int				_cgiTimeout;
 		std::string					_pythonExecutable;
 
 		void 			_parseConfigFile(const std::string &configFile) throw(ConfigParseException);
 		ServerConfig	*_parseServerConfig(std::ifstream &infile) throw(ConfigParseException);
 		void			_parseChunkSize(std::ifstream &infile) throw(ConfigParseException);
 		void			_parseConnectionTimeout(std::ifstream &infile) throw(ConfigParseException);
+		void			_parseCgiTimeout(std::ifstream &infile) throw(ConfigParseException);
 		void			_parsePythonExecutable(std::ifstream &infile) throw(ConfigParseException);
 
 		void			_validateConfig() const throw(ConfigParseException);

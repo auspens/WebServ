@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   UploadSource.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:03:49 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/11 17:06:47 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/12 18:34:51 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,7 +160,8 @@ void 	UploadSource::writeSource(){
 }
 
 void UploadSource::_createHTTPResponse(){
-	std::string header = std::string(PROTOCOL) + " " + WebServUtils::num_to_str(_code) + " " + _statusCodes.find(_code)->second.message + "\r\n";
+	std::string header = std::string(PROTOCOL) + " " + WebServUtils::num_to_str(_code) + " "
+		+ StatusCodesStorage::getStatusCodes().find(_code)->second.message + "\r\n";
 	std::string response_body =  "<html><body> File uploaded successfully!</body></html>";
 
 	header += "Content-Length: " + WebServUtils::num_to_str(response_body.size()) + "\r\n";

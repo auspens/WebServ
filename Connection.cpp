@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 18:37:06 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/12 18:44:36 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ HttpRequest Connection::getRequest() const {
 	return _request;
 }
 
-std::string Connection::getRequestBody()const{
+std::string Connection::getRequestBody() const{
 	return _request.body;
 }
 
@@ -124,6 +124,8 @@ void Connection::readFromSocket(size_t bufferSize, const Config *config)
 			Logger::debug() << it->first << " : " << it->second << std::endl;
 		Logger::debug() << std::endl;
 	}
+
+	_setLastSocketActiveTime(std::time(0));
 }
 
 void Connection::writeToSocket() {
@@ -145,6 +147,8 @@ void Connection::writeToSocket() {
 		_source->_bytesToSend -= bytes_sent; // Use setter
 		_source->_offset += bytes_sent; // Use setter
 	}
+
+	_setLastSocketActiveTime(std::time(0));
 }
 
 bool Connection::doneReadingSource() const {
@@ -233,8 +237,12 @@ void Connection::invalidate() {
 	_invalidated = true;
 }
 
-int Connection::isInvalidated() const {
+bool Connection::isInvalidated() const {
 	return _invalidated;
+}
+
+bool Connection::checkSocketTimeout(int timeout) const {
+	return std::time(0) - getLastActiveTime() > timeout;
 }
 
 time_t Connection::getLastActiveTime() const {
@@ -250,6 +258,6 @@ EventInfo *Connection::getSocketEventInfo() const {
 	return _socketEventInfo;
 }
 
-void Connection::setLastActiveTime(time_t time) {
+void Connection::_setLastSocketActiveTime(time_t time) {
 	_lastActiveTime = time;
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 12:55:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/10 14:57:44 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/12 18:45:46 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,7 +144,7 @@ size_t ServerConfig::getClientMaxBodySize() const {
 		return _configSettings.getClientMaxBodySize();
 	if (_config)
 		return _config->getClientMaxBodySize();
-	return DEFAULT_CLIENT_MAX_BODY_SIZE;
+	return DEFAULT_client_max_request_size;
 }
 
 const std::map<int, std::string> &ServerConfig::getErrorPages() const {

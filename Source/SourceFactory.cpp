@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   SourceFactory.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 16:03:12 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 10:04:02 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/12 18:54:35 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,8 @@ Source *SourceFactory::getNewSource(
 ) throw(SourceAndRequestException, IsChildProcessException) {
 	Logger::debug() << "Location: " << (location? location->getPath():serverConfig.getRootFolder()) << std::endl;
 	Logger::debug() << "request path:" << req.path << std::endl;
-	Logger::debug() << std::boolalpha << "POST allowed: " << (Config::getAcceptMethod(serverConfig, location) & METHOD_POST) << std::endl;
+	Logger::debug() << "method: " << req.method << std::endl;
+	Logger::debug() << std::boolalpha << "method allowed: " << Config::acceptsMethod(serverConfig, location, req.method) << std::endl;
 	Logger::debug() << std::boolalpha << "Upload pass: " << (location? location->isUploadPass() : false) << std::endl;
 
 

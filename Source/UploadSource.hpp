@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   UploadSource.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 15:44:12 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/11 17:06:43 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/12 18:35:11 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include "Source.hpp"
+#include "StatusCodesStorage.hpp"
 
 struct fileToUpload{
 	std::string body;

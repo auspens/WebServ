@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 12:40:08 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/09 18:18:47 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/12 17:20:04 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,7 @@ size_t Location::getClientMaxBodySize() const {
 		return _configSettings.getClientMaxBodySize();
 	if (_serverConfig)
 		return _serverConfig->getClientMaxBodySize();
-	return DEFAULT_CLIENT_MAX_BODY_SIZE;
+	return DEFAULT_client_max_request_size;
 }
 
 const std::map<int, std::string>& Location::getErrorPages() const {

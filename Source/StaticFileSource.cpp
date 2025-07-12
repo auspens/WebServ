@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 19:15:30 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/12 19:13:00 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,23 +17,19 @@ StaticFileSource::StaticFileSource(const ServerConfig &serverConfig, Location co
 	, _generated(false) {
 	Logger::debug() << "Creating Static File Source for " << _target << std::endl;
 	_location = location;
-	_code = -1;
 }
 
 void StaticFileSource::init() throw(SourceAndRequestException) {
 	Source::init();
 	_type = STATIC;
-	if (_code == -1) {
-		_code = 200;
-		checkIfDirectory();
-		if (!_generated) {
-			_checkAccess(_target);
-			_fd = open(_target.c_str(), O_RDONLY);
-			struct stat st;
-			stat(_target.c_str(), &st);
-			_size = st.st_size;
-			defineMimeType();
-		}
+	checkIfDirectory();
+	if (!_generated) {
+		_checkAccess(_target);
+		_fd = open(_target.c_str(), O_RDONLY);
+		struct stat st;
+		stat(_target.c_str(), &st);
+		_size = st.st_size;
+		defineMimeType();
 	}
 }
 
@@ -79,22 +75,14 @@ void StaticFileSource::checkIfDirectory() throw(SourceAndRequestException) {
 	if (!dir)
 		return;
 	closedir(dir);
-	if (!_location){
-		if (indexExists(_serverConfig.getIndexPages(), Config::getRootFolder(_serverConfig, _location)))
-			return;
-		if (_serverConfig.getAutoIndex()){
-			generateIndex();
-			return;
-		}
+
+	if (indexExists(Config::getIndexPages(_serverConfig, _location), Config::getRootFolder(_serverConfig, _location)))
+		return;
+	if (Config::getAutoIndex(_serverConfig, _location)){
+		generateIndex();
+		return;
 	}
-	else{
-		if(indexExists(_location->getIndexPages(),_location->getPath()))
-				return;
-		if (_location->getAutoIndex()){
-			generateIndex();
-			return;
-		}
-	}
+
 	throw SourceAndRequestException("No index page for this directory and autoindex is off", 404);
 }
 
@@ -112,64 +100,16 @@ void StaticFileSource::defineMimeType(){
 		_mime = "application/octet-stream";
 }
 
-bool StaticFileSource::readDirectories(std::vector<DirEntry> &entries){
-	Logger::debug() << "Target: " << _target << std::endl;
-	DIR *dir = opendir(_target.c_str());
-	if (!dir)
-		return false;
-	struct dirent *entry;
-	while ((entry = readdir(dir)) != NULL){
-		std::string name = entry->d_name;
-		if (name == "." || name == "..")
-			continue;
-
-		std::string full_path = _target + "/" + name;
-		struct stat s;
-		if (stat(full_path.c_str(), &s) == 0){
-			bool is_dir = S_ISDIR(s.st_mode);
-			entries.push_back(DirEntry(name, is_dir));
-		}
-	}
-	closedir(dir);
-	return true;
-}
-
 void StaticFileSource::generateIndex() throw(SourceAndRequestException) {
-	std::vector<DirEntry> entries;
-	if (!readDirectories(entries))
-		throw SourceAndRequestException("Could not generate index", 500);
+	std::string	relativeTarget = _request.path;
+	std::string	folder;
+	bool		acceptsDelete = Config::acceptsMethod(_serverConfig, _location, METHOD_DELETE);
 
-	std::string relativeTarget = _request.path;
-	std::string prefix = Config::getRootFolder(_serverConfig, _location);
+	if (_location)
+		relativeTarget.erase(0, _location->getPath().length());
+	folder = WebServUtils::pathJoin(Config::getRootFolder(_serverConfig, _location), relativeTarget);
 
-	if (relativeTarget.rfind(prefix, 0) == 0)
-		relativeTarget.erase(0, prefix.length());
-
-	std::string html =
-		DOCSTRING
-		"<html><head><title>Index of " + relativeTarget + "</title></head>\n"
-		"<body><h1> Index of " + relativeTarget + "</h1>"
-		"<hr><table>\n";
-
-	for (size_t i = 0; i < entries.size(); ++i){
-		std::string name = entries[i].name;
-		std::string href = relativeTarget + "/" + name;
-		if (entries[i].is_directory){
-			href += "/";
-			name += "/";
-		}
-		html += "<tr><td style=\"padding-left: 20px;\"><a href=\"" + href + "\">" + name + "</a></td>\n";
-
-		if (_location && Config::acceptsMethod(_serverConfig, _location, METHOD_DELETE))
-			html += "<td style=\"padding-left: 50px;\"><a href=\"#\" onclick=\"deleteFile('" + href + "'); return false;\">delete</a></td></tr>\n";
-	}
-
-	html += "</table><hr>";
-
-	if (_location && Config::acceptsMethod(_serverConfig, _location, METHOD_DELETE))
-		html += JAVASCRIPT_DELETE_FUNCTION;
-
-	html +=	"</body></html>\n";
+	std::string html = PageGenerator::generateIndex(_request.path, folder, acceptsDelete);
 
 	_body.assign(html.begin(), html.end());
 	_generated = true;
@@ -179,15 +119,10 @@ void StaticFileSource::generateIndex() throw(SourceAndRequestException) {
 	_doneReading = true;
 }
 
-void StaticFileSource::generatePage(int code){
+void StaticFileSource::generateErrorPage(int code){
 	_code = code;
 	_generated = true;
-	std::string html =
-		DOCSTRING
-		"<html><head><title> " + _statusCodes.at(code).message + "</title></head>"
-		"<body><h1>" + _statusCodes.at(code).code + " " + _statusCodes.at(code).message + "</h1>"
-		"<div>" + _statusCodes.at(code).description + "</div>"
-		"</body></html>";
+	std::string html = PageGenerator::generateErrorPage(code);
 	_body.assign(html.begin(), html.end());
 	_generated = true;
 	_bytesToSend = _body.size();
@@ -197,6 +132,5 @@ void StaticFileSource::generatePage(int code){
 }
 
 char *StaticFileSource::readFromBuffer(){
-	// readSource();
 	return Source::readFromBuffer();
 }

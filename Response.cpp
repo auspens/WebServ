@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 10:33:18 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/09 20:57:13 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/12 18:32:29 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,13 @@
 
 Response::Response()
 	: _header("")
-	, _chunked(false){}
+	, _chunked(false) {}
+
 Response::Response (const Source *source)
 	: _header("")
-	, _chunked(false){
-	_header += std::string(PROTOCOL) + " " + num_to_str(source->getCode()) + " " + Source::_statusCodes.find(source->getCode())->second.message + "\r\n";
+	, _chunked(false) {
+	_header += std::string(PROTOCOL) + " " + num_to_str(source->getCode()) + " "
+		+ StatusCodesStorage::getStatusCodes().find(source->getCode())->second.message + "\r\n";
 	switch(source->getType())
 	{
 		case STATIC:
@@ -37,6 +39,7 @@ Response::Response (const Source *source)
 			break;
 		case UPLOAD:
 		case DELETE:
+		case SHUTDOWN:
 		case UNKOWN:
 			_header = "";
 			break;
@@ -50,7 +53,7 @@ Response &Response::operator=(const Response &other){
 		_header = other._header;
 	return *this;
 }
-const char *Response::getHeader()const{
+const char *Response::getHeader() const{
 	return (_header.c_str());
 }
 
@@ -59,7 +62,7 @@ std::string Response::num_to_str(size_t num) {
 	convert << num;
 	return convert.str();
 }
-bool Response::isChunked()const{
+bool Response::isChunked() const{
 	return _chunked;
 }
 

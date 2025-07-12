@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:11:08 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/10 14:58:48 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/12 17:24:50 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,13 @@
 #include <fstream>
 #include <iostream>
 
-Config::Config() : _chunkSize(0), _connectionTimeout(0) {}
+Config::Config() : _chunkSize(0), _connectionTimeout(0), _cgiTimeout(0) {}
 
-Config::Config(std::string &configFile) : _chunkSize(0), _connectionTimeout(0) {
-	_parseConfigFile(configFile);
+Config::Config(std::string &configFile) :
+	_chunkSize(0),
+	_connectionTimeout(0),
+	_cgiTimeout(0) {
+		_parseConfigFile(configFile);
 }
 
 Config::~Config() {
@@ -52,7 +55,7 @@ const std::vector<ServerConfig *> &Config::getServerConfigs() const {
 size_t Config::getClientMaxBodySize() const {
 	if (_configSettings.getClientMaxBodySize())
 		return _configSettings.getClientMaxBodySize();
-	return DEFAULT_CLIENT_MAX_BODY_SIZE;
+	return DEFAULT_client_max_request_size;
 }
 
 const std::map<int, std::string>& Config::getErrorPages() const {
@@ -89,6 +92,12 @@ unsigned int Config::getConnectionTimeout() const {
 	if (_connectionTimeout)
 		return _connectionTimeout;
 	return DEFAULT_CONNECTION_TIMEOUT;
+}
+
+unsigned int Config::getCgiTimeout() const {
+	if (_cgiTimeout)
+		return _cgiTimeout;
+	return DEFAULT_CGI_TIMEOUT;
 }
 
 const std::string Config::getPythonExecutable() const {
@@ -176,6 +185,8 @@ void Config::_parseConfigFile(const std::string &configFile) throw(ConfigParseEx
 			_parseChunkSize(file);
 		else if (token == "connection_timeout")
 			_parseConnectionTimeout(file);
+			else if (token == "cgi_timeout")
+				_parseCgiTimeout(file);
 		else if (token == "python_executable")
 			_parsePythonExecutable(file);
 		else
@@ -240,6 +251,15 @@ void Config::_parseConnectionTimeout(std::ifstream &infile) throw(ConfigParseExc
 
 	timeout = ParseUtils::parseValue(infile);
 	_connectionTimeout = ParseUtils::parseLong(timeout, 1, std::numeric_limits<int>::max());
+
+	ParseUtils::expectChar(infile, ';');
+}
+
+void Config::_parseCgiTimeout(std::ifstream &infile) throw(ConfigParseException) {
+	std::string timeout;
+
+	timeout = ParseUtils::parseValue(infile);
+	_cgiTimeout = ParseUtils::parseLong(timeout, 1, std::numeric_limits<int>::max());
 
 	ParseUtils::expectChar(infile, ';');
 }

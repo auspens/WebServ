@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/11 20:06:56 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/12 18:45:41 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ void Server::_runEpollLoop() throw(IsChildProcessException) {
 		if (_invalidatedConnections.size() > 0)
 			_cleanInvalidatedConnections();
 		if (std::time(0) - _lastCleanup > TIMEOUT_CLEANUP_INTERVAL)
-			_cleanIdleConnections();
+			_checkTimeouts();
 	}
 }
 
@@ -137,7 +137,6 @@ void Server::_handleSocketEvent(u_int32_t events, EventInfo *eventInfo) {
 		_writeToSocket(*eventInfo);
 	else if (events & EPOLLERR)
 		_removeConnection(eventInfo->conn);
-	eventInfo->conn->setLastActiveTime(std::time(0));
 }
 
 void Server::_handleIncomingConnection(ListeningSocket *listeningSocket) {
@@ -243,12 +242,7 @@ void Server::_readFromSource(EventInfo &eventInfo) {
 		conn->getSource()->readSource();
 	} catch (SourceAndRequestException &e) { // May need some work. Clean up epoll?
 		Logger::warning() << "SourceAndRequestException caught" << std::endl;
-		if (conn->getSource()->isWriteWhenComplete()) {
-			conn->setupErrorPageSource(*_config, e.errorCode());
-			conn->setResponse();
-			_updateEvents(EPOLL_CTL_ADD, EPOLLOUT, conn->getSocketEventInfo(), conn->getSocketFd());
-		} else
-			_removeConnection(conn);
+		_handleSourceError(conn, e.errorCode());
 	}
 	if (conn->doneReadingSource()) {
 		_updateEvents(EPOLL_CTL_DEL, EPOLLIN, &eventInfo, conn->getSourceFd());
@@ -270,6 +264,15 @@ void Server::_writeToSource(EventInfo &eventInfo) {
 			_updateEvents(EPOLL_CTL_ADD, EPOLLOUT, conn->getSocketEventInfo(), conn->getSocketFd());
 		}
 	}
+}
+
+void Server::_handleSourceError(Connection *conn, int errorCode) {
+	if (conn->getSource()->isWriteWhenComplete()) {
+		conn->setupErrorPageSource(*_config, errorCode);
+		conn->setResponse();
+		_updateEvents(EPOLL_CTL_ADD, EPOLLOUT, conn->getSocketEventInfo(), conn->getSocketFd());
+	} else
+		_removeConnection(conn);
 }
 
 void Server::_updateEpoll(int action, u_int32_t events, EventInfo *eventInfo, int fd) {
@@ -369,15 +372,17 @@ void Server::_cleanInvalidatedConnections() {
 	_invalidatedConnections.clear();
 }
 
-void Server::_cleanIdleConnections() {
-	time_t		currentTime = std::time(0);
+void Server::_checkTimeouts() {
 	Connection	*conn;
 
 	for (size_t i = 0; i < _connections.size(); i++) {
 		conn = _connections[i];
-		if (currentTime - conn->getLastActiveTime() > _config->getConnectionTimeout()) {
+		if (conn->checkSocketTimeout(_config->getConnectionTimeout())) {
 			Logger::info() << "Timeout on connection with socket fd " << conn->getSocketFd() << std::endl;
 			_cleanConnection(conn);
+		} else if (conn->getSource() && conn->getSource()->checkTimeout(_config->getCgiTimeout())) {
+			Logger::info() << "Timeout on source with fd " << conn->getSourceFd() << std::endl;
+			_handleSourceError(conn, 502);
 		}
 	}
 	_lastCleanup = std::time(0);

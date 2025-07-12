@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/09 20:52:30 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/12 18:45:35 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,20 +37,18 @@ class Connection{
 		HttpRequest			getRequest() const;
 		Source				*getSource() const;
 		const std::string	&getTarget() const;
-		std::string			getRequestBody()const;
+		std::string			getRequestBody() const;
 		time_t				getLastActiveTime() const;
 		EventInfo			*getSourceEventInfo() const;
 		EventInfo			*getSocketEventInfo() const;
-		int					isInvalidated() const;
+		bool				isInvalidated() const;
+		bool				checkSocketTimeout(int timeout) const;
 
-		void				setLastActiveTime(time_t time);
 		void				setResponse();
-		void				setSourceEventInfo(EventInfo *eventInfo);
-		void				setSocketEventInfo(EventInfo *eventInfo);
 		void				invalidate();
 
 		bool				requestReady() const;
-		bool				doneReadingSource()const;
+		bool				doneReadingSource() const;
 		bool				doneWritingSource() const;
 		bool				doneWritingSocket() const;
 
@@ -80,6 +78,7 @@ class Connection{
 		);
 
 		bool _matchServerName(std::string host, std::string serverName) const;
+		void _setLastSocketActiveTime(time_t time);
 
 		Socket				_socket;
 		RequestParser		_parser;

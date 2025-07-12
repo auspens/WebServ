@@ -3,18 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 10:15:00 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/24 12:54:51 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/12 18:32:32 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Source/StaticFileSource.hpp"
 #include "Source/RedirectSource.hpp"
 #include "Source/CGISource.hpp"
-
-
 
 class Response {
 	public:
@@ -25,8 +23,8 @@ class Response {
 		Response &operator=(const Response &other);
 		// static std::map <int, std::string>	_statusCodesAndTexts;
 
-		const char	*getHeader()const;
-		bool		isChunked()const;
+		const char	*getHeader() const;
+		bool		isChunked() const;
 
 	private:
 		std::string num_to_str(size_t num);
