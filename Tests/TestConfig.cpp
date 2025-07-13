@@ -9,6 +9,17 @@ static std::string join(const std::vector<std::string>& vec, const std::string& 
 	return oss.str();
 }
 
+static std::string join(const std::map<std::string, std::string>& map, const std::string& sep = ", ") {
+	std::ostringstream oss;
+	for (std::map<std::string, std::string>::const_iterator it = map.begin(); it != map.end(); ++it) {
+		if (it != map.begin()) {
+			oss << sep;
+		}
+		oss << it->first << ": " << it->second;
+	}
+	return oss.str();
+}
+
 void printFullConfig(const Config& config) {
 	std::cout << "Global Config Settings:\n";
 	std::cout << "  client_max_request_size: " << config.getClientMaxBodySize() << "\n";

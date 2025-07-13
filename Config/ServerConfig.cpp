@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 12:55:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/12 18:45:46 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/13 17:36:09 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,7 +163,7 @@ const std::vector<std::string> &ServerConfig::getIndexPages() const {
 	return _configSettings.getIndexPages();
 }
 
-const std::vector<std::string> &ServerConfig::getAcceptCgi() const {
+const std::map<std::string, std::string> &ServerConfig::getAcceptCgi() const {
 	if (!_configSettings.getAcceptCgi().empty())
 		return _configSettings.getAcceptCgi();
 	if (_config)

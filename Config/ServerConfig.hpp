@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 17:00:59 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/12 18:46:03 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/13 17:36:30 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,18 +37,18 @@ public:
 
 	void parse(std::ifstream &file) throw(ConfigParseException);
 
-	int									getPort() const;
-	const std::vector<std::string>		&getServerNames() const;
-	size_t								getBufferSize() const;
-	const std::string					getPythonExecutable() const;
-	const std::string					&getRootFolder() const;
-	const std::map<int, std::string>	&getErrorPages() const;
-	const std::vector<Location *>		&getLocations() const;
-	size_t								getClientMaxBodySize() const;
-	const std::vector<std::string>		&getIndexPages() const;
-	const std::vector<std::string>		&getAcceptCgi() const;
-	int									getAcceptMethod() const;
-	bool								getAutoIndex() const;
+	int											getPort() const;
+	const std::vector<std::string>				&getServerNames() const;
+	size_t										getBufferSize() const;
+	const std::string							getPythonExecutable() const;
+	const std::string							&getRootFolder() const;
+	const std::map<int, std::string>			&getErrorPages() const;
+	const std::vector<Location *>				&getLocations() const;
+	size_t										getClientMaxBodySize() const;
+	const std::vector<std::string>				&getIndexPages() const;
+	const std::map<std::string, std::string>	&getAcceptCgi() const;
+	int											getAcceptMethod() const;
+	bool										getAutoIndex() const;
 
 private:
 	int							_port;

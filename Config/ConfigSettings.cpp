@@ -6,7 +6,7 @@
 /*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/11 20:05:23 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/12 17:20:04 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/13 17:46:55 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ const std::vector<std::string>& ConfigSettings::getIndexPages() const {
 	return _index;
 }
 
-const std::vector<std::string>& ConfigSettings::getAcceptCgi() const {
+const std::map<std::string, std::string>& ConfigSettings::getAcceptCgi() const {
 	return _acceptCgi;
 }
 
@@ -162,21 +162,22 @@ void ConfigSettings::parseIndex(std::ifstream &infile) throw(ConfigParseExceptio
 }
 
 void ConfigSettings::parseAcceptCgi(std::ifstream &infile) throw(ConfigParseException) {
-	std::string token;
+	std::string extension;
+	std::string executable;
 
-	if (_acceptCgi.size() > 0)
-		throw ConfigParseException("accept_cgi already set");
+	extension = ParseUtils::parseValue(infile);
+	if (!WebServUtils::isin(CGI_EXTENSIONS, extension))
+		throw ConfigParseException("Invalid value for accept cgi: " + extension);
 
-	token = ParseUtils::parseValue(infile);
-	if (token == "")
-		throw ConfigParseException("Invalid value for accept cgi");
+	std::map<std::string, std::string>::iterator it = _acceptCgi.find(extension);
+	if (it != _acceptCgi.end())
+		throw ConfigParseException("Duplicate cgi extension: " + extension);
 
-	while (token != "") {
-		if (!WebServUtils::isin(CGI_EXTENSIONS, token))
-			throw ConfigParseException("Invalid value for accept cgi: " + token);
-		_acceptCgi.push_back(token);
-		token = ParseUtils::parseValue(infile);
-	}
+	executable = ParseUtils::parseValue(infile);
+	if (!WebServUtils::fileExists(executable))
+		throw ConfigParseException("CGI executable does not exist: " + executable);
+
+	_acceptCgi[extension] = executable;
 
 	ParseUtils::expectChar(infile, ';');
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServUtils.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:15:00 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/04 17:18:32 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/13 17:39:49 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,4 +104,13 @@ void WebServUtils::removeFromString(std::string &haystack, const std::string &ne
 
 	while ((pos = haystack.find(needle)) != std::string::npos)
 		haystack.erase(pos, len);
+}
+
+std::string WebServUtils::getCgiExtension(const std::string &path, std::map<std::string, std::string> acceptCgi) {
+	std::map<std::string, std::string>::const_iterator it;
+	for ( it = acceptCgi.begin(); it != acceptCgi.end(); ++it) {
+		if (WebServUtils::strEndsWith(path, it->first))
+			return it->first;
+	}
+	return "";
 }
