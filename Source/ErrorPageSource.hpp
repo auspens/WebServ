@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ErrorPageSource.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 15:37:02 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/12 21:44:06 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/15 11:16:35 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ class ErrorPageSource : public StaticFileSource{
 		ErrorPageSource(const ErrorPageSource &src);
 		ErrorPageSource &operator=(const ErrorPageSource &other);
 		~ErrorPageSource();
+		void readSource() throw(SourceAndRequestException);
 
 		void getErrorPage(int index);
 		void generateErrorPage(int code);

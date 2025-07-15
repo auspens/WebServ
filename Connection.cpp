@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/12 21:45:21 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/15 11:57:56 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,9 +41,18 @@ Connection::Connection(const Connection &src) {
 }
 
 Connection::~Connection() {
-	delete _source ;
-	delete _sourceEventInfo;
-	delete _socketEventInfo;
+	if (_source){
+		delete _source ;
+		_source = NULL;
+	}
+	if (_sourceEventInfo){
+		delete _sourceEventInfo;
+		_sourceEventInfo = NULL;
+	}
+	if (_socketEventInfo){
+		delete _socketEventInfo;
+		_socketEventInfo = NULL;
+	}
 }
 
 Connection &Connection::operator=(const Connection &other) {
@@ -72,17 +81,19 @@ std::string Connection::getRequestBody() const{
 }
 
 void Connection::setupSource(bool &shutDownFlag) throw(SourceAndRequestException, IsChildProcessException) {
-	if (_source)
+	if (_source){
 		delete(_source);
-
+		_source = NULL;
+	}
 	_source = SourceFactory::getNewSource(*_serverConfig, _location, _request, shutDownFlag);
 	_source->init();
 }
 
 void Connection::setupErrorPageSource(const Config &config, int code) throw() {
-	if (_source)
+	if (_source){
 		delete(_source);
-
+		_source = NULL;
+	}
 	_serverConfig = _findServerConfig(_serverPort, _request.hostname, config);
 	_source = SourceFactory::getNewErrorPageSource(*_serverConfig, _location, _request, code);
 	_source->init();

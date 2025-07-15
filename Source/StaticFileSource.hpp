@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:08:43 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/12 21:21:09 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/15 11:16:18 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,5 +41,4 @@ class StaticFileSource : public Source {
 		void checkAutoIndex() throw(SourceAndRequestException);
 		void defineMimeType();
 		void generateIndex() throw(SourceAndRequestException);
-		bool indexExists(const std::vector<std::string> &indexes, const std::string &root);
 };
