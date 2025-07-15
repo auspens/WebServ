@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/12 21:35:39 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/15 13:01:15 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ void Source::init() throw(SourceAndRequestException) {
 	_pollableRead = false;
 	_pollableWrite = false;
 	_writeWhenComplete = false;
-
+	Logger::debug() << "Reserved for body: " << _serverConfig.getBufferSize() <<std::endl;
 	_body.reserve(_serverConfig.getBufferSize());
 }
 
