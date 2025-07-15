@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   SourceFactory.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 16:03:12 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/12 21:10:19 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/15 18:10:26 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,13 +25,14 @@ Source *SourceFactory::getNewSource(
 	Logger::debug() << std::boolalpha << "Upload pass: " << (location? location->isUploadPass() : false) << std::endl;
 
 	std::string target = _findTarget(serverConfig, location, req);
-
 	if (location && location->isRedirect() && target == location->getPath())
 		return new RedirectSource(serverConfig, *location, req);
 
 	// Moved this back. Won't cause loop because errors go through getNewErrorPageSource.
-	if (!target.empty() && access(target.c_str(), F_OK) != 0)
+	if (!target.empty() && access(target.c_str(), F_OK) != 0){
+		Logger::debug() << "Target is not empty and there is no access to target: " << target <<std::endl;
 		throw(SourceAndRequestException("Not found", 404));
+	}
 	if (!Config::acceptsMethod(serverConfig, location, req.method))
 		throw(SourceAndRequestException("Method not allowed", 405));
 
@@ -73,8 +74,10 @@ bool SourceFactory::_isUploadRequest(const ServerConfig &serverConfig, const Loc
 	if (!location || !location->isUploadPass() || request.method != "POST")
 		return false;
 	std::map<std::string, std::string>::const_iterator it = request.headers.find("Content-Type");
-	if (it == request.headers.end() || it->second.find("multipart/form-data") == std::string::npos)
+	if (it == request.headers.end() || it->second.find("multipart/form-data") == std::string::npos){
+		Logger::debug()<<"Not multipart form" <<std::endl;
 		return false;
+	}
 	int _acceptMethod = Config::getAcceptMethod(serverConfig, location);
 	if (!(_acceptMethod & METHOD_POST))
 		throw (SourceAndRequestException("Upload not allowed here", 403));
