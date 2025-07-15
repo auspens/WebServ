@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/15 11:57:56 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/15 19:08:37 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,8 +168,10 @@ bool Connection::requestReady() const {
 	return _parser.isDone();
 }
 
-void Connection::resetParser() {
+void Connection::finishRequest() {
 	_parser.reset();
+	delete _source;
+	_source = NULL;
 }
 
 const std::string& Connection::getTarget() const {

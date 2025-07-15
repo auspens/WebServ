@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/12 21:36:23 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/15 19:18:01 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ class Source {
 	protected:
 		int					_fd;
 		int					_writeFd;
-		int					_size;
+		size_t				_size;
 		const ServerConfig	&_serverConfig;
 		const Location		*_location;
 		std::string			_target;

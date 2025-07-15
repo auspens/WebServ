@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <ctime>
 #include <dirent.h>
 #include <sys/wait.h>
@@ -43,10 +44,11 @@ class CGISource : public Source {
 		int					_childLastActive;
 		std::string 		_extension;
 
-		bool _checkIfExists();
-		void _buildArgv(std::vector<std::string> &argv);
-		void _buildEnvp(std::vector<std::string> &envp);
-		void _forkAndExec() throw(IsChildProcessException);
-		bool _childProcessHealthy();
+		bool	_checkIfExists();
+		void	_buildArgv(std::vector<std::string> &argv);
+		void	_buildEnvp(std::vector<std::string> &envp);
+		void	_forkAndExec() throw(IsChildProcessException);
+		bool	_childProcessHealthy() const;
+		size_t	_getContentLength() const;
 		CGISource();
 };

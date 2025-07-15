@@ -43,27 +43,41 @@ void CGISource::init() throw(SourceAndRequestException) {
 
 	if (_request.method == "POST")
 		_doneWriting = false;
-	setHeader();
 }
 
-CGISource::~CGISource(){
+CGISource::~CGISource() {
 	Logger::debug() << "CGISource destructor called" << std::endl;
 	close(_fd);
 	close(_writeFd);
 }
 
-void CGISource::setHeader(){
-	std::string header;
+void CGISource::setHeader() {
+	std::string					header;
+
 	header += "HTTP/1.1 200 OK\r\n";
-	header += "Connection: Keep-Alive\r\n";
-	header += "Keep-Alive: timeout=5, max=997\r\n";
-//no content-length header, as we don't know the length of the content at this stage. Connection is closed after completing the CGI
+	if (_request.isKeepAlive())
+		header += "Connection: Keep-Alive\r\n";
+	header += "Content-Length: " + WebServUtils::num_to_str(_getContentLength()) + "\r\n";
 	Logger::debug()<< "At setHeader" << std::endl;
-	Logger::debug() << "Body: " << std::string(_body.begin(), _body.end())<< " bytesTosend: "<< _bytesToSend<<std::endl;
-	Logger::debug()<< "Header: " << header << "header length: "<< header.length()<<std::endl;
-	_body.assign(header.begin(), header.end());
+	Logger::debug()<< "Header: " << std::endl << header << "header length: "<< header.length() << std::endl;
+	_body.insert(_body.begin(), header.begin(), header.end());
 	_bytesToSend += header.length();
 	Logger::debug() << "Bytes to send: " << _bytesToSend << std::endl;
+}
+
+size_t CGISource::_getContentLength() const {
+	std::vector<char>::const_iterator	it;
+	std::string							needle = "\r\n\r\n";
+	std::string							needle2 = "\n\n";
+	int									needle_len = 4;
+
+	it = std::search(_body.begin(), _body.end(), needle.begin(), needle.end());
+	if (it == _body.end()) {
+		it = std::search(_body.begin(), _body.end(), needle2.begin(), needle2.end());
+		needle_len -= 2;
+	}
+
+	return (it == _body.end() ? 0 : _bytesToSend - (it - _body.begin()) - needle_len);
 }
 
 void CGISource::_forkAndExec() throw(IsChildProcessException) {
@@ -140,8 +154,11 @@ void CGISource::readSource() throw(SourceAndRequestException) {
 		size_t bytesRead = read(_outputPipe[0], _readBuffer.data(), _serverConfig.getBufferSize());
 		_body.insert(_body.end(), _readBuffer.begin(), _readBuffer.begin() + bytesRead);
 
-		if (bytesRead == 0)
+		if (bytesRead == 0) {
 			_doneReading = true;
+			setHeader();
+		}
+
 		_bytesToSend += bytesRead;
 		_size += bytesRead;
 
@@ -172,7 +189,7 @@ void CGISource::writeSource() {
 	_childLastActive = std::time(0);
 }
 
-bool CGISource::_childProcessHealthy() {
+bool CGISource::_childProcessHealthy() const {
 	std::map<pid_t, int>::iterator	it;
 	int								status;
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 12:55:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/13 17:36:09 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/15 16:34:16 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,10 +125,6 @@ const std::vector<std::string> &ServerConfig::getServerNames() const {
 
 size_t ServerConfig::getBufferSize() const {
 	return _config->getBufferSize();
-}
-
-const std::string ServerConfig::getPythonExecutable() const {
-	return _config->getPythonExecutable();
 }
 
 const std::vector<Location *> &ServerConfig::getLocations() const{

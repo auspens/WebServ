@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/15 13:02:38 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/15 19:25:03 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,12 +131,12 @@ void Server::_handleSourceEvent(u_int32_t events, EventInfo *eventInfo) throw(Is
 }
 
 void Server::_handleSocketEvent(u_int32_t events, EventInfo *eventInfo) {
-	if (events & EPOLLIN || events & EPOLLHUP)
+	if (events & EPOLLERR)
+		_removeConnection(eventInfo->conn);
+	else if (events & EPOLLIN || events & EPOLLHUP)
 		_readFromSocket(*eventInfo);
 	else if (events & EPOLLOUT)
 		_writeToSocket(*eventInfo);
-	else if (events & EPOLLERR)
-		_removeConnection(eventInfo->conn);
 }
 
 void Server::_handleIncomingConnection(ListeningSocket *listeningSocket) {
@@ -216,9 +216,9 @@ void Server::_readFromSocket(EventInfo &eventInfo) throw(IsChildProcessException
 		Logger::warning() << "SourceAndRequestException caught" << std::endl;
 		conn->setupErrorPageSource(*_config, e.errorCode());
 		if (!conn->doneReadingSource()) {
-		Logger::debug() << "Add source to epoll. fd: " << conn->getSource()->getFd() << std::endl;
-		_updateEvents(EPOLL_CTL_ADD, EPOLLIN, conn->getSourceEventInfo(), conn->getSource()->getFd());
-	}
+			Logger::debug() << "Add source to epoll. fd: " << conn->getSource()->getFd() << std::endl;
+			_updateEvents(EPOLL_CTL_ADD, EPOLLIN, conn->getSourceEventInfo(), conn->getSource()->getFd());
+		}
 		_updateEvents(EPOLL_CTL_MOD, EPOLLOUT, &eventInfo, conn->getSocketFd());
 	} catch (EmptyRequestException &e) {
 		_removeConnection(conn);
@@ -231,9 +231,18 @@ void Server::_writeToSocket(EventInfo &eventInfo) {
 
 	conn->writeToSocket();
 	if (conn->doneReadingSource() && conn->doneWritingSource() && conn->doneWritingSocket())
-		_removeConnection(conn);
+		_finishRequest(conn);
 }
 
+void Server::_finishRequest(Connection *conn) {
+	if (conn->getRequest().isKeepAlive())
+		_removeConnection(conn);
+	else {
+		_updateEvents(EPOLL_CTL_MOD, EPOLLIN, conn->getSocketEventInfo(), conn->getSocketFd());
+		_updateEvents(EPOLL_CTL_DEL, EPOLLOUT, conn->getSourceEventInfo(), conn->getSourceFd());
+		conn->finishRequest();
+	}
+}
 void Server::_readFromSource(EventInfo &eventInfo) {
 	Logger::detail() << "Server::_readFromSource" << std::endl;
 	Connection *conn = eventInfo.conn;

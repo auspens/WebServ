@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/15 13:01:15 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/15 18:30:23 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,10 +112,11 @@ void Source::setHeader() { //default are Content-Type and Content-Length headers
 	std::string header;
 	header += "HTTP/1.1 200 OK\r\n";
 	header += "Content-Type: " + _mime + "\r\n";
+	if (_request.isKeepAlive())
+		header += "Connection: Keep-Alive\r\n";
 	header += "Content-Length: " + WebServUtils::num_to_str(_size) + "\r\n\r\n";
 	Logger::debug()<< "At setHeader" << std::endl;
-	Logger::debug() << "Body: " << std::string(_body.begin(), _body.end())<< " bytesTosend: "<< _bytesToSend<<std::endl;
-	Logger::debug()<< "Header: " << header << "header length: "<< header.length()<<std::endl;
+	Logger::debug()<< "Header: " << std::endl << header << "header length: "<< header.length()<<std::endl;
 	_body.insert(_body.begin(), header.begin(), header.end());
 	_bytesToSend += header.length();
 	Logger::debug() << "Bytes to send: " << _bytesToSend << std::endl;

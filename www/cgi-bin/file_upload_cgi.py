@@ -23,7 +23,7 @@ def main():
 
     print("<html><body>")
     print(f"<h2>File '{filename}' uploaded successfully!</h2>")
-    print(f'<img src="/{filename}" alt="Uploaded Image" />')
+    print(f'<img src="/upload/{filename}" alt="Uploaded Image" />')
     print("</body></html>")
 
 if __name__ == "__main__":

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 16:57:51 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/13 17:35:35 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/15 16:34:07 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@ class Config {
 		size_t				getBufferSize() const;
 		unsigned int		getConnectionTimeout() const;
 		unsigned int		getCgiTimeout() const;
-		const std::string	getPythonExecutable() const;
 
 		static const std::map<int, std::string>			&getErrorPages(const ServerConfig &serverConfig, const Location *location);
 		static const std::vector<std::string>			&getIndexPages(const ServerConfig &serverConfig, const Location *location);
@@ -66,7 +65,6 @@ class Config {
 		void			_parseChunkSize(std::ifstream &infile) throw(ConfigParseException);
 		void			_parseConnectionTimeout(std::ifstream &infile) throw(ConfigParseException);
 		void			_parseCgiTimeout(std::ifstream &infile) throw(ConfigParseException);
-		void			_parsePythonExecutable(std::ifstream &infile) throw(ConfigParseException);
 
 		void			_validateConfig() const throw(ConfigParseException);
 		void			_validateServerConfig(ServerConfig &serverConfig) const throw(ConfigParseException);

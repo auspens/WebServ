@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/12 21:46:34 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/15 16:50:11 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,8 +55,7 @@ class Connection{
 		void				readFromSocket(size_t bufferSize, const Config *config)
 								throw(SourceAndRequestException, EmptyRequestException);
 		void				writeToSocket();
-		void				resetParser();
-
+		void				finishRequest();
 
 	private:
 		Connection(const Connection &src);
@@ -76,6 +75,7 @@ class Connection{
 
 		bool _matchServerName(std::string host, std::string serverName) const;
 		void _setLastSocketActiveTime(time_t time);
+		void _resetParser();
 
 		Socket				_socket;
 		RequestParser		_parser;

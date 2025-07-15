@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   UploadSource.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:03:49 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/12 21:41:15 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/15 18:35:29 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -189,6 +189,8 @@ void UploadSource::_createHTTPResponse()
 	std::string header = std::string(PROTOCOL) + " 200 OK\r\n";
 	header += "Content-Length: " + WebServUtils::num_to_str(response_body.size()) + "\r\n";
 	header += "Content-Type: text/html\r\n";
+	if (_request.isKeepAlive())
+		header += "Connection: Keep-Alive\r\n";
 	header += "\r\n";
 	header += response_body;
 
