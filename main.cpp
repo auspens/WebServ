@@ -43,7 +43,7 @@ void runCGI(
 	std::exit(1);
 }
 
-void readConfig(int argc, char *argv[], Config &config) {
+int readConfig(int argc, char *argv[], Config &config) throw(ConfigParseException) {
 	std::string	config_file;
 
 	if (argc == 1)
@@ -52,21 +52,23 @@ void readConfig(int argc, char *argv[], Config &config) {
 		config_file = argv[1];
 	else {
 		Logger::error() << "webserv: Too many arguments" << std::endl;
-		std::exit(1);
+		return 1;
 	}
 
 	try {
 		config.parse(config_file);
 	} catch (ConfigParseException &e) {
 		Logger::error() << "Error parsing config file: " << e.what() << std::endl;
-		std::exit(1);
+		return 1;
 	}
+	return 0;
 }
 
 int main(int argc, char *argv[]) {
 	Config		config;
 
-	readConfig(argc, argv, config);
+	if (readConfig(argc, argv, config))
+		return 1;
 	//printFullConfig(config);
 
 	signal(SIGCHLD, sigchld_handler);

@@ -8,6 +8,7 @@ webserv
 .vscode/
 
 uploads/*
+www/uploads/*
 
 Obj
 

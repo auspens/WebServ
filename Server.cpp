@@ -49,8 +49,9 @@ void Server::listen() throw(IsChildProcessException) {
 		}
 	}
 
+	_childMonitorEventInfo = new EventInfo(CHILD, NULL);
 	pipe(childProcessMonitorPipe);
-	_updateEvents(EPOLL_CTL_ADD, EPOLLIN, new EventInfo(CHILD, NULL), childProcessMonitorPipe[0]);
+	_updateEvents(EPOLL_CTL_ADD, EPOLLIN, _childMonitorEventInfo, childProcessMonitorPipe[0]);
 
 	_runEpollLoop();
 }
@@ -378,6 +379,7 @@ void Server::_cleanup() {
 	for (std::vector<Connection*>::iterator it = _connections.begin(); it != _connections.end(); ++it) {
 		delete (*it);
 	}
+	delete _childMonitorEventInfo;
 	close(childProcessMonitorPipe[0]);
 	close(childProcessMonitorPipe[1]);
 	close(_epollInstance);

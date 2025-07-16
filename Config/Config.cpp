@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:11:08 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/15 16:35:20 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/16 17:00:19 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -224,7 +224,13 @@ ServerConfig *Config::_parseServerConfig(std::ifstream &infile) throw(ConfigPars
 	ServerConfig *config;
 
 	config = new ServerConfig(*this);
-	config->parse(infile);
+
+	try {
+		config->parse(infile);
+	} catch (ConfigParseException &e) {
+		delete config;
+		throw(e);
+	}
 
 	return config;
 }

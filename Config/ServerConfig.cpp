@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 12:55:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/15 16:34:16 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/16 17:00:23 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,13 @@ Location *ServerConfig::_parseLocation(std::ifstream &infile) throw(ConfigParseE
 	std::string token;
 
 	location = new Location(*this);
-	location->parse(infile);
+
+	try {
+		location->parse(infile);
+	} catch (ConfigParseException &e) {
+		delete location;
+		throw(e);
+	}
 
 	return location;
 }

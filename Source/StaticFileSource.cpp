@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/16 14:48:13 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/16 16:47:14 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,7 @@ void StaticFileSource::generateIndex() throw(SourceAndRequestException) {
 	std::string	html = PageGenerator::generateIndex(_request.path, _target, acceptsDelete);
 
 	_body.assign(html.begin(), html.end());
-	_bytesToSend = _body.size();
+	_bytesToSend = html.size();
 	_size = _body.size();
 	_mime = _mimeTypes.find(".html")->second;
 	_generated = true;

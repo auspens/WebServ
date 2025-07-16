@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/15 16:49:02 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/16 16:36:13 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ class Server {
 		std::vector<Connection *>			_invalidatedConnections;
 		std::list<EventInfo *>				_nonPollableReadFds;
 		std::list<EventInfo *>				_nonPollableWriteFds;
+		EventInfo							*_childMonitorEventInfo;
 
 		Server();
 		Server(Server const &src);
