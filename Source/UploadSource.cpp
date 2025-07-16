@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:03:49 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/16 11:18:38 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/16 15:08:50 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,24 @@ UploadSource::UploadSource(
 ) : Source(serverConfig, location, req) {
 	Logger::debug() << "Creating UploadSource" <<std::endl;
 	_target = target;
+}
+
+UploadSource::UploadSource(const UploadSource &other):Source(other){
+	_uploads = other._uploads;
+	_isWriting = other._isWriting;
+	_writeSize = other._writeSize;
+	_writeFd = other._writeFd;
+}
+
+UploadSource &UploadSource::operator=(const UploadSource &other){
+	if (this != &other){
+		Source::operator=(other);
+		_uploads = other._uploads;
+		_isWriting = other._isWriting;
+		_writeSize = other._writeSize;
+		_writeFd = other._writeFd;
+	}
+	return *this;
 }
 
 void UploadSource::init() throw(SourceAndRequestException) {

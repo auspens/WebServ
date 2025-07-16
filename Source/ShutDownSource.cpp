@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ShutDownSource.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 17:46:12 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/12 21:37:03 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/16 14:59:14 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,3 +45,11 @@ void ShutDownSource::setHeader() {
 ShutDownSource::~ShutDownSource() { }
 
 void ShutDownSource::readSource() { }
+
+ShutDownSource::ShutDownSource(const ShutDownSource &other):Source(other){}
+ShutDownSource &ShutDownSource::operator=(const ShutDownSource &other){
+	if (this != &other){
+		Source::operator=(other);
+	}
+	return *this;
+}

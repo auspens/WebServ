@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ListeningSocket.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:42:21 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/03 18:53:15 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/16 15:39:04 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,8 @@ class ListeningSocket : public Socket{
 
 	private:
 		ListeningSocket();
+		ListeningSocket(const ListeningSocket &other);
+		ListeningSocket &operator=(const ListeningSocket &other);
 
 		struct addrinfo	_hints;
 		int 			_listeningPort;

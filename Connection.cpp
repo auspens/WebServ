@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/15 18:10:18 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/16 15:38:01 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,9 +36,17 @@ Connection::Connection(int fd, int serverPort, struct addrinfo *addrinfo) :
 		Logger::debug() << "Create new connection with fd: " << fd << std::endl;
 }
 
-Connection::Connection(const Connection &src) {
-	(void)src;
-}
+Connection::Connection(const Connection &src):
+	_socket(src._socket)
+	,_parser(src._parser)
+	,_request(src._request)
+	,_source(src._source)
+	,_serverConfig(src._serverConfig)
+	,_location(src._location)
+	,_serverPort(src._serverPort)
+	,_invalidated(src._invalidated)
+	,_lastActiveTime(src._lastActiveTime)
+	,_sourceEventInfo(src._sourceEventInfo) {}
 
 Connection::~Connection() {
 	if (_source){
@@ -56,7 +64,18 @@ Connection::~Connection() {
 }
 
 Connection &Connection::operator=(const Connection &other) {
-	(void)other;
+	if (this != &other){
+		_socket = other._socket;
+		_parser = other._parser;
+		_request = other._request;
+		_source = other._source;
+		_serverConfig = other._serverConfig;
+		_location = other._location;
+		_serverPort = other._serverPort;
+		_invalidated = other._invalidated;
+		_lastActiveTime = other._lastActiveTime;
+		_sourceEventInfo = other._sourceEventInfo;
+	}
 	return *this;
 };
 
@@ -105,14 +124,17 @@ void Connection::readFromSocket(size_t bufferSize, const Config *config)
 
 	buffer.reserve(bufferSize);
 	int valread = read(_socket.getFd(), buffer.data(), bufferSize);
+	if (valread == -1)
+		throw SourceAndRequestException ("Failed reading from socket", 500);
 	if (_parser.getParseState() == RequestParser::START_LINE)
 		_parser.initMaxBody(*config);
 	RequestParser::ParseResult parseResult = _parser.parse(buffer.data(), valread);
 	if (parseResult == RequestParser::URL_READY) {
 		_serverConfig = _findServerConfig(_serverPort,_request.hostname, *config);
-		Logger::debug() << "Request path in connection: " << _request.path << std::endl;
+		Logger::debug() << "Request path in connection: " << _parser.getRequest().path << std::endl;
 		_location = _findLocation(_parser.getRequest().path, *_serverConfig);
 		_parser.setMaxBody(Config::getClientMaxBodySize(*_serverConfig, _location));
+		Logger::debug() << "MaxBody is set to: " << _parser.getMaxBody() << std::endl;
 		parseResult = _parser.continueParsing();
 	}
 

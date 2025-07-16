@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 15:55:07 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/15 18:19:04 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/16 14:53:09 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,11 +63,13 @@ void ErrorPageSource::init() throw(SourceAndRequestException) {
 }
 
 ErrorPageSource::ErrorPageSource(const ErrorPageSource &src):StaticFileSource(src){
+	_code = src._code;
 }
 
 ErrorPageSource &ErrorPageSource::operator=(const ErrorPageSource &other){
 	if (this != &other){
 		StaticFileSource::operator=(other);
+		_code = other._code;
 	}
 	return *this;
 }

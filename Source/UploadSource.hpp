@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   UploadSource.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 15:44:12 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/12 21:47:38 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/16 15:04:38 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,8 @@ class UploadSource : public Source {
 			std::string target
 		);
 		~UploadSource();
+		UploadSource(const UploadSource &other);
+		UploadSource &operator=(const UploadSource &other);
 		void	readSource();
 		void	writeSource();
 		void	init() throw(SourceAndRequestException);

@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/15 13:01:15 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/16 15:02:30 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,23 +43,36 @@ Source::Source(const Source &src):
 		_bytesToSend(src._bytesToSend)
 		,_offset(src._offset)
 		,_doneReading(src._doneReading)
+		,_doneWriting(src._doneWriting)
 		,_fd(src._fd)
+		,_writeFd(src._writeFd)
 		,_size(src._size)
 		,_serverConfig(src._serverConfig)
 		,_location(src._location)
+		,_target(src._target)
 		,_mime(src._mime)
-		,_request(src._request) {}
+		,_request(src._request)
+		,_pollableRead(src._pollableRead)
+		,_pollableWrite(src._pollableRead)
+		,_writeWhenComplete(src._writeWhenComplete)
+		,_body(src._body) {}
 
 Source &Source::operator=(const Source &other){
 	if (this != &other){
 		_bytesToSend = other._bytesToSend;
 		_offset = other._offset;
 		_doneReading = other._doneReading;
+		_doneWriting = other._doneWriting;
 		_fd = other._fd;
+		_writeFd = other._writeFd;
 		_size = other._size;
 		_location = other._location;
 		_mime = other._mime;
 		_request = other._request;
+		_pollableRead = other._pollableRead;
+		_pollableWrite = other._pollableWrite;
+		_body = other._body;
+		_writeWhenComplete = other._writeWhenComplete;
 	}
 	return *this;
 }

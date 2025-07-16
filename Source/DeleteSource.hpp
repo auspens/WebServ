@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   DeleteSource.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 17:45:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/12 21:47:22 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/16 15:10:18 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@ class DeleteSource : public Source
 			std::string target
 		) throw(SourceAndRequestException);
 		~DeleteSource();
+		DeleteSource(const DeleteSource &other);
+		DeleteSource &operator=(const DeleteSource &other);
 
 		void init() throw(SourceAndRequestException);
 		void readSource();

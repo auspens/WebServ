@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/15 13:02:38 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/16 16:01:05 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,17 @@ Server::~Server() {
 }
 
 Server &Server::operator=(Server const &other) {
-	(void)other;
+	if (this != &other){
+		_epollInstance = other._epollInstance;
+		_lastCleanup = other._lastCleanup;
+		_config = other._config;
+		_shutDownFlag = other._shutDownFlag;
+		_listeningSockets = other._listeningSockets;
+		_connections = other._connections;
+		_invalidatedConnections = other._invalidatedConnections;
+		_nonPollableReadFds = other._nonPollableReadFds;
+		_nonPollableWriteFds = other._nonPollableWriteFds;
+	}
 	return *this;
 }
 
@@ -131,12 +141,12 @@ void Server::_handleSourceEvent(u_int32_t events, EventInfo *eventInfo) throw(Is
 }
 
 void Server::_handleSocketEvent(u_int32_t events, EventInfo *eventInfo) {
-	if (events & EPOLLIN || events & EPOLLHUP)
+	if (events & EPOLLERR)
+		_removeConnection(eventInfo->conn);
+	else if (events & EPOLLIN || events & EPOLLHUP)
 		_readFromSocket(*eventInfo);
 	else if (events & EPOLLOUT)
 		_writeToSocket(*eventInfo);
-	else if (events & EPOLLERR)
-		_removeConnection(eventInfo->conn);
 }
 
 void Server::_handleIncomingConnection(ListeningSocket *listeningSocket) {
@@ -408,3 +418,15 @@ void Server::_cleanConnection(Connection *conn) {
 	);
 	delete conn;
 }
+
+
+Server::Server(const Server &other):
+	_epollInstance(other._epollInstance)
+	,_lastCleanup(other._lastCleanup)
+	,_config(other._config)
+	,_shutDownFlag(other._shutDownFlag)
+	,_listeningSockets(other._listeningSockets)
+	,_connections(other._connections)
+	,_invalidatedConnections(other._invalidatedConnections)
+	,_nonPollableReadFds(other._nonPollableReadFds)
+	,_nonPollableWriteFds(other._nonPollableWriteFds){}
