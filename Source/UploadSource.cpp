@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:03:49 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/15 18:21:25 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/16 11:18:38 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ void UploadSource::init() throw(SourceAndRequestException) {
 	std::string boundary;
 
 	Source::init();
-	Logger::debug() <<"Request body: \n" << _request.body <<std::endl;
 	if (!opendir(_target.c_str()))
 		throw SourceAndRequestException("Upload folder doesn't exist", 403);
 

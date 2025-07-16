@@ -3,5 +3,6 @@
 dd if=/dev/urandom of=testfile.bin bs=1M count=1
 
 ## Upload with chunked encoding
-curl -X POST -H "Transfer-Encoding: chunked" -H "Content-Type: multipart/form-data" \
-  --data-binary @testfile.bin http://localhost:8080/upload
+curl -v -X POST http://localhost:3490/upload \
+  -H "Transfer-Encoding: chunked" \
+  -F "file=@testfile.bin;type=application/octet-stream"

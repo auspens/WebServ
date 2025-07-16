@@ -125,36 +125,40 @@ bool RequestParser::_handleChunkedInput(){
 	Logger::debug() << "In handleChunkedInput" <<std::endl;
 	std::string line;
 	size_t pos;
-	if (_chunkSize == 0){
-		if ((pos = _buffer.find("0\r\n\r\n")) != std::string::npos){
+	while (!_buffer.empty()){
+		if ((pos = _buffer.find("0\r\n\r\n")) == 0){
 			Logger::debug() << "ChunkedInput done" <<std::endl;
 			_state = DONE;
 			return true;
 		}
-		if ((pos = _buffer.find("\r\n")) != std::string::npos){
-			_parseChunkSize(_buffer.substr(0, pos));
-			_buffer.erase(0, pos + 2);
-			if (_chunkSize == 0){
-				Logger::debug() << "Chunk size is zero" <<std::endl;
-				throw SourceAndRequestException("Malformed chunk", 400);
+		if (_chunkSize == 0){
+			if ((pos = _buffer.find("\r\n")) != std::string::npos){
+				_parseChunkSize(_buffer.substr(0, pos));
+				Logger::debug() << "Chunk size is: " <<_chunkSize <<std::endl;
+				_buffer.erase(0, pos + 2);
+				if (_chunkSize == 0){
+					Logger::debug() << "Chunk size is zero" <<std::endl;
+					throw SourceAndRequestException("Malformed chunk", 400);
+				}
 			}
+			else if (_buffer.size() > 20)
+				throw SourceAndRequestException("Malformed chunk", 400);
+			else
+				return false;
 		}
-		if (_chunkSize == 0 && _buffer.size() > 20)
-			throw SourceAndRequestException("Malformed chunk", 400);
-		else
-			return false;
+		if (_buffer.size() < _chunkSize + 2) return false;
+		_request.body.append(_buffer.substr(0, _chunkSize));
+		if (_buffer.substr(_chunkSize, 2) != "\r\n")
+			throw SourceAndRequestException("Missing CRLF after chunk data", 400);
+		_buffer.erase(0, _chunkSize + 2);
+		_chunkSize = 0;
+		return false;
 	}
-	if (_buffer.size() < _chunkSize + 2) return false;
-	_request.body.append(_buffer.substr(0, _chunkSize));
-	if (_buffer.substr(_chunkSize, 2) != "\r\n")
-		throw SourceAndRequestException("Missing CRLF after chunk data", 400);
-	_buffer.erase(0, _chunkSize + 2);
-	_chunkSize = 0;
 	return false;
 }
 
 void RequestParser::_parseChunkSize(const std::string& hexStr){
-	Logger::debug() << "In parseChunkSize, string to parse: " <<hexStr <<std::endl;
+	Logger::detail() << "In parseChunkSize, string to parse: " <<hexStr <<std::endl;
 	char *endptr = NULL;
 	if (hexStr.size() == 0)
 		{
