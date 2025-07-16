@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/16 14:58:03 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/16 15:59:23 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ class Source {
 
 		virtual char				*readFromBuffer();
 		void						bytesSent(int bytes);
+		void						finalizeWrite();
 
 		size_t										_bytesToSend;
 		int											_offset;

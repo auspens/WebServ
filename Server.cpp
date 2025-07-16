@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:58:31 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/16 15:46:05 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/16 15:59:54 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -288,6 +288,7 @@ void Server::_writeToSource(EventInfo &eventInfo) {
 	if (conn->doneWritingSource()) {
 		Logger::debug() << "Done writing source" << std::endl;
 		_updateEvents(EPOLL_CTL_DEL, EPOLLOUT, &eventInfo, conn->getSource()->getWriteFd());
+		conn->getSource()->finalizeWrite();
 		if (conn->getSource()->isWriteWhenComplete() && conn->doneReadingSource()) {
 			_updateEvents(EPOLL_CTL_ADD, EPOLLOUT, conn->getSocketEventInfo(), conn->getSocketFd());
 		}

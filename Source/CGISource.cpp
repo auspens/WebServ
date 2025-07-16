@@ -194,7 +194,6 @@ void CGISource::writeSource() throw(SourceAndRequestException) {
 	if (_writeOffset == unsigned_numbytes) {
 		Logger::debug() << "Done writing to cgi, closing write end of input pipe: fd " << _writeFd << std::endl;
 		_doneWriting = true;
-		close(_writeFd);
 	}
 
 	_childLastActive = std::time(0);
@@ -221,4 +220,8 @@ bool CGISource::checkTimeout(int timeout) const {
 		&& std::time(0) - _childLastActive > timeout)
 			return true;
 	return false;
+}
+
+void CGISource::finalizeWrite() {
+	close(_writeFd);
 }

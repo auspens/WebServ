@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/16 14:54:26 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/16 15:58:58 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,3 +154,5 @@ void Source::bytesSent(int bytes) {
 	_bytesToSend -= bytes;
 	_offset += bytes;
 }
+
+void Source::finalizeWrite() { }

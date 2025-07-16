@@ -51,5 +51,7 @@ class CGISource : public Source {
 		void	_forkAndExec() throw(IsChildProcessException);
 		bool	_childProcessHealthy();
 		size_t	_getContentLength() const;
+		void	finalizeWrite();
+
 		CGISource();
 };
