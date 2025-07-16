@@ -37,9 +37,11 @@ class CGISource : public Source {
 		std::vector<char>	_readBuffer;
 		std::string			_queryString;
 		std::string			_pathInfo;
+		std::string			_scriptName;
 		size_t				_writeOffset;
 		int					_childPid;
 		int					_childLastActive;
+		std::string 		_extension;
 
 		bool _checkIfExists();
 		void _buildArgv(std::vector<std::string> &argv);

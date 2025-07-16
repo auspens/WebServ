@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 16:03:12 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/15 18:10:26 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/16 10:11:54 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,13 +61,7 @@ Source *SourceFactory::getNewErrorPageSource(
 }
 
 bool SourceFactory::_isCgiRequest(const ServerConfig &serverConfig, const Location *location, const std::string &path) {
-	std::vector<std::string> acceptCgi = Config::getAcceptCgi(serverConfig, location);
-	Logger::debug()<<"AcceptCgi size: " << acceptCgi.size() << " AcceptCgi at 0: " << (acceptCgi.empty() ? "null" : acceptCgi.at(0)) << std::endl;
-	for (size_t i = 0; i < acceptCgi.size(); i++) {
-		if (WebServUtils::strEndsWith(path, acceptCgi[i]))
-			return true;
-	}
-	return false;
+	return !WebServUtils::getCgiExtension(path, Config::getAcceptCgi(serverConfig, location)).empty();
 }
 
 bool SourceFactory::_isUploadRequest(const ServerConfig &serverConfig, const Location *location, const HttpRequest &request){

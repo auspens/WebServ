@@ -13,11 +13,14 @@ CGISource::CGISource(
 
 	_target = target;
 
-	size_t script_end = _target.find(".py") + 3; // Needs to be based on config file
+	_extension = WebServUtils::getCgiExtension(_target, Config::getAcceptCgi(serverConfig, location));
+	size_t script_end = _target.find(_extension) + _extension.length();
 	if (script_end != std::string::npos) {
 		_pathInfo = _target.substr(script_end);
 		_target = _target.substr(0, script_end);
 	}
+
+	_scriptName = _target.substr(Config::getRootFolder(_serverConfig, _location).length());
 
 	if (_checkIfExists())
 		_forkAndExec();
@@ -92,10 +95,8 @@ void CGISource::_forkAndExec() throw(IsChildProcessException) {
 }
 
 void CGISource::_buildArgv(std::vector<std::string> &argv) {
-	argv.push_back(_serverConfig.getPythonExecutable());
+	argv.push_back(Config::getAcceptCgi(_serverConfig, _location).at(_extension));
 	argv.push_back(_target);
-	// argv.push_back("/usr/bin/sleep");
-	// argv.push_back("100");
 }
 
 void CGISource::_buildEnvp(std::vector<std::string> &envp) {
@@ -107,11 +108,13 @@ void CGISource::_buildEnvp(std::vector<std::string> &envp) {
 		envp.push_back(std::string("PATH_INFO=") + _pathInfo);
 	envp.push_back(std::string("REQUEST_METHOD=") + _request.method);
 	envp.push_back(std::string("QUERY_STRING=") + _queryString);
-	envp.push_back(std::string("SCRIPT_NAME=") + _target);
+	envp.push_back(std::string("SCRIPT_NAME=") + _scriptName);
+	envp.push_back(std::string("SCRIPT_FILENAME=") + _target);
 	envp.push_back("SERVER_PROTOCOL=HTTP/1.1");
 
 	envp.push_back(std::string("CONTENT_LENGTH=") + _request.headers["Content-Length"]);
 	envp.push_back(std::string("CONTENT_TYPE=") + _request.headers["Content-Type"]);
+	envp.push_back(std::string("REDIRECT_STATUS=200"));
 }
 
 bool CGISource::getIfExists() const {

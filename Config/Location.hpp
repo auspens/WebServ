@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 11:41:02 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/09 18:05:54 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/13 17:35:49 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ public:
 	size_t getClientMaxBodySize() const;
 	const std::map<int, std::string>& getErrorPages() const;
 	const std::vector<std::string>& getIndexPages() const;
-	const std::vector<std::string>& getAcceptCgi() const;
+	const std::map<std::string, std::string>& getAcceptCgi() const;
 	int getAcceptMethod() const;
 	bool getAutoIndex() const;
 

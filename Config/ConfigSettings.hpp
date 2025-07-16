@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigSettings.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 16:03:27 by wpepping          #+#    #+#             */
-/*   Updated: 2025/06/17 11:23:03 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/13 17:32:28 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,22 +38,20 @@ public:
 	void parseAcceptMethod(std::ifstream &infile) throw(ConfigParseException);
 	void parseAutoIndex(std::ifstream &infile) throw(ConfigParseException);
 
-	size_t								getClientMaxBodySize()			const;
-	const std::map<int, std::string>	&getErrorPages()				const;
-	const std::vector<std::string>		&getIndexPages()				const;
-	const std::vector<std::string>		&getAcceptCgi()					const;
-	int									getAcceptMethod()				const;
-	bool								getAutoIndex()					const;
-	bool								autoIndexIsSet()				const;
-
-	bool acceptsMethod(std::string method)	const;
+	size_t										getClientMaxBodySize()	const;
+	const std::map<int, std::string>			&getErrorPages()		const;
+	const std::vector<std::string>				&getIndexPages()		const;
+	const std::map<std::string, std::string>	&getAcceptCgi()			const;
+	int											getAcceptMethod()		const;
+	bool										getAutoIndex()			const;
+	bool										autoIndexIsSet()		const;
 
 private:
-	size_t						_clientMaxBodySize;
-	std::map<int, std::string>	_errorPages;
-	std::vector<std::string>	_index;
-	std::vector<std::string>	_acceptCgi;
-	int							_acceptMethod;
-	bool						_autoIndex;
-	bool						_autoIndexIsSet;
+	size_t								_clientMaxBodySize;
+	std::map<int, std::string>			_errorPages;
+	std::vector<std::string>			_index;
+	std::map<std::string, std::string>	_acceptCgi;
+	int									_acceptMethod;
+	bool								_autoIndex;
+	bool								_autoIndexIsSet;
 };

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServUtils.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 14:38:47 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/04 17:18:45 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/13 17:38:19 by wouter           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <dirent.h>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <sstream>
 #include <string>
 #include <sys/epoll.h>
@@ -41,6 +42,7 @@ public:
 	static std::string	num_to_str(size_t num);
 	static std::string	getEpollEventNames(uint32_t events);
 	static void			removeFromString(std::string &haystack, const std::string &needle);
+	static std::string	getCgiExtension(const std::string &path, std::map<std::string, std::string> acceptCgi);
 
 	template <typename T, size_t N>
 	static bool isin(const T (&array)[N], const T &value) 	{
