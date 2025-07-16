@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/16 14:20:11 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/16 15:49:19 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,10 +109,12 @@ void Connection::readFromSocket(size_t bufferSize, const Config *config)
 	if (valread == -1)
 		throw SocketException(std::string("Error reading from socket") + strerror(errno));
 
+	if (_parser.getParseState() == RequestParser::START_LINE)
+		_parser.initMaxBody(*config);
 	RequestParser::ParseResult parseResult = _parser.parse(buffer.data(), valread);
 	if (parseResult == RequestParser::URL_READY) {
 		_serverConfig = _findServerConfig(_serverPort,_request.hostname, *config);
-		std::cout << "Request path: " << _request.path << std::endl;
+		Logger::debug() << "Request path in connection: " << _request.path << std::endl;
 		_location = _findLocation(_parser.getRequest().path, *_serverConfig);
 		_parser.setMaxBody(Config::getClientMaxBodySize(*_serverConfig, _location));
 		parseResult = _parser.continueParsing();
@@ -214,7 +216,8 @@ const Location *Connection::_findLocation (
 		if (target.compare(0, locationPath.size(), locationPath) == 0
 			&& (target.size() == locationPath.size()
 			|| WebServUtils::isin("/#?", target.at(locationPath.size()))))
-			return *it;
+				return *it;
+
 	}
 	return (NULL);
 }

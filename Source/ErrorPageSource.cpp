@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 15:55:07 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/15 19:01:10 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/16 15:48:15 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ void ErrorPageSource::generateErrorPage(int code) {
 
 void ErrorPageSource::init() throw(SourceAndRequestException) {
 	_body.reserve(_serverConfig.getBufferSize());
+	_doneReading = false;
 	_mime = "text/html";
 	_offset = 0;
 	_doneReading = false;
@@ -71,7 +72,7 @@ ErrorPageSource &ErrorPageSource::operator=(const ErrorPageSource &other){
 	return *this;
 }
 
-ErrorPageSource::~ErrorPageSource(){Logger::detail() << "~ErrorPageSource called on object at: " << this << std::endl;}
+ErrorPageSource::~ErrorPageSource(){}
 
 void ErrorPageSource::setHeader(){
 	std::string						header;

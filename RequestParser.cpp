@@ -1,10 +1,19 @@
 #include "RequestParser.hpp"
-RequestParser::RequestParser() : _state(START_LINE), contentLength(0) {}
+RequestParser::RequestParser(){
+	_state = START_LINE;
+    _request = HttpRequest();
+    _buffer.clear();
+    _contentLength = 0;
+	_chunkSize = 0;
+	_maxBody = 0;
+}
+
 void RequestParser::reset() {
     _state = START_LINE;
     _request = HttpRequest();
     _buffer.clear();
-    contentLength = 0;
+    _contentLength = 0;
+	_chunkSize = 0;
 }
 bool RequestParser::isDone() const {
     return _state == DONE;
@@ -17,7 +26,13 @@ void RequestParser::setMaxBody(size_t size){
 	_maxBody = size;
 }
 
+void RequestParser::initMaxBody(const Config &config){
+	_maxBody = config.getClientMaxBodySize();
+}
+
 RequestParser::ParseResult RequestParser::parse(const char* data, size_t len) throw(SourceAndRequestException) {
+	if (data && (strlen(data) + _buffer.size() > _maxBody) )
+		throw SourceAndRequestException("Request exceeds maximum allowed size", 413);
     if(data && len > 0)
 		_buffer.append(data, len);
     while (true) {
@@ -26,7 +41,6 @@ RequestParser::ParseResult RequestParser::parse(const char* data, size_t len) th
                 if (!parseStartLine(data, len))
 					return _buffer.empty() && len == 0 ? EMPTY : INCOMPLETE;
                 _parseUrl();
-				std::cout << "Request path: " << _request.path << std::endl;
                 _state = HEADERS;
 				return URL_READY;
             case HEADERS:
@@ -86,17 +100,89 @@ bool RequestParser::parseHeaders(const char *data, size_t len) throw(SourceAndRe
 
 bool RequestParser::parseBody(const char *data, size_t len) throw(SourceAndRequestException) {
     if (_request.method != "POST") return true;
-    std::map<std::string, std::string>::iterator it = _request.headers.find("Content-Length");
-    if (it == _request.headers.end()) {
-        throw SourceAndRequestException("No Content Length header", 400);
-    }
-    contentLength = atoi(it->second.c_str());
-	if (contentLength > _maxBody)
-		throw SourceAndRequestException("Body too big", 413);
-    if (_buffer.size() < contentLength) return checkForError(data, len, false);
-    _request.body = _buffer.substr(0, contentLength);
-    _buffer.erase(0, contentLength);
+	std::map<std::string, std::string>::iterator it = _request.headers.find("Transfer-Encoding");
+	if (it != _request.headers.end() && it->second == "chunked") {
+		if (!_handleChunkedInput())
+			return false;
+		_contentLength = _request.body.size();
+	}
+	else {
+		std::map<std::string, std::string>::iterator it = _request.headers.find("Content-Length");
+		if (it == _request.headers.end()) {
+			throw SourceAndRequestException("No Content Length header", 400);
+		}
+		_contentLength = atoi(it->second.c_str());
+		if (_contentLength > _maxBody)
+			throw SourceAndRequestException("Body too big", 413);
+		if (_buffer.size() < _contentLength) return checkForError(data, len, false);
+		_request.body = _buffer.substr(0, _contentLength);
+		_buffer.erase(0, _contentLength);
+	}
     return true;
+}
+
+bool RequestParser::_handleChunkedInput(){
+	Logger::debug() << "In handleChunkedInput" <<std::endl;
+	std::string line;
+	size_t pos;
+	while (!_buffer.empty()){
+		if ((pos = _buffer.find("0\r\n\r\n")) == 0){
+			Logger::debug() << "ChunkedInput done" <<std::endl;
+			_state = DONE;
+			return true;
+		}
+		if (_chunkSize == 0){
+			if ((pos = _buffer.find("\r\n")) != std::string::npos){
+				_parseChunkSize(_buffer.substr(0, pos));
+				Logger::debug() << "Chunk size is: " <<_chunkSize <<std::endl;
+				_buffer.erase(0, pos + 2);
+				if (_chunkSize == 0){
+					Logger::debug() << "Chunk size is zero" <<std::endl;
+					throw SourceAndRequestException("Malformed chunk", 400);
+				}
+			}
+			else if (_buffer.size() > 20)
+				throw SourceAndRequestException("Malformed chunk", 400);
+			else
+				return false;
+		}
+		if (_buffer.size() < _chunkSize + 2) return false;
+		_request.body.append(_buffer.substr(0, _chunkSize));
+		if (_buffer.substr(_chunkSize, 2) != "\r\n")
+			throw SourceAndRequestException("Missing CRLF after chunk data", 400);
+		_buffer.erase(0, _chunkSize + 2);
+		_chunkSize = 0;
+		return false;
+	}
+	return false;
+}
+
+void RequestParser::_parseChunkSize(const std::string& hexStr){
+	Logger::detail() << "In parseChunkSize, string to parse: " <<hexStr <<std::endl;
+	char *endptr = NULL;
+	if (hexStr.size() == 0)
+		{
+			Logger::debug() << "String is empty" <<std::endl;
+			throw SourceAndRequestException("Malformed chunk", 400);
+		}
+
+	for (size_t i = 0; i < hexStr.size(); ++i) {
+		if (!std::isxdigit(hexStr[i])){
+			Logger::debug() << "Non-hex value: " << hexStr[i] <<std::endl;
+			throw (SourceAndRequestException("Malformed chunk", 400));
+		}
+	}
+    _chunkSize = strtol(hexStr.c_str(), &endptr, 16);
+	if (*endptr != '\0'){
+		Logger::debug() << "strtol failed" <<std::endl;
+		throw (SourceAndRequestException("Malformed chunk", 400));
+	}
+
+	if (_request.body.size() + _chunkSize > _maxBody){
+		Logger::debug() << "chunk too big" <<std::endl;
+		throw SourceAndRequestException("Body size exceeds allowed maximum", 403);
+	}
+	Logger::debug() << "ChunkSize parsed" <<std::endl;
 }
 
 void RequestParser::_parseUrl() {
@@ -131,4 +217,9 @@ bool RequestParser::checkForError(const char *data, size_t len, bool errorFound)
 	if (errorFound || (data && len == 0))
 		_state = ERROR;
 	return false;
+}
+
+
+RequestParser::ParseState RequestParser::getParseState(){
+	return _state;
 }
