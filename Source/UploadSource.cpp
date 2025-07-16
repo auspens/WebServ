@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   UploadSource.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:03:49 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/12 21:41:15 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/16 11:18:38 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ void UploadSource::init() throw(SourceAndRequestException) {
 	std::string boundary;
 
 	Source::init();
-
 	if (!opendir(_target.c_str()))
 		throw SourceAndRequestException("Upload folder doesn't exist", 403);
 
@@ -145,6 +144,7 @@ std::string UploadSource::_findBoundary(std::string header)
 
 void UploadSource::writeSource()
 {
+	Logger::debug()<<"At UploadSource::writeSource, number of uploads: " << _uploads.size() <<std::endl;
 	if (!_isWriting)
 	{
 		if (_uploads.empty())
@@ -153,7 +153,7 @@ void UploadSource::writeSource()
 			_createHTTPResponse();
 			return;
 		}
-
+		Logger::debug()<<"Writing file: " << _uploads.at(0).name <<std::endl;
 		_writeFd = open(_uploads.at(0).name.c_str(), O_RDWR | O_CREAT, DEFAULT_PERMISSIONS);
 		if (_writeFd < 0)
 			throw SourceAndRequestException("Could not create upload file", 500);
