@@ -150,7 +150,7 @@ void Server::_handleIncomingConnection(ListeningSocket *listeningSocket) {
 
 	Logger::info() << "Accepting incoming connection with fd " << new_fd << std::endl;
 
-	inc_conn = new Connection(new_fd, listeningSocket->getPort());
+	inc_conn = new Connection(new_fd, listeningSocket->getPort(), _config->getBufferSize());
 
 	_connections.push_back(inc_conn);
 	_updateEvents(EPOLL_CTL_ADD, EPOLLIN, inc_conn->getSocketEventInfo(), new_fd);

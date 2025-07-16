@@ -3,7 +3,7 @@
 
 Connection::Connection() { }
 
-Connection::Connection(int fd, int serverPort) :
+Connection::Connection(int fd, int serverPort, size_t bufferSize) :
 	_socket(fd),
 	_source(NULL),
 	_serverPort(serverPort),
@@ -12,18 +12,8 @@ Connection::Connection(int fd, int serverPort) :
 	_sourceEventInfo(new EventInfo(SOURCE, this)),
 	_socketEventInfo(new EventInfo(SOCKET, this)) {
 		Logger::debug() << "Create new connection with fd: " << fd << std::endl;
+		_socketReadBuffer.resize(bufferSize);
  }
-
-Connection::Connection(int fd, int serverPort, struct addrinfo *addrinfo) :
-	_socket(fd, addrinfo),
-	_source(NULL),
-	_serverPort(serverPort),
-	_invalidated(false),
-	_lastActiveTime(std::time(0)),
-	_sourceEventInfo(new EventInfo(SOURCE, this)),
-	_socketEventInfo(new EventInfo(SOCKET, this)) {
-		Logger::debug() << "Create new connection with fd: " << fd << std::endl;
-}
 
 Connection::Connection(const Connection &src):
 	_socket(src._socket)
@@ -109,17 +99,14 @@ void Connection::setupErrorPageSource(const Config &config, int code) throw() {
 
 void Connection::readFromSocket(size_t bufferSize, const Config *config)
 	throw(SourceAndRequestException, EmptyRequestException, SocketException) {
-	std::vector<char> buffer;
 
-	buffer.reserve(bufferSize);
-
-	int valread = read(_socket.getFd(), buffer.data(), bufferSize);
+	int valread = read(_socket.getFd(), _socketReadBuffer.data(), bufferSize);
 	if (valread == -1)
 		throw SocketException(std::string("Error reading from socket") + strerror(errno));
-		
+
 	if (_parser.getParseState() == RequestParser::START_LINE)
 		_parser.initMaxBody(*config);
-	RequestParser::ParseResult parseResult = _parser.parse(buffer.data(), valread);
+	RequestParser::ParseResult parseResult = _parser.parse(_socketReadBuffer.data(), valread);
 	if (parseResult == RequestParser::URL_READY) {
 		_serverConfig = _findServerConfig(_serverPort,_request.hostname, *config);
 		Logger::debug() << "Request path in connection: " << _parser.getRequest().path << std::endl;

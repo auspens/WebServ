@@ -31,7 +31,7 @@ void RequestParser::initMaxBody(const Config &config){
 }
 
 RequestParser::ParseResult RequestParser::parse(const char* data, size_t len) throw(SourceAndRequestException) {
-	if (data && (strlen(data) + _buffer.size() > _maxBody) )
+	if (data && (len + _buffer.size() > _maxBody) )
 		throw SourceAndRequestException("Request exceeds maximum allowed size", 413);
     if(data && len > 0)
 		_buffer.append(data, len);

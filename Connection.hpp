@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/16 14:28:40 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/16 17:20:17 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,7 @@
 
 class Connection{
 	public:
-		Connection(int fd, int serverPort);
-		Connection(int fd, int serverPort, struct addrinfo *addrinfo);
+		Connection(int fd, int serverPort, size_t bufferSize);
 		~Connection();
 
 		class SocketException : std::exception{
@@ -99,4 +98,5 @@ class Connection{
 		time_t				_lastActiveTime;
 		EventInfo			*_sourceEventInfo;
 		EventInfo			*_socketEventInfo;
+		std::vector<char>	_socketReadBuffer;
 };
