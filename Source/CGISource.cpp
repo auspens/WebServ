@@ -42,6 +42,7 @@ void CGISource::init() throw(SourceAndRequestException) {
 
 	_writeOffset = 0;
 	_readBuffer.resize(_serverConfig.getBufferSize());
+	_body.resize(0);
 
 	if (_request.method == "POST")
 		_doneWriting = false;

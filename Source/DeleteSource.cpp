@@ -50,7 +50,7 @@ void DeleteSource::setHeader() {
 		"{\"message\": \"File deleted successfully\"}\r\n";
 
 	_body.assign(response.begin(), response.end());
-	_bytesToSend = _body.size();
+	_bytesToSend = response.size();
 }
 
 DeleteSource::~DeleteSource() { }

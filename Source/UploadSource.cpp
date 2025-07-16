@@ -36,9 +36,10 @@ void UploadSource::init() throw(SourceAndRequestException) {
 	std::string boundary;
 
 	Source::init();
-	if (!opendir(_target.c_str()))
+	DIR *dir = opendir(Config::getRootFolder(_serverConfig, _location).c_str());
+	if (!dir)
 		throw SourceAndRequestException("Upload folder doesn't exist", 403);
-
+	closedir(dir);
 	_isWriting = false;
 	_doneWriting = false;
 	_doneReading = true;
@@ -198,7 +199,7 @@ void UploadSource::_createHTTPResponse()
 
 	_body.assign(header.begin(), header.end());
 	_doneReading = true;
-	_bytesToSend += _body.size();
+	_bytesToSend += header.size();
 	_offset = 0;
 
 	Logger::debug() << "UploadSource http response: " << std::string(_body.begin(), _body.end()) << std::endl;

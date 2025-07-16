@@ -34,8 +34,8 @@ void ErrorPageSource::generateErrorPage(int code) {
 	_body.assign(html.begin(), html.end());
 	_code = code;
 	_generated = true;
-	_bytesToSend = _body.size();
-	_size = _body.size();
+	_bytesToSend = html.size();
+	_size = html.size();
 	_mime = _mimeTypes.find(".html")->second;
 	_doneReading = true;
 }
