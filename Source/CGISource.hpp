@@ -18,7 +18,8 @@ class CGISource : public Source {
 			HttpRequest &req,
 			std::string target
 		);
-		//copy construct missing
+		CGISource(const CGISource &other);
+		CGISource &operator=(const CGISource &other);
 		~CGISource();
 
 		void readSource() throw(SourceAndRequestException);

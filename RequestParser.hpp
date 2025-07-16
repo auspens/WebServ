@@ -27,12 +27,17 @@ class RequestParser {
         ParseResult parse(const char* data, size_t len) throw(SourceAndRequestException);
         bool isDone() const;
         const HttpRequest getRequest() const;
+		size_t getMaxBody()const;
         void reset();
 		void setMaxBody(size_t size);
 		bool checkForError(const char *data, size_t len, bool errorFound);
 		ParseResult continueParsing();
 		void initMaxBody(const Config &config);
 		ParseState getParseState();
+
+		RequestParser(const RequestParser &other);
+		RequestParser &operator=(const RequestParser &other);
+		~RequestParser();
 
     private:
         ParseState _state;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ListeningSocket.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:44:56 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/03 19:00:50 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/16 15:42:43 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,22 @@ ListeningSocket::ListeningSocket(int port) : _listeningPort(port), _eventInfo(ne
 ListeningSocket::~ListeningSocket() {
 	Logger::info() << "Closing listening socket: ";
 	delete _eventInfo;
+}
+
+ListeningSocket::ListeningSocket(const ListeningSocket &other):Socket(other){
+	_hints = other._hints;
+	_eventInfo = other._eventInfo;
+	_listeningPort = other._listeningPort;
+}
+
+ListeningSocket &ListeningSocket::operator=(const ListeningSocket &other){
+	if(this != &other){
+		Socket::operator=(other);
+		_hints = other._hints;
+		_eventInfo = other._eventInfo;
+		_listeningPort = other._listeningPort;
+	}
+	return *this;
 }
 
 void ListeningSocket::init() {

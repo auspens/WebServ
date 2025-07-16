@@ -6,7 +6,7 @@
 /*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/15 13:01:36 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/16 14:48:13 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ void StaticFileSource::init() throw(SourceAndRequestException) {
 StaticFileSource::StaticFileSource(const StaticFileSource &src):
 	Source(src),
 	_generated(src._generated){}
+
 StaticFileSource &StaticFileSource::operator=(StaticFileSource const &other){
 	if (this != &other){
 		Source::operator=(other);
@@ -52,6 +53,7 @@ StaticFileSource &StaticFileSource::operator=(StaticFileSource const &other){
 	}
 	return *this;
 }
+
 StaticFileSource::~StaticFileSource(){
 	close(_fd);
 }

@@ -109,7 +109,7 @@ bool RequestParser::parseBody(const char *data, size_t len) throw(SourceAndReque
 	else {
 		std::map<std::string, std::string>::iterator it = _request.headers.find("Content-Length");
 		if (it == _request.headers.end()) {
-			throw SourceAndRequestException("No Content Length header", 400);
+			throw SourceAndRequestException("No Content Length header", 411);
 		}
 		_contentLength = atoi(it->second.c_str());
 		if (_contentLength > _maxBody)
@@ -223,3 +223,31 @@ bool RequestParser::checkForError(const char *data, size_t len, bool errorFound)
 RequestParser::ParseState RequestParser::getParseState(){
 	return _state;
 }
+
+size_t RequestParser::getMaxBody()const{
+	return _maxBody;
+}
+
+
+RequestParser::RequestParser(const RequestParser &other){
+	_state = other._state;
+	_contentLength = other._contentLength;
+	_chunkSize = other._chunkSize;
+	_request = other._request;
+	_buffer = other._buffer;
+	_maxBody = other._maxBody;
+}
+
+RequestParser &RequestParser::operator=(const RequestParser &other){
+	if (this != &other){
+		_state = other._state;
+		_contentLength = other._contentLength;
+		_chunkSize = other._chunkSize;
+		_request = other._request;
+		_buffer = other._buffer;
+		_maxBody = other._maxBody;
+		}
+		return *this;
+}
+
+RequestParser::~RequestParser(){}

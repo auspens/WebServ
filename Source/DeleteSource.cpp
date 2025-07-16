@@ -1,14 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   DeleteSource.cpp                                   :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/06 17:46:12 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/15 18:35:34 by wpepping         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
 #include "DeleteSource.hpp"
 
@@ -22,6 +11,15 @@ DeleteSource::DeleteSource(
 {
 	Logger::debug() << "Creating Delete source"<<std::endl;
 	_target = target;
+}
+
+DeleteSource::DeleteSource(const DeleteSource &other):Source(other){}
+
+DeleteSource &DeleteSource::operator=(const DeleteSource &other){
+	if (this != &other){
+		Source::operator=(other);
+	}
+	return *this;
 }
 
 void DeleteSource::init() throw(SourceAndRequestException) {

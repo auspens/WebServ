@@ -158,6 +158,8 @@ void CGISource::readSource() throw(SourceAndRequestException) {
 	if (!_doneReading) {
 		Logger::debug() << "Bytes to send: " << _bytesToSend << std::endl;
 		size_t bytesRead = read(_outputPipe[0], _readBuffer.data(), _serverConfig.getBufferSize());
+		if (bytesRead < 0)
+			throw SourceAndRequestException("Child process returned error", 500);
 		_body.insert(_body.end(), _readBuffer.begin(), _readBuffer.begin() + bytesRead);
 
 		if (bytesRead == 0) {
@@ -220,6 +222,42 @@ bool CGISource::checkTimeout(int timeout) const {
 		&& std::time(0) - _childLastActive > timeout)
 			return true;
 	return false;
+}
+
+CGISource::CGISource(const CGISource &other) : Source(other){
+	_pathExists = other._pathExists;
+	_outputPipe[0] = other._outputPipe[0];
+	_outputPipe[1] = other._outputPipe[1];
+	_inputPipe[0] = other._inputPipe[0];
+	_inputPipe[1] = other._inputPipe[1];
+	_readBuffer = other._readBuffer;
+	_queryString = other._queryString;
+	_pathInfo = other._pathInfo;
+	_scriptName = other._scriptName;
+	_writeOffset = other._writeOffset;
+	_childPid = other._childPid;
+	_childLastActive = other._childLastActive;
+	_extension = other._extension;
+}
+
+CGISource &CGISource:: operator=(const CGISource &other){
+	if (this != &other){
+		Source::operator=(other);
+		_pathExists = other._pathExists;
+		_outputPipe[0] = other._outputPipe[0];
+		_outputPipe[1] = other._outputPipe[1];
+		_inputPipe[0] = other._inputPipe[0];
+		_inputPipe[1] = other._inputPipe[1];
+		_readBuffer = other._readBuffer;
+		_queryString = other._queryString;
+		_pathInfo = other._pathInfo;
+		_scriptName = other._scriptName;
+		_writeOffset = other._writeOffset;
+		_childPid = other._childPid;
+		_childLastActive = other._childLastActive;
+		_extension = other._extension;
+	}
+	return *this;
 }
 
 void CGISource::finalizeWrite() {

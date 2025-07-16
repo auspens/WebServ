@@ -1,14 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   UploadSource.hpp                                   :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/29 15:44:12 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/16 14:58:25 by wpepping         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
 #include <string>
 #include <fcntl.h>
@@ -32,6 +21,8 @@ class UploadSource : public Source {
 			std::string target
 		);
 		~UploadSource();
+		UploadSource(const UploadSource &other);
+		UploadSource &operator=(const UploadSource &other);
 		void	readSource();
 		void	writeSource() throw(SourceAndRequestException);
 		void	init() throw(SourceAndRequestException);

@@ -1,14 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   UploadSource.cpp                                   :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/29 16:03:49 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/16 15:48:33 by wpepping         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
 #include "UploadSource.hpp"
 
@@ -22,6 +11,24 @@ UploadSource::UploadSource(
 ) : Source(serverConfig, location, req) {
 	Logger::debug() << "Creating UploadSource" <<std::endl;
 	_target = target;
+}
+
+UploadSource::UploadSource(const UploadSource &other):Source(other){
+	_uploads = other._uploads;
+	_isWriting = other._isWriting;
+	_writeSize = other._writeSize;
+	_writeFd = other._writeFd;
+}
+
+UploadSource &UploadSource::operator=(const UploadSource &other){
+	if (this != &other){
+		Source::operator=(other);
+		_uploads = other._uploads;
+		_isWriting = other._isWriting;
+		_writeSize = other._writeSize;
+		_writeFd = other._writeFd;
+	}
+	return *this;
 }
 
 void UploadSource::init() throw(SourceAndRequestException) {

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ShutDownSource.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 17:45:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/12 21:36:50 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/16 14:57:57 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@ class ShutDownSource : public Source
 			HttpRequest &req
 		);
 		~ShutDownSource();
+		ShutDownSource(const ShutDownSource &other);
+		ShutDownSource &operator=(const ShutDownSource &other);
 
 		void readSource();
 		void init() throw(SourceAndRequestException);
