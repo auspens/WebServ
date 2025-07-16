@@ -108,8 +108,8 @@ std::string WebServUtils::urlDecode(const std::string &encoded) {
 
 	for (size_t i = 0; i < encoded.length(); i++) {
 		if (encoded[i] == '%' && i + 2 < encoded.length()
-			&& std::isdigit(encoded[i + 1]) && std::isdigit(encoded[i + 2])) {
-				result += 16 * (encoded[i + 1] - '0') + (encoded[i + 2] - '0');
+			&& _isHex(encoded[i + 1]) && _isHex(encoded[i + 2])) {
+				result += static_cast<char>(16 * (encoded[i + 1] - '0') + (encoded[i + 2] - '0'));
 				i += 2;
 		} else if (encoded[i] == '+') {
 			result += ' ';
@@ -119,3 +119,10 @@ std::string WebServUtils::urlDecode(const std::string &encoded) {
 	std::cout << "result: " << result << std::endl;
 	return result;
 }
+
+bool WebServUtils::_isHex(char c) {
+	return std::isdigit(c) || (c >= 'A' && c <= 'F');
+}
+
+WebServUtils::WebServUtils() { }
+WebServUtils::~WebServUtils() { }

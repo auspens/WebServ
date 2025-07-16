@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 14:38:47 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/16 16:18:10 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/16 19:59:58 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,4 +65,6 @@ static void removeFromContainer(Container& container, const typename Container::
 private:
 	WebServUtils();
 	~WebServUtils();
+
+	static bool _isHex(char c);
 };

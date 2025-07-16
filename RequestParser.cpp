@@ -70,7 +70,7 @@ bool RequestParser::parseStartLine(const char *data, size_t len) throw(SourceAnd
 	if (!(line >> _request.method >> _request.uri >> _request.http_version))
 		throw SourceAndRequestException("Bad request", 400);
 	if (_request.http_version != "HTTP/1.1")
-		throw SourceAndRequestException("Incorrect http version", 503);
+		throw SourceAndRequestException("Incorrect http version", 505);
 	if (_request.method != "POST" && _request.method != "GET" && _request.method != "DELETE")
 		throw SourceAndRequestException("Incorrect http version", 400);
 
