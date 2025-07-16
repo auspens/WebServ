@@ -18,7 +18,7 @@ def main():
     filename = os.path.basename(fileitem.filename)
 
     # Save to disk
-    with open(f"uploads/{filename}", "wb") as f:
+    with open(f"www/uploads/{filename}", "wb") as f:
         f.write(fileitem.file.read())
 
     print("<html><body>")

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RedirectSource.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/06 16:39:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/12 21:36:05 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/16 14:56:49 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,18 @@ RedirectSource::RedirectSource(const ServerConfig &serverConfig, const Location 
 	Logger::debug() << "Creating redirect source"<<std::endl;
 
 }
+
+RedirectSource::RedirectSource(const RedirectSource &other):Source(other){
+	_code = other._code;
+}
+RedirectSource &RedirectSource::operator=(const RedirectSource &other){
+	if (this != &other){
+		Source::operator=(other);
+		_code = other._code;
+	}
+	return *this;
+}
+
 void RedirectSource::init() throw(SourceAndRequestException) {
 	_code = _location->getRedirectCode();
 	_target = _request.path;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/22 11:16:20 by auspensk          #+#    #+#             */
-/*   Updated: 2025/06/18 17:10:10 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/16 15:56:52 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,15 +28,18 @@ int Socket::getFd() const {
 }
 
 Socket &Socket::operator=(const Socket &other){
-	(void)other;
+	if (this != &other){
+		_fd = other._fd;
+		_addrinfo = other._addrinfo;
+	}
 	return *this;
 }
 
 Socket::Socket() {}
 
-Socket::Socket(const Socket &other) {
-	(void)other;
-}
+Socket::Socket(const Socket &other):
+	_fd(other._fd)
+	, _addrinfo(other._addrinfo) {}
 
 void Socket::close_sock() {
 	close(_fd);

@@ -1,14 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ErrorPageSource.cpp                                :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/06 15:55:07 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/16 15:48:15 by wpepping         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
 #include "ErrorPageSource.hpp"
 
@@ -63,11 +52,13 @@ void ErrorPageSource::init() throw(SourceAndRequestException) {
 }
 
 ErrorPageSource::ErrorPageSource(const ErrorPageSource &src):StaticFileSource(src){
+	_code = src._code;
 }
 
 ErrorPageSource &ErrorPageSource::operator=(const ErrorPageSource &other){
 	if (this != &other){
 		StaticFileSource::operator=(other);
+		_code = other._code;
 	}
 	return *this;
 }
