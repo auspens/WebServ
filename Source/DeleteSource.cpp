@@ -1,14 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   DeleteSource.cpp                                   :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/06 17:46:12 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/16 14:52:10 by auspensk         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
 #include "DeleteSource.hpp"
 
@@ -54,11 +43,11 @@ void DeleteSource::setHeader() {
 	std::string response;
 
 	response =
-		"HTTP/1.1 200 OK\n"
-		"Content-Type: application/json\n"
-		"Content-Length: 41\n"
-		"\n"
-		"{\"message\": \"File deleted successfully\"}\n";
+		"HTTP/1.1 200 OK\r\n"
+		"Content-Type: application/json\r\n"
+		"Content-Length: 42\r\n"
+		"\r\n"
+		"{\"message\": \"File deleted successfully\"}\r\n";
 
 	_body.assign(response.begin(), response.end());
 	_bytesToSend = _body.size();

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Source.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/12 21:36:23 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/16 15:59:23 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,20 +28,23 @@ class Source {
 	public:
 		virtual 					~Source();
 		virtual void 				readSource() = 0;
-		virtual void 				writeSource();
+		virtual void 				writeSource() throw(SourceAndRequestException);
 		virtual void				init() throw(SourceAndRequestException);
+		virtual bool				checkTimeout(int timeout) const;
+		virtual void				setHeader();
 
 		std::string 				getMime() const;
 		std::vector<char> const &	getBytesRead() const;
 		int 						getFd() const;
 		int 						getWriteFd() const;
 		int							getSize() const;
-		virtual char				*readFromBuffer();
 		bool						isPollableRead() const;
 		bool						isPollableWrite() const;
 		bool						isWriteWhenComplete() const;
-		virtual bool				checkTimeout(int timeout) const;
-		virtual void				setHeader();
+
+		virtual char				*readFromBuffer();
+		void						bytesSent(int bytes);
+		void						finalizeWrite();
 
 		size_t										_bytesToSend;
 		int											_offset;
@@ -52,7 +55,7 @@ class Source {
 	protected:
 		int					_fd;
 		int					_writeFd;
-		int					_size;
+		size_t				_size;
 		const ServerConfig	&_serverConfig;
 		const Location		*_location;
 		std::string			_target;

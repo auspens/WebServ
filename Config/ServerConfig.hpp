@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 17:00:59 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/13 17:36:30 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/15 16:34:21 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ public:
 	int											getPort() const;
 	const std::vector<std::string>				&getServerNames() const;
 	size_t										getBufferSize() const;
-	const std::string							getPythonExecutable() const;
 	const std::string							&getRootFolder() const;
 	const std::map<int, std::string>			&getErrorPages() const;
 	const std::vector<Location *>				&getLocations() const;

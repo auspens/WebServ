@@ -31,6 +31,8 @@ CGISource::CGISource(
 void CGISource::init() throw(SourceAndRequestException) {
 	Source::init();
 
+	_childExited = false;
+	_childPid = 0;
 	_childLastActive = std::time(0);
 	_pollableRead = true;
 	_pollableWrite = true;
@@ -43,27 +45,45 @@ void CGISource::init() throw(SourceAndRequestException) {
 
 	if (_request.method == "POST")
 		_doneWriting = false;
-	setHeader();
 }
 
-CGISource::~CGISource(){
+CGISource::~CGISource() {
 	Logger::debug() << "CGISource destructor called" << std::endl;
 	close(_fd);
 	close(_writeFd);
+	if (_childPid > 0 && !_childExited) {
+		kill(_childPid, SIGTERM);
+		kill(_childPid, SIGKILL);
+	}
 }
 
-void CGISource::setHeader(){
-	std::string header;
+void CGISource::setHeader() {
+	std::string					header;
+
 	header += "HTTP/1.1 200 OK\r\n";
-	header += "Connection: Keep-Alive\r\n";
-	header += "Keep-Alive: timeout=5, max=997\r\n";
-//no content-length header, as we don't know the length of the content at this stage. Connection is closed after completing the CGI
+	if (_request.isKeepAlive())
+		header += "Connection: Keep-Alive\r\n";
+	header += "Content-Length: " + WebServUtils::num_to_str(_getContentLength()) + "\r\n";
 	Logger::debug()<< "At setHeader" << std::endl;
-	Logger::debug() << "Body: " << std::string(_body.begin(), _body.end())<< " bytesTosend: "<< _bytesToSend<<std::endl;
-	Logger::debug()<< "Header: " << header << "header length: "<< header.length()<<std::endl;
-	_body.assign(header.begin(), header.end());
+	Logger::debug()<< "Header: " << std::endl << header << "header length: "<< header.length() << std::endl;
+	_body.insert(_body.begin(), header.begin(), header.end());
 	_bytesToSend += header.length();
 	Logger::debug() << "Bytes to send: " << _bytesToSend << std::endl;
+}
+
+size_t CGISource::_getContentLength() const {
+	std::vector<char>::const_iterator	it;
+	std::string							needle = "\r\n\r\n";
+	std::string							needle2 = "\n\n";
+	int									needle_len = 4;
+
+	it = std::search(_body.begin(), _body.end(), needle.begin(), needle.end());
+	if (it == _body.end()) {
+		it = std::search(_body.begin(), _body.end(), needle2.begin(), needle2.end());
+		needle_len -= 2;
+	}
+
+	return (it == _body.end() ? 0 : _bytesToSend - (it - _body.begin()) - needle_len);
 }
 
 void CGISource::_forkAndExec() throw(IsChildProcessException) {
@@ -79,10 +99,10 @@ void CGISource::_forkAndExec() throw(IsChildProcessException) {
 	if (pid < 0) {
 		perror("fork");
 	} else if (pid == 0) { //CHILD
-		_buildArgv(argv);
-		_buildEnvp(envp);
 		close(_inputPipe[1]);
 		close(_outputPipe[0]);
+		_buildArgv(argv);
+		_buildEnvp(envp);
 		Logger::debug() << "Child: Throwing IsChildProcessException" << std::endl;
 		throw IsChildProcessException(argv, envp, _inputPipe[0], _outputPipe[1]);
 	} else { // PARENT
@@ -142,8 +162,11 @@ void CGISource::readSource() throw(SourceAndRequestException) {
 			throw SourceAndRequestException("Child process returned error", 500);
 		_body.insert(_body.end(), _readBuffer.begin(), _readBuffer.begin() + bytesRead);
 
-		if (bytesRead == 0)
+		if (bytesRead == 0) {
 			_doneReading = true;
+			setHeader();
+		}
+
 		_bytesToSend += bytesRead;
 		_size += bytesRead;
 
@@ -159,16 +182,20 @@ void CGISource::readSource() throw(SourceAndRequestException) {
 	_childLastActive = std::time(0);
 }
 
-void CGISource::writeSource() {
-	size_t numbytes;
-	size_t writeSize = std::min(Config::getClientMaxBodySize(_serverConfig, _location), _request.body.length() - _writeOffset);
+void CGISource::writeSource() throw(SourceAndRequestException) {
+	long	numbytes;
+	size_t	unsigned_numbytes;
+	size_t	writeSize = std::min(Config::getClientMaxBodySize(_serverConfig, _location), _request.body.length() - _writeOffset);
 
 	numbytes = write(_writeFd, _request.body.c_str() + _writeOffset, writeSize);
-	_writeOffset += numbytes;
-	if (_writeOffset == numbytes) {
-		Logger::debug() << "Closing write end of input pipe: Closing fd " << _writeFd << std::endl;
+	if (numbytes == -1)
+		throw SourceAndRequestException("Error writing to CGI process", 500);
+
+	unsigned_numbytes = static_cast<size_t>(numbytes);
+	_writeOffset += unsigned_numbytes;
+	if (_writeOffset == unsigned_numbytes) {
+		Logger::debug() << "Done writing to cgi, closing write end of input pipe: fd " << _writeFd << std::endl;
 		_doneWriting = true;
-		close(_writeFd);
 	}
 
 	_childLastActive = std::time(0);
@@ -182,6 +209,7 @@ bool CGISource::_childProcessHealthy() {
 	if (it == exitStatus.end())
 		return true;
 
+	_childExited = true;
 	status = it->second;
 	CGISource::exitStatus.erase(it);
 	if (status == 0)
@@ -230,4 +258,8 @@ CGISource &CGISource:: operator=(const CGISource &other){
 		_extension = other._extension;
 	}
 	return *this;
+}
+
+void CGISource::finalizeWrite() {
+	close(_writeFd);
 }

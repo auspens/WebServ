@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/12 21:46:34 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/16 14:28:40 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,17 @@ class Connection{
 		Connection(int fd, int serverPort, struct addrinfo *addrinfo);
 		~Connection();
 
+		class SocketException : std::exception{
+			public:
+				virtual const char *what() const throw();
+				SocketException(const std::string& msg);
+				SocketException();
+				virtual ~SocketException() throw();
+
+			private:
+				std::string message;
+		};
+
 		int					getSourceFd() const;
 		int					getSocketFd() const;
 		HttpRequest			getRequest() const;
@@ -53,10 +64,9 @@ class Connection{
 		void				setupErrorPageSource(const Config &config, int code)throw();
 
 		void				readFromSocket(size_t bufferSize, const Config *config)
-								throw(SourceAndRequestException, EmptyRequestException);
-		void				writeToSocket();
-		void				resetParser();
-
+								throw(SourceAndRequestException, EmptyRequestException, SocketException);
+		void				writeToSocket() throw(SocketException);
+		void				finishRequest();
 
 	private:
 		Connection(const Connection &src);
@@ -76,6 +86,7 @@ class Connection{
 
 		bool _matchServerName(std::string host, std::string serverName) const;
 		void _setLastSocketActiveTime(time_t time);
+		void _resetParser();
 
 		Socket				_socket;
 		RequestParser		_parser;

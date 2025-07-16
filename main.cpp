@@ -70,6 +70,8 @@ int main(int argc, char *argv[]) {
 	//printFullConfig(config);
 
 	signal(SIGCHLD, sigchld_handler);
+	signal(SIGPIPE, SIG_IGN);
+
 	Server *server = new Server(config);
 	try {
 		server->listen();

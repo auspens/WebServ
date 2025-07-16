@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/12 17:17:23 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/15 16:49:02 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ class Server {
 		void			_writeToSocket(EventInfo &eventInfo);
 		void			_readFromSource(EventInfo &eventInfo);
 		void			_writeToSource(EventInfo &eventInfo);
+		void			_finishRequest(Connection *conn);
 		void			_handleSourceError(Connection *conn, int errorCode);
 		void			_iterateNonPollables(std::list<EventInfo *> fds, u_int32_t eventType);
 		void			_updateEvents(int action, u_int32_t events, EventInfo *eventInfo, int fd);

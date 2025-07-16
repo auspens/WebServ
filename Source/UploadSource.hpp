@@ -1,14 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   UploadSource.hpp                                   :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/29 15:44:12 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/16 15:04:38 by auspensk         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
 #include <string>
 #include <fcntl.h>
@@ -35,7 +24,7 @@ class UploadSource : public Source {
 		UploadSource(const UploadSource &other);
 		UploadSource &operator=(const UploadSource &other);
 		void	readSource();
-		void	writeSource();
+		void	writeSource() throw(SourceAndRequestException);
 		void	init() throw(SourceAndRequestException);
 
 	private:
