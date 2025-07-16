@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:46:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/15 19:08:37 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/16 14:20:11 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,11 +100,14 @@ void Connection::setupErrorPageSource(const Config &config, int code) throw() {
 }
 
 void Connection::readFromSocket(size_t bufferSize, const Config *config)
-	throw(SourceAndRequestException, EmptyRequestException) {
+	throw(SourceAndRequestException, EmptyRequestException, SocketException) {
 	std::vector<char> buffer;
 
 	buffer.reserve(bufferSize);
+
 	int valread = read(_socket.getFd(), buffer.data(), bufferSize);
+	if (valread == -1)
+		throw SocketException(std::string("Error reading from socket") + strerror(errno));
 
 	RequestParser::ParseResult parseResult = _parser.parse(buffer.data(), valread);
 	if (parseResult == RequestParser::URL_READY) {
@@ -129,7 +132,7 @@ void Connection::readFromSocket(size_t bufferSize, const Config *config)
 	_setLastSocketActiveTime(std::time(0));
 }
 
-void Connection::writeToSocket() {
+void Connection::writeToSocket() throw(SocketException) {
 	const char	*buf = _source->readFromBuffer();
 
 	if (_source->_bytesToSend > 0) {
@@ -141,12 +144,10 @@ void Connection::writeToSocket() {
 
 		bytes_sent = send(_socket.getFd(), buf, size, 0);
 		if (bytes_sent == -1)
-			throw std::runtime_error(std::string("Error sending body: ") + strerror(errno)); // This should probably be a different type of exception. Also needs to be caught in Server or program will crash
+			throw SocketException(std::string("Error sending to socket: ") + strerror(errno));
 
 		Logger::debug() << "Sent " << bytes_sent << " bytes:" << std::endl;
-
-		_source->_bytesToSend -= bytes_sent; // Use setter
-		_source->_offset += bytes_sent; // Use setter
+		_source->bytesSent(bytes_sent);
 	}
 
 	_setLastSocketActiveTime(std::time(0));
@@ -264,3 +265,14 @@ EventInfo *Connection::getSocketEventInfo() const {
 void Connection::_setLastSocketActiveTime(time_t time) {
 	_lastActiveTime = time;
 }
+
+Connection::SocketException::SocketException() : message("Socket error") { }
+
+Connection::SocketException::SocketException(const std::string &msg) :
+	message(msg) { }
+
+const char* Connection::SocketException::what() const throw() {
+	return message.c_str();
+}
+
+Connection::SocketException::~SocketException() throw() { }

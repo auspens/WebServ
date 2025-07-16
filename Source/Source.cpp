@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:33:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/15 18:30:23 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/16 14:54:26 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,7 +122,7 @@ void Source::setHeader() { //default are Content-Type and Content-Length headers
 	Logger::debug() << "Bytes to send: " << _bytesToSend << std::endl;
 }
 
-void Source::writeSource() {}
+void Source::writeSource() throw(SourceAndRequestException) {}
 
 bool Source::checkTimeout(int timeout) const {
 	(void)timeout;
@@ -148,4 +148,9 @@ bool Source::_checkExists(std::string &target) {
 	if (access(target.c_str(), F_OK))
 		return false;
 	return true;
+}
+
+void Source::bytesSent(int bytes) {
+	_bytesToSend -= bytes;
+	_offset += bytes;
 }

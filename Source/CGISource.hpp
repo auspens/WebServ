@@ -22,7 +22,7 @@ class CGISource : public Source {
 		~CGISource();
 
 		void readSource() throw(SourceAndRequestException);
-		void writeSource();
+		void writeSource() throw(SourceAndRequestException);
 		void init() throw(SourceAndRequestException);
 		bool getIfExists() const;
 		bool checkTimeout(int timeout) const;
@@ -42,13 +42,14 @@ class CGISource : public Source {
 		size_t				_writeOffset;
 		int					_childPid;
 		int					_childLastActive;
+		bool				_childExited;
 		std::string 		_extension;
 
 		bool	_checkIfExists();
 		void	_buildArgv(std::vector<std::string> &argv);
 		void	_buildEnvp(std::vector<std::string> &envp);
 		void	_forkAndExec() throw(IsChildProcessException);
-		bool	_childProcessHealthy() const;
+		bool	_childProcessHealthy();
 		size_t	_getContentLength() const;
 		CGISource();
 };

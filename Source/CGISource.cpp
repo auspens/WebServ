@@ -31,6 +31,8 @@ CGISource::CGISource(
 void CGISource::init() throw(SourceAndRequestException) {
 	Source::init();
 
+	_childExited = false;
+	_childPid = 0;
 	_childLastActive = std::time(0);
 	_pollableRead = true;
 	_pollableWrite = true;
@@ -49,6 +51,10 @@ CGISource::~CGISource() {
 	Logger::debug() << "CGISource destructor called" << std::endl;
 	close(_fd);
 	close(_writeFd);
+	if (_childPid > 0 && !_childExited) {
+		kill(_childPid, SIGTERM);
+		kill(_childPid, SIGKILL);
+	}
 }
 
 void CGISource::setHeader() {
@@ -93,10 +99,10 @@ void CGISource::_forkAndExec() throw(IsChildProcessException) {
 	if (pid < 0) {
 		perror("fork");
 	} else if (pid == 0) { //CHILD
-		_buildArgv(argv);
-		_buildEnvp(envp);
 		close(_inputPipe[1]);
 		close(_outputPipe[0]);
+		_buildArgv(argv);
+		_buildEnvp(envp);
 		Logger::debug() << "Child: Throwing IsChildProcessException" << std::endl;
 		throw IsChildProcessException(argv, envp, _inputPipe[0], _outputPipe[1]);
 	} else { // PARENT
@@ -174,14 +180,19 @@ void CGISource::readSource() throw(SourceAndRequestException) {
 	_childLastActive = std::time(0);
 }
 
-void CGISource::writeSource() {
-	size_t numbytes;
-	size_t writeSize = std::min(Config::getClientMaxBodySize(_serverConfig, _location), _request.body.length() - _writeOffset);
+void CGISource::writeSource() throw(SourceAndRequestException) {
+	long	numbytes;
+	size_t	unsigned_numbytes;
+	size_t	writeSize = std::min(Config::getClientMaxBodySize(_serverConfig, _location), _request.body.length() - _writeOffset);
 
 	numbytes = write(_writeFd, _request.body.c_str() + _writeOffset, writeSize);
-	_writeOffset += numbytes;
-	if (_writeOffset == numbytes) {
-		Logger::debug() << "Closing write end of input pipe: Closing fd " << _writeFd << std::endl;
+	if (numbytes == -1)
+		throw SourceAndRequestException("Error writing to CGI process", 500);
+
+	unsigned_numbytes = static_cast<size_t>(numbytes);
+	_writeOffset += unsigned_numbytes;
+	if (_writeOffset == unsigned_numbytes) {
+		Logger::debug() << "Done writing to cgi, closing write end of input pipe: fd " << _writeFd << std::endl;
 		_doneWriting = true;
 		close(_writeFd);
 	}
@@ -189,7 +200,7 @@ void CGISource::writeSource() {
 	_childLastActive = std::time(0);
 }
 
-bool CGISource::_childProcessHealthy() const {
+bool CGISource::_childProcessHealthy() {
 	std::map<pid_t, int>::iterator	it;
 	int								status;
 
@@ -197,6 +208,7 @@ bool CGISource::_childProcessHealthy() const {
 	if (it == exitStatus.end())
 		return true;
 
+	_childExited = true;
 	status = it->second;
 	CGISource::exitStatus.erase(it);
 	if (status == 0)

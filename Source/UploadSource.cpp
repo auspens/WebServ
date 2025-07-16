@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:03:49 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/15 18:35:29 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/16 14:58:54 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,12 +143,9 @@ std::string UploadSource::_findBoundary(std::string header)
 	return header.substr(start, end);
 }
 
-void UploadSource::writeSource()
-{
-	if (!_isWriting)
-	{
-		if (_uploads.empty())
-		{
+void UploadSource::writeSource() throw(SourceAndRequestException) {
+	if (!_isWriting) {
+		if (_uploads.empty()) {
 			_doneWriting = true;
 			_createHTTPResponse();
 			return;
@@ -168,8 +165,7 @@ void UploadSource::writeSource()
 	if (bytesWritten < 0)
 		throw SourceAndRequestException("Could not write to upload file", 500);
 
-	if (bytesWritten == 0)
-	{
+	if (bytesWritten == 0) {
 		_uploads.erase(_uploads.begin());
 		_isWriting = false;
 		close(_writeFd);

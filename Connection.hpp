@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/15 16:50:11 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/16 14:28:40 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,17 @@ class Connection{
 		Connection(int fd, int serverPort, struct addrinfo *addrinfo);
 		~Connection();
 
+		class SocketException : std::exception{
+			public:
+				virtual const char *what() const throw();
+				SocketException(const std::string& msg);
+				SocketException();
+				virtual ~SocketException() throw();
+
+			private:
+				std::string message;
+		};
+
 		int					getSourceFd() const;
 		int					getSocketFd() const;
 		HttpRequest			getRequest() const;
@@ -53,8 +64,8 @@ class Connection{
 		void				setupErrorPageSource(const Config &config, int code)throw();
 
 		void				readFromSocket(size_t bufferSize, const Config *config)
-								throw(SourceAndRequestException, EmptyRequestException);
-		void				writeToSocket();
+								throw(SourceAndRequestException, EmptyRequestException, SocketException);
+		void				writeToSocket() throw(SocketException);
 		void				finishRequest();
 
 	private:

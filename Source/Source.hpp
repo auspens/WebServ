@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/15 19:18:01 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/16 14:58:03 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,20 +28,22 @@ class Source {
 	public:
 		virtual 					~Source();
 		virtual void 				readSource() = 0;
-		virtual void 				writeSource();
+		virtual void 				writeSource() throw(SourceAndRequestException);
 		virtual void				init() throw(SourceAndRequestException);
+		virtual bool				checkTimeout(int timeout) const;
+		virtual void				setHeader();
 
 		std::string 				getMime() const;
 		std::vector<char> const &	getBytesRead() const;
 		int 						getFd() const;
 		int 						getWriteFd() const;
 		int							getSize() const;
-		virtual char				*readFromBuffer();
 		bool						isPollableRead() const;
 		bool						isPollableWrite() const;
 		bool						isWriteWhenComplete() const;
-		virtual bool				checkTimeout(int timeout) const;
-		virtual void				setHeader();
+
+		virtual char				*readFromBuffer();
+		void						bytesSent(int bytes);
 
 		size_t										_bytesToSend;
 		int											_offset;
