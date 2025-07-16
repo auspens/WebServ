@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   WebServUtils.cpp                                   :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/26 17:15:00 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/13 17:39:49 by wouter           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "WebServUtils.hpp"
 
 void WebServUtils::printErrorAndExit(std::string message, int exit_status) {
@@ -113,4 +101,21 @@ std::string WebServUtils::getCgiExtension(const std::string &path, std::map<std:
 			return it->first;
 	}
 	return "";
+}
+
+std::string WebServUtils::urlDecode(const std::string &encoded) {
+	std::string	result = "";
+
+	for (size_t i = 0; i < encoded.length(); i++) {
+		if (encoded[i] == '%' && i + 2 < encoded.length()
+			&& std::isdigit(encoded[i + 1]) && std::isdigit(encoded[i + 2])) {
+				result += 16 * (encoded[i + 1] - '0') + (encoded[i + 2] - '0');
+				i += 2;
+		} else if (encoded[i] == '+') {
+			result += ' ';
+		} else
+			result += encoded[i];
+	}
+	std::cout << "result: " << result << std::endl;
+	return result;
 }

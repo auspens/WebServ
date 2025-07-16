@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServUtils.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 14:38:47 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/13 17:38:19 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/16 16:18:10 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ public:
 	static std::string	getEpollEventNames(uint32_t events);
 	static void			removeFromString(std::string &haystack, const std::string &needle);
 	static std::string	getCgiExtension(const std::string &path, std::map<std::string, std::string> acceptCgi);
+	static std::string	urlDecode(const std::string &encoded);
 
 	template <typename T, size_t N>
 	static bool isin(const T (&array)[N], const T &value) 	{
@@ -54,7 +55,7 @@ public:
 	}
 
 template <typename Container>
-static void removeFromContainer(Container& container, const typename Container::value_type& value) {
+static void removeFromContainer(Container& container, const typename Container::value_type &value) {
 	typename Container::iterator it = std::find(container.begin(), container.end(), value);
 	if (it != container.end()) {
 		container.erase(it);

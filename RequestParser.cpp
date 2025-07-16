@@ -203,7 +203,7 @@ void RequestParser::_parseUrl() {
 
 	pathEnd = url.find_first_of("?#", hostEnd);
 	_request.hostname = url.substr(hostStart, hostEnd - hostStart);
-	_request.path = url.substr(hostEnd, pathEnd - hostEnd);
+	_request.path = WebServUtils::urlDecode(url.substr(hostEnd, pathEnd - hostEnd));
 
 	if (_request.path == "")
 		_request.path = "/";
