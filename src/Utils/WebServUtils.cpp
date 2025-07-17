@@ -116,7 +116,6 @@ std::string WebServUtils::urlDecode(const std::string &encoded) {
 		} else
 			result += encoded[i];
 	}
-	std::cout << "result: " << result << std::endl;
 	return result;
 }
 

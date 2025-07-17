@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 12:55:35 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/16 17:00:23 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/17 14:20:38 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,9 +120,7 @@ void ServerConfig::_parseRoot(std::ifstream &infile) throw(ConfigParseException)
 }
 
 int ServerConfig::getPort() const {
-	if (_port)
-		return _port;
-	return DEFAULT_PORT;
+	return _port;
 }
 
 const std::vector<std::string> &ServerConfig::getServerNames() const {

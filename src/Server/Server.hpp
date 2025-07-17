@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/16 16:36:13 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/17 14:25:39 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@
 #include "Config.hpp"
 #include "Connection.hpp"
 #include "Constants.hpp"
-#include "EmptyRequestException.hpp"
 #include "EventInfo.hpp"
 #include "IsChildProcessException.hpp"
 #include "ListeningSocket.hpp"

@@ -60,14 +60,17 @@ RequestParser::ParseResult RequestParser::parse(const char* data, size_t len) th
 }
 
 bool RequestParser::parseStartLine(const char *data, size_t len) throw(SourceAndRequestException) {
-	size_t pos = _buffer.find("\r\n");
+	char		cr, lf;
+	size_t		pos = _buffer.find("\r\n");
 
 	if (pos == std::string::npos)
 		return checkForError(data, len, false);
 
-	std::istringstream line(_buffer.substr(0, pos));
+	std::istringstream line(_buffer);
 
 	if (!(line >> _request.method >> _request.uri >> _request.http_version))
+		throw SourceAndRequestException("Bad request", 400);
+	if (!line.get(cr) || !line.get(lf) || cr != '\r' || lf != '\n')
 		throw SourceAndRequestException("Bad request", 400);
 	if (_request.http_version != "HTTP/1.1")
 		throw SourceAndRequestException("Incorrect http version", 505);
@@ -92,7 +95,7 @@ bool RequestParser::parseHeaders(const char *data, size_t len) throw(SourceAndRe
         std::string key = line.substr(0, colon);
 		if (key.size() == line.size() - 1)
             _request.headers[key] = "";
-        else 
+        else
         	_request.headers[key] = line.substr(colon + 2);;
     }
     return checkForError(data, len, false); // wait for more data

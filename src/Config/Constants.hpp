@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Constants.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 14:52:12 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/12 17:20:04 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/17 15:31:32 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,9 +46,12 @@ enum LogLevel {
 #define DOCSTRING "<!DOCTYPE html>\n"
 #define DEFAULT_PERMISSIONS 0644
 
+#define STATUS_CODES_JSON "metadata/StatusCodes.json"
+#define MIME_TYPES_JSON "metadata/FileExtensionsToMime.json"
+
 const std::string CGI_EXTENSIONS[] = {
 	".py",
 	".php"
 };
 
-#define LOG_LEVEL LOG_DETAIL
+#define LOG_LEVEL LOG_INFO

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StatusCodesStorage.hpp                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/12 18:24:25 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/12 19:21:25 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/17 15:25:46 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,7 @@
 #include <map>
 #include <sstream>
 #include <string>
-
-#define STATUS_CODES_JSON "StatusCodes.json"
-#define MIME_TYPES_JSON "FileExtesionsToMime.json"
+#include "Constants.hpp"
 
 struct HTTPStatusCode {
 	std::string code;

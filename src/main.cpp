@@ -2,8 +2,6 @@
 #include "Config.hpp"
 #include "Logger.hpp"
 #include "Server.hpp"
-#include "TestConfig.hpp"
-#include "TestUtils.hpp"
 #include <signal.h>
 #include <sys/wait.h>
 
@@ -69,7 +67,6 @@ int main(int argc, char *argv[]) {
 
 	if (readConfig(argc, argv, config))
 		return 1;
-	//printFullConfig(config);
 
 	signal(SIGCHLD, sigchld_handler);
 	signal(SIGPIPE, SIG_IGN);

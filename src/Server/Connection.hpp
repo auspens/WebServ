@@ -6,16 +6,15 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/16 17:20:17 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/17 15:22:28 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "Config.hpp"
-#include "Source/SourceFactory.hpp"
+#include "SourceFactory.hpp"
 #include "IsChildProcessException.hpp"
-#include "EmptyRequestException.hpp"
 #include "EventInfo.hpp"
 #include "Logger.hpp"
 #include "RequestParser.hpp"
@@ -30,7 +29,7 @@ class Connection{
 		Connection(int fd, int serverPort, size_t bufferSize);
 		~Connection();
 
-		class SocketException : std::exception{
+		class SocketException : std::exception {
 			public:
 				virtual const char *what() const throw();
 				SocketException(const std::string& msg);
@@ -39,6 +38,11 @@ class Connection{
 
 			private:
 				std::string message;
+		};
+
+		class EmptyRequestException : std::exception {
+			public:
+				virtual const char *what() const throw();
 		};
 
 		int					getSourceFd() const;

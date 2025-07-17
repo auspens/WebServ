@@ -223,7 +223,7 @@ void Server::_readFromSocket(EventInfo &eventInfo) throw(IsChildProcessException
 			_updateEvents(EPOLL_CTL_ADD, EPOLLIN, conn->getSourceEventInfo(), conn->getSource()->getFd());
 		}
 		_updateEvents(EPOLL_CTL_MOD, EPOLLOUT, &eventInfo, conn->getSocketFd());
-	} catch (EmptyRequestException &e) {
+	} catch (Connection::EmptyRequestException &e) {
 		_removeConnection(conn);
 	}
 }
@@ -316,7 +316,7 @@ void Server::_updateEpoll(int action, u_int32_t events, EventInfo *eventInfo, in
 	}
 
 	if (epoll_ctl(_epollInstance, action, fd, event_ptr))
-		Logger::warning() << "_updateEpoll failed" << std::endl;
+		Logger::debug() << "_updateEpoll failed" << std::endl;
 	else
 		Logger::debug() << "_updateEpoll action " << action << " events " << events << " fd " << fd << std::endl;
 }
@@ -353,13 +353,13 @@ void Server::_updateEvents(int action, u_int32_t events, EventInfo *eventInfo, i
 		_updateNonPollables(action, events, eventInfo);
 
 	if (events & EPOLLIN && action == EPOLL_CTL_ADD && eventInfo->conn)
-		std::cout << ">>> Adding " << (pollable ? "" : "non-") << "pollable " <<
+		Logger::debug() << ">>> Adding " << (pollable ? "" : "non-") << "pollable " <<
 			(fd == eventInfo->conn->getSocketFd() ? "socket" : "source") << " fd to EPOLLIN: " << fd << std::endl;
 	else if (events & EPOLLOUT && action == EPOLL_CTL_ADD)
-		std::cout << ">>> Adding " << (pollable ? "" : "non-") << "pollable " <<
+		Logger::debug() << ">>> Adding " << (pollable ? "" : "non-") << "pollable " <<
 			(fd == eventInfo->conn->getSocketFd() ? "socket" : "source") << " fd to EPOLLOUT: " << fd << std::endl;
 	else if (action == EPOLL_CTL_DEL)
-		std::cout << ">>> Deleting " << (pollable ? "" : "non-") << "pollable fd from epoll: " << fd << std::endl;
+		Logger::debug() << ">>> Deleting " << (pollable ? "" : "non-") << "pollable fd from epoll: " << fd << std::endl;
 }
 
 ListeningSocket *Server::_findListeningSocket(int fd) {
@@ -395,7 +395,7 @@ void Server::_cleanInvalidatedConnections() {
 
 	for (size_t i = 0; i < _invalidatedConnections.size(); i++) {
 		conn = _invalidatedConnections[i];
-		Logger::debug() << "Closing connection!" << std::endl;
+		Logger::debug() << "Closing connection " << conn->getSocketFd() << std::endl;
 		_cleanConnection(conn);
 	}
 	_invalidatedConnections.clear();

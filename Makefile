@@ -6,85 +6,84 @@ CFLAGS = -Wall -Wextra -Werror -std=c++98
 DEBUG_FLAGS = -g -O0
 CFLAGS += $(DEBUG_FLAGS)
 
-OBJDIR = Obj
+SRCDIR = src
+OBJDIR = obj
 
-SRC =	Config/Config.cpp \
-		Config/Location.cpp \
-		Config/ServerConfig.cpp \
-		Config/ParseUtils.cpp \
-		Config/ConfigSettings.cpp \
-		Config/ConfigParseException.cpp \
-		Logger/Logger.cpp \
-		Logger/LogStream.cpp \
-		Source/Source.cpp \
-		Source/StaticFileSource.cpp \
-		Source/ErrorPageSource.cpp \
-		Source/RedirectSource.cpp \
-		Source/CGISource.cpp \
-		Source/IsChildProcessException.cpp \
-		Source/PageGenerator.cpp \
-		Source/StatusCodesStorage.cpp \
-		Source/MimeTypeInitialiser.cpp \
-		Source/SourceAndRequestException.cpp \
-		Source/SourceFactory.cpp \
-		Source/UploadSource.cpp \
-		Source/DeleteSource.cpp \
-		Source/ShutDownSource.cpp \
-		Connection.cpp \
-		EmptyRequestException.cpp \
-		ListeningSocket.cpp \
-		main.cpp \
-		RequestParser.cpp \
-		Server.cpp \
-		Socket.cpp \
-		SystemCallsUtilities.cpp \
-		WebServUtils.cpp \
-		Tests/TestConfig.cpp \
-		Tests/TestUtils.cpp
+SRC =	$(SRCDIR)/Config/Config.cpp \
+		$(SRCDIR)/Config/Location.cpp \
+		$(SRCDIR)/Config/ServerConfig.cpp \
+		$(SRCDIR)/Config/ParseUtils.cpp \
+		$(SRCDIR)/Config/ConfigSettings.cpp \
+		$(SRCDIR)/Config/ConfigParseException.cpp \
+		$(SRCDIR)/Logger/Logger.cpp \
+		$(SRCDIR)/Logger/LogStream.cpp \
+		$(SRCDIR)/Source/Source.cpp \
+		$(SRCDIR)/Source/StaticFileSource.cpp \
+		$(SRCDIR)/Source/ErrorPageSource.cpp \
+		$(SRCDIR)/Source/RedirectSource.cpp \
+		$(SRCDIR)/Source/CGISource.cpp \
+		$(SRCDIR)/Source/IsChildProcessException.cpp \
+		$(SRCDIR)/Source/PageGenerator.cpp \
+		$(SRCDIR)/Source/StatusCodesStorage.cpp \
+		$(SRCDIR)/Source/MimeTypeInitialiser.cpp \
+		$(SRCDIR)/Source/SourceAndRequestException.cpp \
+		$(SRCDIR)/Source/SourceFactory.cpp \
+		$(SRCDIR)/Source/UploadSource.cpp \
+		$(SRCDIR)/Source/DeleteSource.cpp \
+		$(SRCDIR)/Source/ShutDownSource.cpp \
+		$(SRCDIR)/Server/Connection.cpp \
+		$(SRCDIR)/Server/ListeningSocket.cpp \
+		$(SRCDIR)/main.cpp \
+		$(SRCDIR)/Request/RequestParser.cpp \
+		$(SRCDIR)/Server/Server.cpp \
+		$(SRCDIR)/Server/Socket.cpp \
+		$(SRCDIR)/Utils/SystemCallsUtilities.cpp \
+		$(SRCDIR)/Utils/WebServUtils.cpp
 
-HDR =	Config/Config.hpp \
-		Config/Location.hpp \
-		Config/ServerConfig.hpp \
-		Config/ParseUtils.hpp \
-		Config/Constants.hpp \
-		Config/ConfigSettings.hpp \
-		Config/ConfigParseException.hpp \
-		Logger/Logger.hpp \
-		Logger/LogStream.hpp \
-		Source/Source.hpp \
-		Source/StaticFileSource.hpp \
-		Source/RedirectSource.hpp \
-		Source/CGISource.hpp \
-		Source/IsChildProcessException.hpp \
-		Source/PageGenerator.hpp \
-		Source/StatusCodesStorage.hpp \
-		Source/SourceAndRequestException.hpp \
-		Source/SourceFactory.hpp \
-		Source/UploadSource.hpp \
-		Source/DeleteSource.hpp \
-		Source/ShutDownSource.hpp \
-		Connection.hpp \
-		EmptyRequestException.hpp \
-		ListeningSocket.hpp \
-		RequestParser.hpp \
-		HttpRequest.hpp \
-		Server.hpp \
-		Socket.hpp \
-		SystemCallsUtilities.hpp \
-		WebServUtils.hpp \
-		Tests/TestConfig.hpp \
-		Tests/TestUtils.hpp
+HDR =	$(SRCDIR)/Config/Config.hpp \
+		$(SRCDIR)/Config/Location.hpp \
+		$(SRCDIR)/Config/ServerConfig.hpp \
+		$(SRCDIR)/Config/ParseUtils.hpp \
+		$(SRCDIR)/Config/Constants.hpp \
+		$(SRCDIR)/Config/ConfigSettings.hpp \
+		$(SRCDIR)/Config/ConfigParseException.hpp \
+		$(SRCDIR)/Logger/Logger.hpp \
+		$(SRCDIR)/Logger/LogStream.hpp \
+		$(SRCDIR)/Source/Source.hpp \
+		$(SRCDIR)/Source/StaticFileSource.hpp \
+		$(SRCDIR)/Source/RedirectSource.hpp \
+		$(SRCDIR)/Source/CGISource.hpp \
+		$(SRCDIR)/Source/IsChildProcessException.hpp \
+		$(SRCDIR)/Source/PageGenerator.hpp \
+		$(SRCDIR)/Source/StatusCodesStorage.hpp \
+		$(SRCDIR)/Source/SourceAndRequestException.hpp \
+		$(SRCDIR)/Source/SourceFactory.hpp \
+		$(SRCDIR)/Source/UploadSource.hpp \
+		$(SRCDIR)/Source/DeleteSource.hpp \
+		$(SRCDIR)/Source/ShutDownSource.hpp \
+		$(SRCDIR)/Server/Connection.hpp \
+		$(SRCDIR)/Server/ListeningSocket.hpp \
+		$(SRCDIR)/Request/RequestParser.hpp \
+		$(SRCDIR)/Request/HttpRequest.hpp \
+		$(SRCDIR)/Server/Server.hpp \
+		$(SRCDIR)/Server/Socket.hpp \
+		$(SRCDIR)/Utils/SystemCallsUtilities.hpp \
+		$(SRCDIR)/Utils/WebServUtils.hpp
 
-OBJ = $(SRC:%.cpp=$(OBJDIR)/%.obj)
+OBJ = $(patsubst %.cpp,$(OBJDIR)/%.obj,$(notdir $(SRC)))
 
-INCLUDE = -I. -IConfig -ISource -ITests -ILogger
+INCLUDE = -I. -I$(SRCDIR)/Config  -I$(SRCDIR)/Logger -I$(SRCDIR)/Request -I$(SRCDIR)/Server -I$(SRCDIR)/Source -ITests -I$(SRCDIR)/Utils
 
 all: $(NAME)
 
 $(NAME): $(OBJ)
 	$(CC) $(CFLAGS) $(INCLUDE) $(OBJ) -o $(NAME)
 
-$(OBJDIR)/%.obj: %.cpp $(HDR)
+$(OBJDIR)/%.obj: $(SRCDIR)/*/%.cpp $(HDR)
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
+
+$(OBJDIR)/%.obj: $(SRCDIR)/%.cpp $(HDR)
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
 

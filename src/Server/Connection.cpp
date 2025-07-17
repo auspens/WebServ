@@ -274,3 +274,7 @@ const char* Connection::SocketException::what() const throw() {
 }
 
 Connection::SocketException::~SocketException() throw() { }
+
+const char* Connection::EmptyRequestException::what() const throw() {
+	return ("Empty request");
+}

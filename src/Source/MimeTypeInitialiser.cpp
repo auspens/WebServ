@@ -3,17 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   MimeTypeInitialiser.cpp                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 15:48:25 by auspensk          #+#    #+#             */
-/*   Updated: 2025/05/26 15:48:46 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/17 15:27:32 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <map>
+#include "Constants.hpp"
 #include "Source.hpp"
-#include "RedirectSource.hpp"
-#include "StaticFileSource.hpp"
-#include "CGISource.hpp"
 
 std::map <std::string, std::string> Source::_mimeTypes;
 

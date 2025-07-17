@@ -1,12 +1,14 @@
 #pragma once
+
 #include "HttpRequest.hpp"
-#include "Source/SourceAndRequestException.hpp"
-#include "Logger/Logger.hpp"
-#include "Config/Config.hpp"
+#include "SourceAndRequestException.hpp"
+#include "Logger.hpp"
+#include "Config.hpp"
 #include <cstring>
 #include <string>
 #include <sstream>
-#include <stdlib.h>     /* atoi */
+#include <stdlib.h>
+
 class RequestParser {
     public:
         enum ParseState {
