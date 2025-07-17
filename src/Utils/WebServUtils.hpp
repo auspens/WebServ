@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServUtils.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 14:38:47 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/17 16:56:36 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/17 18:08:18 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ public:
 	static std::string	getCgiExtension(const std::string &path, std::map<std::string, std::string> acceptCgi);
 	static std::string	urlDecode(const std::string &encoded);
 	static std::string	trim(const std::string& s);
-	
+
 	template <typename T, size_t N>
 	static bool isin(const T (&array)[N], const T &value) 	{
 		for (size_t i = 0; i < N; i++) {
@@ -66,6 +66,4 @@ static void removeFromContainer(Container& container, const typename Container::
 private:
 	WebServUtils();
 	~WebServUtils();
-
-	static bool _isHex(char c);
 };

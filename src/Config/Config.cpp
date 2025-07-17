@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 17:11:08 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/16 17:00:19 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/17 17:53:32 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,9 @@ Config::~Config() {
 Config::Config(const Config &src) {
 	_serverConfigs = src._serverConfigs;
 	_chunkSize = src._chunkSize;
+	_configSettings = src._configSettings;
+	_connectionTimeout = src._connectionTimeout;
+	_cgiTimeout = src._cgiTimeout;
 }
 
 Config &Config::operator=(const Config &src) {

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigSettings.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/11 20:05:23 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/13 17:46:55 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/17 17:53:59 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ ConfigSettings::ConfigSettings(ConfigSettings &src) {
 	_autoIndexIsSet = src._autoIndexIsSet;
 }
 
-ConfigSettings& ConfigSettings::operator=(ConfigSettings &src) {
+ConfigSettings& ConfigSettings::operator=(const ConfigSettings &src) {
 	if (this != &src) {
 		_clientMaxBodySize = src._clientMaxBodySize;
 		_errorPages = src._errorPages;

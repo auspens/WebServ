@@ -122,7 +122,7 @@ std::string UploadSource::_getFileName(std::string token)
 		pos = token.length();
 
 	std::ostringstream name;
-	name << _target << "/" << token.substr(0, pos) << "_" << time(NULL) << token.substr(pos);
+	name << _target << "/" << token.substr(0, pos) << "_" << std::time(NULL) << token.substr(pos);
 
 	return name.str();
 }
@@ -187,7 +187,8 @@ void UploadSource::setHeader() { }
 
 void UploadSource::_createHTTPResponse()
 {
-	std::string response_body = "<html><body> File uploaded successfully!</body></html>";
+	std::string response_body = DOCSTRING;
+	response_body += "<html><body> File uploaded successfully!</body></html>";
 
 	std::string header = std::string(PROTOCOL) + " 200 OK\r\n";
 	header += "Content-Length: " + WebServUtils::num_to_str(response_body.size()) + "\r\n";

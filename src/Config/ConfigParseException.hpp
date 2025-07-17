@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 16:03:39 by wpepping          #+#    #+#             */
-/*   Updated: 2025/05/23 17:51:27 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/17 17:55:49 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 class ConfigParseException : public std::exception {
 public:
 	ConfigParseException(const std::string &error);
+	ConfigParseException(const ConfigParseException &src);
+	ConfigParseException& operator=(const ConfigParseException &src);
 	~ConfigParseException() throw();
 	virtual const char* what() const throw();
 

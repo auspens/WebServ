@@ -18,7 +18,11 @@ class IsChildProcessException : std::exception {
 			int	inputPipe,
 			int	outputPipe
 		) throw();
+
+		IsChildProcessException(const IsChildProcessException &src);
+		IsChildProcessException& operator=(const IsChildProcessException &src);
 		~IsChildProcessException() throw();
+
 		const char						*what() const throw();
 		const std::vector<std::string>	argv() const throw();
 		const std::vector<std::string>	envp() const throw();

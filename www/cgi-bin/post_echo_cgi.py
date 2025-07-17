@@ -9,8 +9,6 @@ def main():
     except ValueError:
         length = 0
 
-    print(f"CONTENT_LENGTH: {length}", file=sys.stderr)
-    
     if length > 0:
         post_data = sys.stdin.read(length)
     else:

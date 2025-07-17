@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigSettings.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouter <wouter@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 16:03:27 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/13 17:32:28 by wouter           ###   ########.fr       */
+/*   Updated: 2025/07/17 17:54:08 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ public:
 	ConfigSettings();
 	~ConfigSettings();
 	ConfigSettings(ConfigSettings &src);
-	ConfigSettings &operator=(ConfigSettings &src);
+	ConfigSettings &operator=(const ConfigSettings &src);
 
 	bool isConfigSetting(std::string token) const;
 	void parseConfigSetting(std::ifstream &infile, std::string token) throw(ConfigParseException);

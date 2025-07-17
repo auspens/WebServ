@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:34:24 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/17 15:22:28 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/17 18:02:47 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,10 +31,12 @@ class Connection{
 
 		class SocketException : std::exception {
 			public:
-				virtual const char *what() const throw();
 				SocketException(const std::string& msg);
 				SocketException();
+				SocketException(const SocketException &src);
+				SocketException& operator=(const SocketException &src);
 				virtual ~SocketException() throw();
+				virtual const char *what() const throw();
 
 			private:
 				std::string message;

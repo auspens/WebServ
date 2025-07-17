@@ -251,7 +251,6 @@ time_t Connection::getLastActiveTime() const {
 	return _lastActiveTime;
 }
 
-
 EventInfo *Connection::getSourceEventInfo() const {
 	return _sourceEventInfo;
 }
@@ -269,11 +268,21 @@ Connection::SocketException::SocketException() : message("Socket error") { }
 Connection::SocketException::SocketException(const std::string &msg) :
 	message(msg) { }
 
+Connection::SocketException::~SocketException() throw() { }
+
+Connection::SocketException::SocketException(const SocketException &src)
+	: message(src.message) {}
+
+Connection::SocketException &Connection::SocketException::operator=(const SocketException &src) {
+	if (this != &src) {
+		message = src.message;
+	}
+	return *this;
+}
+
 const char* Connection::SocketException::what() const throw() {
 	return message.c_str();
 }
-
-Connection::SocketException::~SocketException() throw() { }
 
 const char* Connection::EmptyRequestException::what() const throw() {
 	return ("Empty request");

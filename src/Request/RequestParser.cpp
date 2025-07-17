@@ -116,7 +116,7 @@ bool RequestParser::parseBody(const char *data, size_t len) throw(SourceAndReque
 		if (it == _request.headers.end()) {
 			throw SourceAndRequestException("No Content Length header", 411);
 		}
-		_contentLength = atoi(it->second.c_str());
+		_contentLength = std::atoi(it->second.c_str());
 		if (_contentLength > _maxBody)
 			throw SourceAndRequestException("Body too big", 413);
 		if (_buffer.size() < _contentLength) return checkForError(data, len, false);
@@ -177,7 +177,7 @@ void RequestParser::_parseChunkSize(const std::string& hexStr){
 			throw (SourceAndRequestException("Malformed chunk", 400));
 		}
 	}
-    _chunkSize = strtol(hexStr.c_str(), &endptr, 16);
+    _chunkSize = std::strtol(hexStr.c_str(), &endptr, 16);
 	if (*endptr != '\0'){
 		Logger::debug() << "strtol failed" <<std::endl;
 		throw (SourceAndRequestException("Malformed chunk", 400));

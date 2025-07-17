@@ -8,6 +8,20 @@ IsChildProcessException::IsChildProcessException(
 ) throw()
 		: _argv(argv), _envp(envp), _inputPipe(inputPipe), _outputPipe(outputPipe) { }
 
+IsChildProcessException::IsChildProcessException(const IsChildProcessException &src)
+	: _argv(src._argv), _envp(src._envp), _inputPipe(src._inputPipe), _outputPipe(src._outputPipe) {}
+
+IsChildProcessException& IsChildProcessException::operator=(const IsChildProcessException &src) {
+	if (this != &src) {
+		_argv = src._argv;
+		_envp = src._envp;
+		_inputPipe = src._inputPipe;
+		_outputPipe = src._outputPipe;
+	}
+	return *this;
+}
+
+
 IsChildProcessException::~IsChildProcessException()  throw() { }
 
 const char *IsChildProcessException::what() const throw() {

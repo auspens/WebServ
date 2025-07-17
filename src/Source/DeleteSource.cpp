@@ -35,7 +35,7 @@ void DeleteSource::init() throw(SourceAndRequestException) {
 void DeleteSource::_deleteFile() throw(SourceAndRequestException) {
 	if (access(_target.c_str(), W_OK))
 		throw SourceAndRequestException("Forbidden", 403);
-	if (remove(_target.c_str()) != 0)
+	if (std::remove(_target.c_str()) != 0)
 		throw SourceAndRequestException("Could not delete file", 500);
 }
 
