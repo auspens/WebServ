@@ -80,25 +80,25 @@ bool RequestParser::parseStartLine(const char *data, size_t len) throw(SourceAnd
 }
 
 bool RequestParser::parseHeaders(const char *data, size_t len) throw(SourceAndRequestException) {
-    size_t pos;
-    while ((pos = _buffer.find("\r\n")) != std::string::npos) {
-        std::string line = _buffer.substr(0, pos);
-        _buffer.erase(0, pos + 2);
-        if (line.empty()) {
-			if (_request.headers.find("Host") == _request.headers.end())
-				throw SourceAndRequestException("No Host header", 400);
-			return true; // End of headers
+	size_t pos;
+	while ((pos = _buffer.find("\r\n")) != std::string::npos) {
+		 std::string line = _buffer.substr(0, pos);
+		 _buffer.erase(0, pos + 2);
+		 if (line.empty()) {
+			 if (_request.headers.find("Host") == _request.headers.end() || _request.headers["Host"].empty())
+			 	throw SourceAndRequestException("No Host header", 400);
+			return true;
 		}
-        size_t colon = line.find(":");
-        if (colon == std::string::npos)
-            checkForError(data, len, true);
-        std::string key = line.substr(0, colon);
-		if (key.size() == line.size() - 1)
-            _request.headers[key] = "";
-        else
-        	_request.headers[key] = line.substr(colon + 2);;
-    }
-    return checkForError(data, len, false); // wait for more data
+		size_t colon = line.find(":");
+		if (colon == std::string::npos)
+			checkForError(data, len, true);
+		if (colon + 1 >= line.size() || (line[colon + 1] != ' ' && line[colon + 1] != '\t'))
+		throw SourceAndRequestException("Missing required whitespace after colon in header", 400);
+		std::string key = WebServUtils::trim(line.substr(0, colon));
+		std::string value = WebServUtils::trim(line.substr(colon + 1));
+		_request.headers[key] = value;
+	}
+	return checkForError(data, len, false);
 }
 
 bool RequestParser::parseBody(const char *data, size_t len) throw(SourceAndRequestException) {
