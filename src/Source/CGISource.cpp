@@ -11,6 +11,7 @@ CGISource::CGISource(
 ) : Source(serverConfig, location, req) {
 	Logger::debug() << "Creating CGI Source" << std::endl;
 
+	_childPid = 0;
 	_target = target;
 
 	_extension = WebServUtils::getCgiExtension(_target, Config::getAcceptCgi(serverConfig, location));
@@ -32,7 +33,6 @@ void CGISource::init() throw(SourceAndRequestException) {
 	Source::init();
 
 	_childExited = false;
-	_childPid = 0;
 	_childLastActive = std::time(0);
 	_pollableRead = true;
 	_pollableWrite = true;
@@ -49,13 +49,20 @@ void CGISource::init() throw(SourceAndRequestException) {
 }
 
 CGISource::~CGISource() {
+	std::map<pid_t, int>::iterator	it;
+
 	Logger::debug() << "CGISource destructor called" << std::endl;
+
 	close(_fd);
 	close(_writeFd);
 	if (_childPid > 0 && !_childExited) {
 		kill(_childPid, SIGTERM);
 		kill(_childPid, SIGKILL);
 	}
+
+	it = CGISource::exitStatus.find(_childPid);
+	if (it != exitStatus.end())
+		CGISource::exitStatus.erase(it);
 }
 
 void CGISource::setHeader() {
