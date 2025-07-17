@@ -9,18 +9,25 @@ ErrorPageSource::ErrorPageSource
 			serverConfig,
 			location,
 			req,
-			Config::getErrorPages(serverConfig, location).find(code)->second
+			""
 		) {
 			_code = code;
 }
 
-void ErrorPageSource::getErrorPage(int code){
-	if (Config::getErrorPages(_serverConfig, _location).find(code) != Config::getErrorPages(_serverConfig, _location).end()) {
+void ErrorPageSource::getErrorPage(int code) {
+	std::map<int, std::string> errorPages = Config::getErrorPages(_serverConfig, _location);
+	std::map<int, std::string>::iterator it = errorPages.find(code);
+
+	if (it != errorPages.end()) {
+		_target = it->second;
+
 		struct stat st;
 		stat(_target.c_str(), &st);
 		_size = st.st_size;
+
 		if (_size < 0)
 			return generateErrorPage(code);
+
 		defineMimeType();
 		_fd = open(_target.c_str(), O_RDONLY);
 	}
@@ -45,8 +52,11 @@ void ErrorPageSource::init() throw(SourceAndRequestException) {
 	_doneReading = false;
 	_mime = "text/html";
 	_offset = 0;
+	_fd = -1;
 	_doneReading = false;
 	_doneWriting = true;
+	_pollableRead = false;
+	_pollableWrite = false;
 	getErrorPage(_code);
 	setHeader();
 }
