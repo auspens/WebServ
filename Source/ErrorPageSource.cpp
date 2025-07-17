@@ -10,9 +10,7 @@ ErrorPageSource::ErrorPageSource
 			location,
 			req,
 			""
-		) {
-			_code = code;
-}
+		), _code(code) {}
 
 void ErrorPageSource::getErrorPage(int code) {
 	std::map<int, std::string> errorPages = Config::getErrorPages(_serverConfig, _location);
@@ -57,6 +55,8 @@ void ErrorPageSource::init() throw(SourceAndRequestException) {
 	_doneWriting = true;
 	_pollableRead = false;
 	_pollableWrite = false;
+	_bytesToSend = 0;
+	_writeWhenComplete = false;
 	getErrorPage(_code);
 	setHeader();
 }
