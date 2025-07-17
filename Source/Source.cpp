@@ -25,7 +25,7 @@ void Source::init() throw(SourceAndRequestException) {
 	_pollableWrite = false;
 	_writeWhenComplete = false;
 	Logger::debug() << "Reserved for body: " << _serverConfig.getBufferSize() <<std::endl;
-	_body.reserve(_serverConfig.getBufferSize());
+	_body.resize(_serverConfig.getBufferSize());
 }
 
 Source::Source(const Source &src):

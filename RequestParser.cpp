@@ -90,8 +90,10 @@ bool RequestParser::parseHeaders(const char *data, size_t len) throw(SourceAndRe
         if (colon == std::string::npos)
             checkForError(data, len, true);
         std::string key = line.substr(0, colon);
-        std::string value = line.substr(colon + 2);
-        _request.headers[key] = value;
+		if (key.size() == line.size() - 1)
+            _request.headers[key] = "";
+        else 
+        	_request.headers[key] = line.substr(colon + 2);;
     }
     return checkForError(data, len, false); // wait for more data
 }

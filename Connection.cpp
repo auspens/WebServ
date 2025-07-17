@@ -138,7 +138,6 @@ void Connection::writeToSocket() throw(SocketException) {
 		ssize_t		bytes_sent;
 
 		Logger::debug() << ">> Sending to socket. Bytes to send: " << _source->_bytesToSend << std::endl;
-		Logger::debug() << "Sending buffer: " << std::endl << std::string(buf).substr(0, _source->_bytesToSend) << std::endl;
 
 		bytes_sent = send(_socket.getFd(), buf, size, 0);
 		if (bytes_sent == -1)

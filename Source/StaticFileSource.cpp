@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileSource.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 10:20:27 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/16 16:47:14 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/16 17:49:33 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,8 @@ StaticFileSource &StaticFileSource::operator=(StaticFileSource const &other){
 }
 
 StaticFileSource::~StaticFileSource(){
-	close(_fd);
+	if (_fd > 0)
+		close(_fd);
 }
 
 void StaticFileSource::readSource() throw(SourceAndRequestException) {

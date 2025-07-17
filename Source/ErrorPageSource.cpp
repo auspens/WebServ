@@ -10,9 +10,7 @@ ErrorPageSource::ErrorPageSource
 			location,
 			req,
 			""
-		) {
-			_code = code;
-}
+		), _code(code) {}
 
 void ErrorPageSource::getErrorPage(int code) {
 	std::map<int, std::string> errorPages = Config::getErrorPages(_serverConfig, _location);
@@ -41,8 +39,8 @@ void ErrorPageSource::generateErrorPage(int code) {
 	_body.assign(html.begin(), html.end());
 	_code = code;
 	_generated = true;
-	_bytesToSend = _body.size();
-	_size = _body.size();
+	_bytesToSend = html.size();
+	_size = html.size();
 	_mime = _mimeTypes.find(".html")->second;
 	_doneReading = true;
 }
@@ -57,6 +55,8 @@ void ErrorPageSource::init() throw(SourceAndRequestException) {
 	_doneWriting = true;
 	_pollableRead = false;
 	_pollableWrite = false;
+	_bytesToSend = 0;
+	_writeWhenComplete = false;
 	getErrorPage(_code);
 	setHeader();
 }

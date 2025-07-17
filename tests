@@ -2,7 +2,101 @@
 ## Generate a test file (1MB)
 dd if=/dev/urandom of=testfile.bin bs=1M count=1
 
-## Upload with chunked encoding
+## Upload with chunked encoding, but you need to do ^C in curl, so it sends the terminating chunk
 curl -v -X POST http://localhost:3490/upload \
   -H "Transfer-Encoding: chunked" \
   -F "file=@testfile.bin;type=application/octet-stream"
+
+##alternative: use Python script
+#!/usr/bin/env python3
+import socket
+import os
+import time
+
+def send_chunked_multipart_realtime(host, port, filename):
+    boundary = "----BoundaryTest123"
+
+    # Read file content
+    with open(filename, 'rb') as f:
+        file_content = f.read()
+
+    # Create socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(30)
+
+    try:
+        sock.connect((host, port))
+
+        # Send headers immediately
+        headers = (
+            "POST /upload HTTP/1.1\r\n"
+            f"Host: {host}\r\n"
+            f"Content-Type: multipart/form-data; boundary={boundary}\r\n"
+            "Transfer-Encoding: chunked\r\n"
+            "Connection: close\r\n"
+            "\r\n"
+        )
+        sock.send(headers.encode())
+        print("Headers sent")
+
+        # Helper function to send a chunk immediately
+        def send_chunk_now(data):
+            if isinstance(data, str):
+                data = data.encode()
+            chunk_size = f"{len(data):x}\r\n".encode()
+            sock.send(chunk_size + data + b"\r\n")
+            print(f"Sent chunk of size {len(data)} bytes")
+            time.sleep(0.1)  # Small delay to see real-time behavior
+
+        # Send multipart data in separate chunks
+        print("Sending multipart header...")
+        send_chunk_now(f"--{boundary}\r\n")
+
+        print("Sending content disposition...")
+        send_chunk_now(f"Content-Disposition: form-data; name=\"file\"; filename=\"{os.path.basename(filename)}\"\r\n")
+
+        print("Sending content type...")
+        send_chunk_now("Content-Type: application/octet-stream\r\n")
+
+        print("Sending empty line...")
+        send_chunk_now("\r\n")
+
+        print("Sending file content...")
+        send_chunk_now(file_content)
+
+        print("Sending multipart footer...")
+        send_chunk_now(f"\r\n--{boundary}--\r\n")
+
+        # Send terminating chunk
+        print("Sending terminating chunk...")
+        sock.send(b"0\r\n\r\n")
+
+        # Read response
+        response = b""
+        sock.settimeout(5)  # Shorter timeout for response
+        while True:
+            try:
+                data = sock.recv(4096)
+                if not data:
+                    break
+                response += data
+            except socket.timeout:
+                break
+
+        print("Response:")
+        print(response.decode('utf-8', errors='ignore'))
+
+    except Exception as e:
+        print(f"Error: {e}")
+    finally:
+        sock.close()
+
+if __name__ == "__main__":
+    filename = "testfile.bin"
+
+    # Create test file if it doesn't exist
+    if not os.path.exists(filename):
+        with open(filename, 'w') as f:
+            f.write("This is test content for chunked upload testing")
+
+    send_chunked_multipart_realtime("localhost", 3490, filename)
