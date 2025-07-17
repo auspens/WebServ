@@ -78,6 +78,8 @@ int main(int argc, char *argv[]) {
 		Logger::debug() << "Child: Calling run CGI" << std::endl;
 		delete server;
 		runCGI(e.argv(), e.envp(), e.inputPipe(), e.outputPipe());
+	} catch (ListeningSocket::SocketOpenFailedException &e) {
+		Logger::error() << "Failed to open listening socket" << std::endl;
 	}
 	delete server;
 }

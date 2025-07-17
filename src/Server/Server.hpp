@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/17 14:25:39 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/17 17:14:20 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ class Server {
 		Server(const Config &config);
 		~Server();
 
-		void listen() throw(IsChildProcessException);
+		void listen() throw(IsChildProcessException, ListeningSocket::SocketOpenFailedException);
 
 		static int childProcessMonitorPipe[2];
 
@@ -50,6 +50,8 @@ class Server {
 		Server();
 		Server(Server const &src);
 		Server &operator=(Server const &other);
+
+		ListeningSocket *newListeningSocket(int port) throw(ListeningSocket::SocketOpenFailedException);
 
 		void			_runEpollLoop() throw(IsChildProcessException);
 		void			_handleEpollEvent(u_int32_t event, EventInfo *eventInfo) throw(IsChildProcessException);

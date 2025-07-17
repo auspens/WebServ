@@ -3,12 +3,15 @@
 
 int Server::childProcessMonitorPipe[2];
 
-Server::Server() { }
-
 Server::Server(const Config &config) :
 	_lastCleanup(std::time(0)),
 	_config(&config),
-	_shutDownFlag(false) { }
+	_shutDownFlag(false) {
+		_childMonitorEventInfo = NULL;
+		_epollInstance = -1;
+		Server::childProcessMonitorPipe[0] = -1;
+		Server::childProcessMonitorPipe[1] = -1;
+	}
 
 Server::~Server() {
 	Logger::debug() << "Cleaning up server" << std::endl;
@@ -30,20 +33,19 @@ Server &Server::operator=(Server const &other) {
 	return *this;
 }
 
-void Server::listen() throw(IsChildProcessException) {
+void Server::listen() throw(IsChildProcessException, ListeningSocket::SocketOpenFailedException) {
 	int					port;
 	ListeningSocket		*socket;
 	std::vector<int>	portsDone;
 
 	_epollInstance = epoll_create(1);
-	SystemCallsUtilities::check_for_error(_epollInstance, "Failed to opening listening socket");
+	if (_epollInstance < 0)
+		throw ListeningSocket::SocketOpenFailedException();
 
 	for (size_t i = 0; i < _config->getServerConfigs().size(); i++) {
 		port = _config->getServerConfigs()[i]->getPort();
 		if (std::find(portsDone.begin(), portsDone.end(), port) == portsDone.end()) {
-			socket = new ListeningSocket(port);
-			socket->startListening();
-			_listeningSockets.insert(std::pair<int, ListeningSocket*>(socket->getFd(), socket));
+			socket = newListeningSocket(port);
 			_updateEvents(EPOLL_CTL_ADD, EPOLLIN, socket->getEventInfo(), socket->getFd());
 			portsDone.push_back(port);
 		}
@@ -54,6 +56,20 @@ void Server::listen() throw(IsChildProcessException) {
 	_updateEvents(EPOLL_CTL_ADD, EPOLLIN, _childMonitorEventInfo, childProcessMonitorPipe[0]);
 
 	_runEpollLoop();
+}
+
+ListeningSocket *Server::newListeningSocket(int port) throw(ListeningSocket::SocketOpenFailedException) {
+	ListeningSocket *socket = new ListeningSocket(port);
+
+	try {
+		socket->startListening();
+	} catch (ListeningSocket::SocketOpenFailedException &e) {
+		delete socket;
+		throw e;
+	}
+
+	_listeningSockets.insert(std::pair<int, ListeningSocket*>(socket->getFd(), socket));
+	return socket;
 }
 
 // epoll wait parameters here: fd of epoll instance,
@@ -372,19 +388,6 @@ ListeningSocket *Server::_findListeningSocket(int fd) {
 		return NULL;
 }
 
-void Server::_cleanup() {
-	for (std::map<int, ListeningSocket*>::iterator it = _listeningSockets.begin(); it != _listeningSockets.end(); ++it) {
-		delete it->second;
-	}
-	for (std::vector<Connection*>::iterator it = _connections.begin(); it != _connections.end(); ++it) {
-		delete (*it);
-	}
-	delete _childMonitorEventInfo;
-	close(childProcessMonitorPipe[0]);
-	close(childProcessMonitorPipe[1]);
-	close(_epollInstance);
-}
-
 void Server::_removeConnection(Connection *conn) {
 	conn->invalidate();
 	_invalidatedConnections.push_back(conn);
@@ -437,6 +440,24 @@ void Server::_cleanConnection(Connection *conn) {
 	delete conn;
 }
 
+void Server::_cleanup() {
+	for (std::map<int, ListeningSocket*>::iterator it = _listeningSockets.begin(); it != _listeningSockets.end(); ++it) {
+		delete it->second;
+	}
+	for (std::vector<Connection*>::iterator it = _connections.begin(); it != _connections.end(); ++it) {
+		delete (*it);
+	}
+	if (_childMonitorEventInfo)
+		delete _childMonitorEventInfo;
+	if (childProcessMonitorPipe[0] > 0)
+		close(childProcessMonitorPipe[0]);
+	if (childProcessMonitorPipe[1] > 0)
+		close(childProcessMonitorPipe[1]);
+	if (_epollInstance > 0)
+		close(_epollInstance);
+}
+
+Server::Server() { }
 
 Server::Server(const Server &other):
 	_epollInstance(other._epollInstance)

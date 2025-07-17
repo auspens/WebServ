@@ -37,7 +37,6 @@ SRC =	$(SRCDIR)/Config/Config.cpp \
 		$(SRCDIR)/Request/RequestParser.cpp \
 		$(SRCDIR)/Server/Server.cpp \
 		$(SRCDIR)/Server/Socket.cpp \
-		$(SRCDIR)/Utils/SystemCallsUtilities.cpp \
 		$(SRCDIR)/Utils/WebServUtils.cpp
 
 HDR =	$(SRCDIR)/Config/Config.hpp \

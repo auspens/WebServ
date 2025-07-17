@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/22 11:16:20 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/17 15:34:09 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/17 16:37:21 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,12 +35,13 @@ Socket &Socket::operator=(const Socket &other){
 	return *this;
 }
 
-Socket::Socket() {}
+Socket::Socket() : _fd(-1) {}
 
 Socket::Socket(const Socket &other):
 	_fd(other._fd)
 	, _addrinfo(other._addrinfo) {}
 
 void Socket::close_sock() {
-	close(_fd);
+	if (_fd > 0)
+		close(_fd);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ListeningSocket.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 16:42:21 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/16 15:39:04 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/17 16:47:52 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,11 +28,16 @@
 
 class ListeningSocket : public Socket{
 	public:
+		class SocketOpenFailedException : std::exception {
+			public:
+				virtual const char *what() const throw();
+		};
+
 		ListeningSocket(int port);
 		~ListeningSocket();
 
 		void		init();
-		void		startListening();
+		void		startListening() throw(SocketOpenFailedException);
 		int			getPort();
 		EventInfo	*getEventInfo() const;
 
