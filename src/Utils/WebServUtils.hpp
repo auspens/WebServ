@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServUtils.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 14:38:47 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/16 19:59:58 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/17 16:56:36 by auspensk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,8 @@ public:
 	static void			removeFromString(std::string &haystack, const std::string &needle);
 	static std::string	getCgiExtension(const std::string &path, std::map<std::string, std::string> acceptCgi);
 	static std::string	urlDecode(const std::string &encoded);
-
+	static std::string	trim(const std::string& s);
+	
 	template <typename T, size_t N>
 	static bool isin(const T (&array)[N], const T &value) 	{
 		for (size_t i = 0; i < N; i++) {
