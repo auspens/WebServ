@@ -50,14 +50,6 @@ std::string WebServUtils::pathJoin(const std::string& path1, const std::string& 
 	return path1 + path2.substr(1);
 }
 
-
-void WebServUtils::printVector(const std::vector<char>& vec) {
-	for (std::vector<char>::const_iterator it = vec.begin(); it != vec.end(); ++it) {
-		std::cout << *it;
-	}
-	std::cout << std::endl;
-}
-
 std::string WebServUtils::num_to_str(size_t num) {
 	std::ostringstream convert;
 	convert << num;

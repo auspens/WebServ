@@ -44,6 +44,8 @@ class RequestParser {
         ParseState _state;
 		size_t 		_contentLength;
 		size_t		_chunkSize;
+		size_t		_chunkPartRead;
+		bool		_inChunk;
         HttpRequest _request;
         std::string _buffer;
 		size_t 		_maxBody;

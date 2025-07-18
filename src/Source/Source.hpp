@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 09:54:14 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/16 15:59:23 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/18 18:26:24 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ class Source {
 		int 						getFd() const;
 		int 						getWriteFd() const;
 		int							getSize() const;
+		virtual int					getStatusCode() const;
 		bool						isPollableRead() const;
 		bool						isPollableWrite() const;
 		bool						isWriteWhenComplete() const;

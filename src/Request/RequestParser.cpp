@@ -5,6 +5,7 @@ RequestParser::RequestParser(){
     _buffer.clear();
     _contentLength = 0;
 	_chunkSize = 0;
+	_inChunk = false;
 	_maxBody = 0;
 }
 
@@ -14,6 +15,7 @@ void RequestParser::reset() {
     _buffer.clear();
     _contentLength = 0;
 	_chunkSize = 0;
+	_inChunk = false;
 }
 bool RequestParser::isDone() const {
     return _state == DONE;
@@ -108,7 +110,7 @@ bool RequestParser::parseBody(const char *data, size_t len) throw(SourceAndReque
 	std::map<std::string, std::string>::iterator it = _request.headers.find("Transfer-Encoding");
 	if (it != _request.headers.end() && it->second == "chunked") {
 		if (!_handleChunkedInput())
-			return false;
+			return checkForError(data, len, false);
 		_contentLength = _request.body.size();
 	}
 	else {
@@ -130,34 +132,40 @@ bool RequestParser::_handleChunkedInput(){
 	Logger::debug() << "In handleChunkedInput" <<std::endl;
 	std::string line;
 	size_t pos;
+	size_t chunkPart;
+
 	while (!_buffer.empty()){
-		if ((pos = _buffer.find("0\r\n\r\n")) == 0){
+		if (!_inChunk) {
+			if ((pos = _buffer.find("\r\n")) == std::string::npos)
+				return false;
+
+			_inChunk = true;
+			_chunkPartRead = 0;
+			_parseChunkSize(_buffer.substr(0, pos));
+			Logger::debug() << "Chunk size is: " <<_chunkSize <<std::endl;
+			_buffer.erase(0, pos + 2);
+			if (_chunkSize < 0)
+				throw SourceAndRequestException("Malformed chunk", 400);
+		}
+
+		chunkPart = std::min(_buffer.length(), _chunkSize - _chunkPartRead);
+		_request.body.append(_buffer.substr(0, chunkPart));
+		_chunkPartRead += chunkPart;
+
+		if (_chunkPartRead < _chunkSize || _buffer.size() < chunkPart + 2) {
+				_buffer.erase(0, chunkPart);
+				return false;
+		}
+		if (_buffer.substr(chunkPart, 2) != "\r\n")
+			throw SourceAndRequestException("Missing CRLF after chunk data", 400);
+		if (_chunkSize == 0) {
 			Logger::debug() << "ChunkedInput done" <<std::endl;
 			_state = DONE;
 			return true;
 		}
-		if (_chunkSize == 0){
-			if ((pos = _buffer.find("\r\n")) != std::string::npos){
-				_parseChunkSize(_buffer.substr(0, pos));
-				Logger::debug() << "Chunk size is: " <<_chunkSize <<std::endl;
-				_buffer.erase(0, pos + 2);
-				if (_chunkSize == 0){
-					Logger::debug() << "Chunk size is zero" <<std::endl;
-					throw SourceAndRequestException("Malformed chunk", 400);
-				}
-			}
-			else if (_buffer.size() > 20)
-				throw SourceAndRequestException("Malformed chunk", 400);
-			else
-				return false;
-		}
-		if (_buffer.size() < _chunkSize + 2) return false;
-		_request.body.append(_buffer.substr(0, _chunkSize));
-		if (_buffer.substr(_chunkSize, 2) != "\r\n")
-			throw SourceAndRequestException("Missing CRLF after chunk data", 400);
-		_buffer.erase(0, _chunkSize + 2);
-		_chunkSize = 0;
-		return false;
+
+		_buffer.erase(0, chunkPart + 2);
+		_inChunk = false;
 	}
 	return false;
 }
@@ -185,7 +193,7 @@ void RequestParser::_parseChunkSize(const std::string& hexStr){
 
 	if (_request.body.size() + _chunkSize > _maxBody){
 		Logger::debug() << "chunk too big" <<std::endl;
-		throw SourceAndRequestException("Body size exceeds allowed maximum", 403);
+		throw SourceAndRequestException("Body size exceeds allowed maximum", 413);
 	}
 	Logger::debug() << "ChunkSize parsed" <<std::endl;
 }
@@ -232,7 +240,6 @@ RequestParser::ParseState RequestParser::getParseState(){
 size_t RequestParser::getMaxBody()const{
 	return _maxBody;
 }
-
 
 RequestParser::RequestParser(const RequestParser &other){
 	_state = other._state;

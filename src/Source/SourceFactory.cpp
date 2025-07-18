@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   SourceFactory.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 16:03:12 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/16 10:11:54 by auspensk         ###   ########.fr       */
+/*   Updated: 2025/07/18 16:42:25 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,7 +100,7 @@ std::string SourceFactory::_findTarget(const ServerConfig &serverConfig, const L
 	else
 		target = WebServUtils::pathJoin(serverConfig.getRootFolder(), req.path);
 
-	if (WebServUtils::folderExists(target) && req.method == "GET") {
+	if (WebServUtils::folderExists(target)) {
 		for (size_t i = 0; i < indexes.size(); ++i){
 			index_target = WebServUtils::pathJoin(target, indexes.at(i));
 			if (access(index_target.c_str(), F_OK) == 0)

@@ -12,7 +12,7 @@ ErrorPageSource::ErrorPageSource
 			""
 		), _code(code) {}
 
-void ErrorPageSource::getErrorPage(int code) {
+void ErrorPageSource::_getErrorPage(int code) {
 	std::map<int, std::string> errorPages = Config::getErrorPages(_serverConfig, _location);
 	std::map<int, std::string>::iterator it = errorPages.find(code);
 
@@ -24,16 +24,16 @@ void ErrorPageSource::getErrorPage(int code) {
 		_size = st.st_size;
 
 		if (_size < 0)
-			return generateErrorPage(code);
+			return _generateErrorPage(code);
 
 		defineMimeType();
 		_fd = open(_target.c_str(), O_RDONLY);
 	}
 	else
-		generateErrorPage(code);
+		_generateErrorPage(code);
 }
 
-void ErrorPageSource::generateErrorPage(int code) {
+void ErrorPageSource::_generateErrorPage(int code) {
 	std::string html = PageGenerator::generateErrorPage(code);
 
 	_body.assign(html.begin(), html.end());
@@ -57,7 +57,7 @@ void ErrorPageSource::init() throw(SourceAndRequestException) {
 	_pollableWrite = false;
 	_bytesToSend = 0;
 	_writeWhenComplete = false;
-	getErrorPage(_code);
+	_getErrorPage(_code);
 	setHeader();
 }
 
@@ -81,7 +81,7 @@ void ErrorPageSource::setHeader(){
 
 	header += std::string("HTTP/1.1 ") + statusCodes[_code].code + " " + statusCodes[_code].message + "\r\n";
 	header += "Content-Type: " + _mime + "\r\n";
-	if (_request.isKeepAlive())
+	if (_request.isNotKeepAlive())
 		header += "Connection: Keep-Alive\r\n";
 	header += "Content-Length: " + WebServUtils::num_to_str(_size) + "\r\n\r\n";
 	Logger::debug()<< "At ErrorPage setHeader" << std::endl;
@@ -95,10 +95,14 @@ void ErrorPageSource::readSource() throw(SourceAndRequestException) {
 	if (_bytesToSend == 0 && !_generated && !_doneReading) {
 		ssize_t readSize = read(_fd, _body.data(), _serverConfig.getBufferSize());
 		if (readSize < 0)
-			generateErrorPage(_code);
+			_generateErrorPage(_code);
 		if (readSize == 0)
  			_doneReading = true;
 		_bytesToSend = readSize;
 		_offset = 0;
 	}
+}
+
+int ErrorPageSource::getStatusCode() const {
+	return _code;
 }

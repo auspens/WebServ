@@ -232,7 +232,7 @@ void Server::_readFromSocket(EventInfo &eventInfo) throw(IsChildProcessException
 		Logger::info() << "Error reading from socket, closing connection." << std::endl;
 		_removeConnection(conn);
 	} catch (SourceAndRequestException &e) {
-		Logger::warning() << "Error in request or while handling source:" << e.what() << std::endl;
+		Logger::warning() << "Error in request or while handling source: " << e.what() << std::endl;
 		conn->setupErrorPageSource(*_config, e.errorCode());
 		if (!conn->doneReadingSource()) {
 			Logger::debug() << "Add source to epoll. fd: " << conn->getSource()->getFd() << std::endl;
@@ -260,7 +260,11 @@ void Server::_writeToSocket(EventInfo &eventInfo) {
 }
 
 void Server::_finishRequest(Connection *conn) {
-	if (conn->getRequest().isKeepAlive())
+	if (conn->getRequest().isNotKeepAlive() || (
+		conn->getSource()
+		&& conn->getSource()->getStatusCode() >= 400
+		&& conn->getSource()->getStatusCode() < 500
+	))
 		_removeConnection(conn);
 	else {
 		_updateEvents(EPOLL_CTL_MOD, EPOLLIN, conn->getSocketEventInfo(), conn->getSocketFd());

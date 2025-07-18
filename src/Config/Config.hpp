@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 16:57:51 by wpepping          #+#    #+#             */
-/*   Updated: 2025/07/15 16:34:07 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/18 16:23:37 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,6 @@ class Config {
 		size_t						_chunkSize;
 		unsigned int				_connectionTimeout;
 		unsigned int				_cgiTimeout;
-		std::string					_pythonExecutable;
 
 		void 			_parseConfigFile(const std::string &configFile) throw(ConfigParseException);
 		ServerConfig	*_parseServerConfig(std::ifstream &infile) throw(ConfigParseException);

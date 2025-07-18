@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 14:38:47 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/17 18:08:18 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/18 18:35:36 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,6 @@ public:
 	static bool			isin(const std::string haystack, char needle);
 	static std::string	pathJoin(const std::string& path1, const std::string& path2);
 	static bool			strEndsWith(const std::string& str, const std::string& end);
-	static void			printVector(const std::vector<char>& vec);
 	static std::string	num_to_str(size_t num);
 	static std::string	getEpollEventNames(uint32_t events);
 	static void			removeFromString(std::string &haystack, const std::string &needle);

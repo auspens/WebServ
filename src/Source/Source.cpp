@@ -86,6 +86,10 @@ int Source::getSize() const{
 	return _size;
 }
 
+int Source::getStatusCode() const {
+	return 200;
+}
+
 bool Source::_safePath(const std::string &path) const {
 	if (path.find("..") != std::string::npos ||
 		path.find("//") != std::string::npos ||
@@ -114,7 +118,7 @@ void Source::setHeader() { //default are Content-Type and Content-Length headers
 	std::string header;
 	header += "HTTP/1.1 200 OK\r\n";
 	header += "Content-Type: " + _mime + "\r\n";
-	if (_request.isKeepAlive())
+	if (_request.isNotKeepAlive())
 		header += "Connection: Keep-Alive\r\n";
 	header += "Content-Length: " + WebServUtils::num_to_str(_size) + "\r\n\r\n";
 	Logger::debug()<< "At setHeader" << std::endl;

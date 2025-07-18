@@ -69,7 +69,7 @@ void CGISource::setHeader() {
 	std::string					header;
 
 	header += "HTTP/1.1 200 OK\r\n";
-	if (_request.isKeepAlive())
+	if (_request.isNotKeepAlive())
 		header += "Connection: Keep-Alive\r\n";
 	header += "Content-Length: " + WebServUtils::num_to_str(_getContentLength()) + "\r\n";
 	Logger::debug()<< "At setHeader" << std::endl;

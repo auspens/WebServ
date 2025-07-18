@@ -193,7 +193,7 @@ void UploadSource::_createHTTPResponse()
 	std::string header = std::string(PROTOCOL) + " 200 OK\r\n";
 	header += "Content-Length: " + WebServUtils::num_to_str(response_body.size()) + "\r\n";
 	header += "Content-Type: text/html\r\n";
-	if (_request.isKeepAlive())
+	if (_request.isNotKeepAlive())
 		header += "Connection: Keep-Alive\r\n";
 	header += "\r\n";
 	header += response_body;

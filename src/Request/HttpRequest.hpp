@@ -11,7 +11,7 @@ struct HttpRequest {
 	std::map<std::string, std::string> headers;
 	std::string body;
 
-	bool isKeepAlive() {
+	bool isNotKeepAlive() {
 		std::map<std::string, std::string>::iterator it = headers.find("Connection");
 		return (it != headers.end() && it->second == "close");
 	}
