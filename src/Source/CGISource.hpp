@@ -54,5 +54,12 @@ class CGISource : public Source {
 		size_t	_getContentLength() const;
 		void	finalizeWrite();
 
+		void _addEnvVarFromHeader(
+			std::vector<std::string> &envp,
+			const std::map<std::string, std::string> &headers,
+			const std::string &envVar,
+			const std::string &header
+		);
+
 		CGISource();
 };

@@ -140,9 +140,22 @@ void CGISource::_buildEnvp(std::vector<std::string> &envp) {
 	envp.push_back(std::string("SCRIPT_FILENAME=") + _target);
 	envp.push_back("SERVER_PROTOCOL=HTTP/1.1");
 
-	envp.push_back(std::string("CONTENT_LENGTH=") + _request.headers["Content-Length"]);
-	envp.push_back(std::string("CONTENT_TYPE=") + _request.headers["Content-Type"]);
+	_addEnvVarFromHeader(envp, _request.headers, "CONTENT_LENGTH", "Content-Length");
+	_addEnvVarFromHeader(envp, _request.headers, "CONTENT_TYPE", "Content-Type");
+	_addEnvVarFromHeader(envp, _request.headers, "HTTP_COOKIE", "Cookie");
 	envp.push_back(std::string("REDIRECT_STATUS=200"));
+}
+
+void CGISource::_addEnvVarFromHeader(
+	std::vector<std::string> &envp,
+	const std::map<std::string, std::string> &headers,
+	const std::string &envVar,
+	const std::string &header
+) {
+	std::map<std::string, std::string>::const_iterator it = headers.find(header);
+	if (it != headers.end()) {
+		envp.push_back(envVar + "=" + it->second);
+	}
 }
 
 bool CGISource::getIfExists() const {

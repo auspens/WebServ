@@ -1,5 +1,6 @@
 <?php
 
+ini_set('session.cookie_lifetime', 3600);
 session_start();
 
 function displayPage($welcomeMessage = '', $showLogout = false) {
@@ -51,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			setcookie(session_name(), '', time() - 3600, '/');
 		}
 
-		header("Location: " . $_SERVER['PHP_SELF']);
+		displayPage();
 		exit();
 	}
 
@@ -61,11 +62,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		$_SESSION['username'] = $username;
 		$_SESSION['login_time'] = date('Y-m-d H:i:s');
 
-		ini_set('session.cookie_lifetime', 3600);
 		displayPage("Welcome back, " . $username . "!", true);
 	} else {
 		displayPage("Please enter a valid username.");
 	}
+
 } else {
 	if (isset($_SESSION['username'])) {
 		$username = $_SESSION['username'];
