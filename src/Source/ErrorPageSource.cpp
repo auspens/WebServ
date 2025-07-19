@@ -15,15 +15,16 @@ ErrorPageSource::ErrorPageSource
 void ErrorPageSource::_getErrorPage(int code) {
 	std::map<int, std::string> errorPages = Config::getErrorPages(_serverConfig, _location);
 	std::map<int, std::string>::iterator it = errorPages.find(code);
+	long long size;
 
 	if (it != errorPages.end()) {
 		_target = it->second;
 
 		struct stat st;
 		stat(_target.c_str(), &st);
-		_size = st.st_size;
+		_size = size = st.st_size;
 
-		if (_size < 0)
+		if (size < 0)
 			return _generateErrorPage(code);
 
 		defineMimeType();

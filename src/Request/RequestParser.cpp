@@ -144,8 +144,6 @@ bool RequestParser::_handleChunkedInput(){
 			_parseChunkSize(_buffer.substr(0, pos));
 			Logger::debug() << "Chunk size is: " <<_chunkSize <<std::endl;
 			_buffer.erase(0, pos + 2);
-			if (_chunkSize < 0)
-				throw SourceAndRequestException("Malformed chunk", 400);
 		}
 
 		chunkPart = std::min(_buffer.length(), _chunkSize - _chunkPartRead);

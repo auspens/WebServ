@@ -165,15 +165,15 @@ void CGISource::readSource() throw(SourceAndRequestException) {
 		throw SourceAndRequestException("Child process returned error", 500);
 	if (!_doneReading) {
 		Logger::debug() << "Bytes to send: " << _bytesToSend << std::endl;
-		size_t bytesRead = read(_outputPipe[0], _readBuffer.data(), _serverConfig.getBufferSize());
+
+		long long bytesRead = read(_outputPipe[0], _readBuffer.data(), _serverConfig.getBufferSize());
 		if (bytesRead < 0)
 			throw SourceAndRequestException("Child process returned error", 500);
-		_body.insert(_body.end(), _readBuffer.begin(), _readBuffer.begin() + bytesRead);
-
 		if (bytesRead == 0) {
 			_doneReading = true;
 			setHeader();
-		}
+		} else
+			_body.insert(_body.end(), _readBuffer.begin(), _readBuffer.begin() + bytesRead);
 
 		_bytesToSend += bytesRead;
 		_size += bytesRead;
