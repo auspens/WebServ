@@ -29,8 +29,9 @@ class CGISource : public Source {
 		bool checkTimeout(int timeout) const;
 		void setHeader();
 
-		static std::map<pid_t, int> outputPipeWriteEnd;
-		static std::map<pid_t, int> exitStatus;
+		static std::map<pid_t, int>	outputPipeWriteEnd;
+		static std::map<pid_t, int>	exitStatus;
+		static bool					isChildProcess;
 
 	private:
 		bool				_pathExists;

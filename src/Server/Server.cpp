@@ -11,6 +11,7 @@ Server::Server(const Config &config) :
 		_epollInstance = -1;
 		Server::childProcessMonitorPipe[0] = -1;
 		Server::childProcessMonitorPipe[1] = -1;
+		CGISource::isChildProcess = false;
 	}
 
 Server::~Server() {
@@ -189,7 +190,9 @@ void Server::_handleChildProcessEvent() {
 				CGISource::exitStatus[pid] = WEXITSTATUS(status);
 			}
 			else {
-				Logger::warning() << "Child process interrupted, pid: " << pid << std::endl;
+				Logger::warning() << "Child process interrupted"
+					<< (WIFSIGNALED(status) ? " by signal " + WebServUtils::to_string(WTERMSIG(status)) : "")
+					<< ", pid: " << pid << std::endl;
 				CGISource::exitStatus[pid] = -1;
 			}
 			close(it->second);

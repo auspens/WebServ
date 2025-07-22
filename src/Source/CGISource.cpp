@@ -1,7 +1,8 @@
 #include "CGISource.hpp"
 
-std::map<pid_t, int> CGISource::outputPipeWriteEnd;
-std::map<pid_t, int> CGISource::exitStatus;
+std::map<pid_t, int>	CGISource::outputPipeWriteEnd;
+std::map<pid_t, int>	CGISource::exitStatus;
+bool					CGISource::isChildProcess;
 
 CGISource::CGISource(
 	const ServerConfig &serverConfig,
@@ -55,7 +56,8 @@ CGISource::~CGISource() {
 
 	close(_fd);
 	close(_writeFd);
-	if (_childPid > 0 && !_childExited) {
+	if (!CGISource::isChildProcess && !_childExited) {
+		Logger::debug() << "Terminating child process pid " << _childPid << std::endl;
 		kill(_childPid, SIGTERM);
 		kill(_childPid, SIGKILL);
 	}
@@ -111,6 +113,7 @@ void CGISource::_forkAndExec() throw(IsChildProcessException) {
 		close(_outputPipe[0]);
 		_buildArgv(argv);
 		_buildEnvp(envp);
+		CGISource::isChildProcess = true;
 		Logger::debug() << "Child: Throwing IsChildProcessException" << std::endl;
 		throw IsChildProcessException(argv, envp, _inputPipe[0], _outputPipe[1]);
 	} else { // PARENT
@@ -174,9 +177,10 @@ bool CGISource::_checkIfExists(){
 }
 
 void CGISource::readSource() throw(SourceAndRequestException) {
-	if (!_childProcessHealthy())
-		throw SourceAndRequestException("Child process returned error", 500);
 	if (!_doneReading) {
+		if (!_childProcessHealthy())
+			throw SourceAndRequestException("Child process returned error", 500);
+
 		Logger::debug() << "Bytes to send: " << _bytesToSend << std::endl;
 
 		long long bytesRead = read(_outputPipe[0], _readBuffer.data(), _serverConfig.getBufferSize());
