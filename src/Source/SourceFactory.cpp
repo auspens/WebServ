@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 16:03:12 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/18 16:42:25 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/23 17:38:25 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ Source *SourceFactory::getNewSource(
 	Logger::debug() << std::boolalpha << "Upload pass: " << (location? location->isUploadPass() : false) << std::endl;
 
 	std::string target = _findTarget(serverConfig, location, req);
-	if (location && location->isRedirect() && target == location->getPath())
+	if (location && location->isRedirect() && req.path == location->getPath())
 		return new RedirectSource(serverConfig, *location, req);
 
 	// Moved this back. Won't cause loop because errors go through getNewErrorPageSource.

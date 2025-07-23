@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 12:40:08 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/23 16:14:48 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/07/23 17:38:38 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -224,8 +224,6 @@ void Location::_parseRedirect(std::ifstream &infile) throw(ConfigParseException)
 		throw ConfigParseException("Location: " + _path + ": Shutdown can't be redirect");
 	if (_redirect.path == "")
 		throw ConfigParseException("Location: " + _path + ": Missing path for redirect");
-
-	_rootFolder = _path;
 
 	ParseUtils::expectChar(infile, ';');
 }
