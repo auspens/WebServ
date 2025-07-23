@@ -108,6 +108,7 @@ void Connection::readFromSocket(size_t bufferSize, const Config *config)
 		_parser.initMaxBody(*config);
 	RequestParser::ParseResult parseResult = _parser.parse(_socketReadBuffer.data(), valread);
 	if (parseResult == RequestParser::URL_READY) {
+		Logger::info() << "_request.hostname: " << _request.hostname << std::endl;
 		_serverConfig = _findServerConfig(_serverPort,_request.hostname, *config);
 		Logger::debug() << "Request path in connection: " << _parser.getRequest().path << std::endl;
 		_location = _findLocation(_parser.getRequest().path, *_serverConfig);
@@ -182,21 +183,25 @@ const ServerConfig *Connection::_findServerConfig(
 	const Config &config
 ) const {
 	ServerConfig *serverConfig;
+	ServerConfig *dflt = NULL;
 
 	for (size_t i = 0; i < config.getServerConfigs().size(); i++) {
 		serverConfig = config.getServerConfigs()[i];
 
 		if (port == serverConfig->getPort()) {
+			if (!dflt)
+				dflt = serverConfig;
 			if (serverConfig->getServerNames().size() == 0)
 				return serverConfig;
 
+			Logger::info() << "host: " << host << std::endl;
 			for (size_t i = 0; i < serverConfig->getServerNames().size(); i++) {
 				if (_matchServerName(host, serverConfig->getServerNames()[i]))
 					return serverConfig;
 			}
 		}
 	}
-	return NULL;
+	return dflt;
 }
 
 const Location *Connection::_findLocation (
