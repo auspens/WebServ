@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 14:38:47 by wouter            #+#    #+#             */
-/*   Updated: 2025/07/18 18:35:36 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/12/12 18:42:51 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,14 @@ public:
 		std::ostringstream result;
 		result << src;
 		return result.str();
+	}
+
+	template <typename T>
+	static bool contains(T needle, T haystack[], int length) {
+		for (int i = 0; i < length; i++) {
+			if (needle == haystack[i]) return true;
+		}
+		return false;
 	}
 
 	static void			printErrorAndExit(std::string message, int exit_status);

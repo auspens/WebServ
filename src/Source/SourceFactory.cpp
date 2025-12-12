@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 16:03:12 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/23 17:38:25 by wpepping         ###   ########.fr       */
+/*   Updated: 2025/12/12 18:52:40 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,10 @@ Source *SourceFactory::getNewErrorPageSource(
 }
 
 bool SourceFactory::_isCgiRequest(const ServerConfig &serverConfig, const Location *location, const std::string &path) {
+	std::map<std::string, std::string> cgiMap = Config::getAcceptCgi(serverConfig, location);
+	for (std::map<std::string, std::string>::const_iterator it = cgiMap.begin(); it != cgiMap.end(); ++it) {
+		std::cout << "Key: " << it->first << ", Value: " << it->second << std::endl;
+	}
 	return !WebServUtils::getCgiExtension(path, Config::getAcceptCgi(serverConfig, location)).empty();
 }
 

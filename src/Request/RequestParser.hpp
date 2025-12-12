@@ -13,6 +13,7 @@ class RequestParser {
         enum ParseState {
             START_LINE,
             HEADERS,
+			HOST_RECEIVED,
             BODY,
             DONE,
             ERROR

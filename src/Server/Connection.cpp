@@ -6,6 +6,8 @@ Connection::Connection() { }
 Connection::Connection(int fd, int serverPort, size_t bufferSize) :
 	_socket(fd),
 	_source(NULL),
+	_serverConfig(NULL),
+	_location(NULL),
 	_serverPort(serverPort),
 	_invalidated(false),
 	_lastActiveTime(std::time(0)),
@@ -107,14 +109,16 @@ void Connection::readFromSocket(size_t bufferSize, const Config *config)
 	if (_parser.getParseState() == RequestParser::START_LINE)
 		_parser.initMaxBody(*config);
 	RequestParser::ParseResult parseResult = _parser.parse(_socketReadBuffer.data(), valread);
-	if (parseResult == RequestParser::URL_READY) {
-		Logger::info() << "_request.hostname: " << _request.hostname << std::endl;
-		_serverConfig = _findServerConfig(_serverPort,_request.hostname, *config);
-		Logger::debug() << "Request path in connection: " << _parser.getRequest().path << std::endl;
-		_location = _findLocation(_parser.getRequest().path, *_serverConfig);
-		_parser.setMaxBody(Config::getClientMaxBodySize(*_serverConfig, _location));
-		Logger::debug() << "MaxBody is set to: " << _parser.getMaxBody() << std::endl;
-		parseResult = _parser.continueParsing();
+	RequestParser::ParseState checkStates[] = { RequestParser::HOST_RECEIVED, RequestParser::BODY, RequestParser::DONE };
+	if (WebServUtils::contains(_parser.getParseState(), checkStates, 3)) {
+		if (!_serverConfig) {
+			_serverConfig = _findServerConfig(_serverPort,_request.hostname, *config);
+		}
+		if (!_location) {
+			Logger::debug() << "Request path in connection: " << _parser.getRequest().path << std::endl;
+			_location = _findLocation(_parser.getRequest().path, *_serverConfig);
+			_parser.setMaxBody(Config::getClientMaxBodySize(*_serverConfig, _location));
+		}
 	}
 
 	if (parseResult == RequestParser::EMPTY)
@@ -171,6 +175,7 @@ void Connection::finishRequest() {
 	_parser.reset();
 	delete _source;
 	_source = NULL;
+	_location = NULL;
 }
 
 const std::string& Connection::getTarget() const {

@@ -44,11 +44,12 @@ RequestParser::ParseResult RequestParser::parse(const char* data, size_t len) th
 					return _buffer.empty() && len == 0 ? EMPTY : INCOMPLETE;
                 _parseUrl();
                 _state = HEADERS;
-				return URL_READY;
             case HEADERS:
+				if (_request.headers.find("Host") != _request.headers.end())
+					_state = HOST_RECEIVED;
+			case HOST_RECEIVED:
                 if (!parseHeaders(data, len)) return INCOMPLETE;
                 _state = BODY;
-                break;
             case BODY:
                 if (!parseBody(data, len)) return INCOMPLETE;
                 _state = DONE;

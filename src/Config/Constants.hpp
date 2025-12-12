@@ -43,4 +43,4 @@ const std::string CGI_EXTENSIONS[] = {
 	".php"
 };
 
-#define LOG_LEVEL LOG_INFO
+#define LOG_LEVEL LOG_DEBUG
