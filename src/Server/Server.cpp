@@ -283,7 +283,7 @@ void Server::_readFromSource(EventInfo &eventInfo) {
 		return;
 	try {
 		conn->getSource()->readSource();
-	} catch (SourceAndRequestException &e) { // May need some work. Clean up epoll?
+	} catch (SourceAndRequestException &e) {
 		Logger::warning() << "Error while reading from source" << std::endl;
 		_updateEvents(EPOLL_CTL_DEL, EPOLLIN, &eventInfo, conn->getSourceFd());
 		_handleSourceError(conn, e.errorCode());

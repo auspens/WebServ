@@ -39,6 +39,7 @@ class Config {
 		size_t				getBufferSize() const;
 		unsigned int		getConnectionTimeout() const;
 		unsigned int		getCgiTimeout() const;
+		unsigned int		getClientMaxHeaderSize() const;
 
 		static const std::map<int, std::string>			&getErrorPages(const ServerConfig &serverConfig, const Location *location);
 		static const std::vector<std::string>			&getIndexPages(const ServerConfig &serverConfig, const Location *location);
@@ -58,12 +59,14 @@ class Config {
 		size_t						_chunkSize;
 		unsigned int				_connectionTimeout;
 		unsigned int				_cgiTimeout;
+		unsigned int				_clientMaxHeaderSize;
 
 		void 			_parseConfigFile(const std::string &configFile) throw(ConfigParseException);
 		ServerConfig	*_parseServerConfig(std::ifstream &infile) throw(ConfigParseException);
 		void			_parseChunkSize(std::ifstream &infile) throw(ConfigParseException);
 		void			_parseConnectionTimeout(std::ifstream &infile) throw(ConfigParseException);
 		void			_parseCgiTimeout(std::ifstream &infile) throw(ConfigParseException);
+		void			_parseClientMaxHeaderSize(std::ifstream &infile) throw(ConfigParseException);
 
 		void			_validateConfig() const throw(ConfigParseException);
 		void			_validateServerConfig(ServerConfig &serverConfig) const throw(ConfigParseException);

@@ -43,13 +43,13 @@ bool ConfigSettings::isConfigSetting(std::string token) const {
 	return token == "accept"
 		|| token == "accept_cgi"
 		|| token == "autoindex"
-		|| token == "client_max_request_size"
+		|| token == "client_max_body_size"
 		|| token == "error_page"
 		|| token == "index";
 }
 
 void ConfigSettings::parseConfigSetting(std::ifstream &infile, std::string token) throw(ConfigParseException) {
-	if (token == "client_max_request_size")
+	if (token == "client_max_body_size")
 		parseClientMaxBodySize(infile);
 	else if (token == "error_page")
 		parseErrorPage(infile);
@@ -95,25 +95,12 @@ bool ConfigSettings::autoIndexIsSet() const {
 
 void ConfigSettings::parseClientMaxBodySize(std::ifstream &infile) throw(ConfigParseException) {
 	std::string token;
-	char		lastChar;
 
 	if (_clientMaxBodySize)
-		throw  ConfigParseException("client_max_request_size already set");
-
-	_clientMaxBodySize = 1;
+	throw  ConfigParseException("client_max_body_size already set");
 
 	token = ParseUtils::parseValue(infile);
-	lastChar = token[token.length() - 1];
-
-	if (lastChar == 'K')
-		_clientMaxBodySize *= 1024;
-	if (lastChar == 'M')
-		_clientMaxBodySize *= 1024 * 1024;
-	if (lastChar == 'G') {
-		_clientMaxBodySize *= 1024 * 1024 * 1024;
-		token = token.substr(0, token.length() - 1);
-	}
-	_clientMaxBodySize *= ParseUtils::parseInt(token);
+	_clientMaxBodySize = ParseUtils::parseSize(token);
 
 	ParseUtils::expectChar(infile, ';');
 }

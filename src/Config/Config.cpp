@@ -58,7 +58,7 @@ const std::vector<ServerConfig *> &Config::getServerConfigs() const {
 size_t Config::getClientMaxBodySize() const {
 	if (_configSettings.getClientMaxBodySize())
 		return _configSettings.getClientMaxBodySize();
-	return DEFAULT_client_max_request_size;
+	return DEFAULT_CLIENT_MAX_BODY_SIZE;
 }
 
 const std::map<int, std::string>& Config::getErrorPages() const {
@@ -101,6 +101,12 @@ unsigned int Config::getCgiTimeout() const {
 	if (_cgiTimeout)
 		return _cgiTimeout;
 	return DEFAULT_CGI_TIMEOUT;
+}
+
+unsigned int Config::getClientMaxHeaderSize() const {
+	if (_clientMaxHeaderSize)
+		return _clientMaxHeaderSize;
+	return DEFAULT_CLIENT_MAX_HEADER_SIZE;
 }
 
 size_t Config::getClientMaxBodySize(const ServerConfig &serverConfig, const Location *location) {
@@ -184,6 +190,8 @@ void Config::_parseConfigFile(const std::string &configFile) throw(ConfigParseEx
 			_parseConnectionTimeout(file);
 		else if (token == "cgi_timeout")
 			_parseCgiTimeout(file);
+		else if (token == "client_max_header_size")
+				_parseClientMaxHeaderSize(file);
 		else
 			throw ConfigParseException("Unexpected keyword: " + token);
 		ParseUtils::skipWhitespace(file);
@@ -249,18 +257,21 @@ void Config::_parseChunkSize(std::ifstream &infile) throw(ConfigParseException) 
 
 void Config::_parseConnectionTimeout(std::ifstream &infile) throw(ConfigParseException) {
 	std::string timeout;
-
 	timeout = ParseUtils::parseValue(infile);
 	_connectionTimeout = ParseUtils::parseLong(timeout, 1, std::numeric_limits<int>::max());
-
 	ParseUtils::expectChar(infile, ';');
 }
 
 void Config::_parseCgiTimeout(std::ifstream &infile) throw(ConfigParseException) {
 	std::string timeout;
-
 	timeout = ParseUtils::parseValue(infile);
 	_cgiTimeout = ParseUtils::parseLong(timeout, 1, std::numeric_limits<int>::max());
+	ParseUtils::expectChar(infile, ';');
+}
 
+void Config::_parseClientMaxHeaderSize(std::ifstream &infile) throw(ConfigParseException) {
+	std::string value;
+	value = ParseUtils::parseValue(infile);
+	_clientMaxHeaderSize = ParseUtils::parseSize(value);
 	ParseUtils::expectChar(infile, ';');
 }

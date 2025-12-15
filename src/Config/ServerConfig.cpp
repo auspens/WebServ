@@ -144,7 +144,7 @@ size_t ServerConfig::getClientMaxBodySize() const {
 		return _configSettings.getClientMaxBodySize();
 	if (_config)
 		return _config->getClientMaxBodySize();
-	return DEFAULT_client_max_request_size;
+	return DEFAULT_CLIENT_MAX_BODY_SIZE;
 }
 
 const std::map<int, std::string> &ServerConfig::getErrorPages() const {

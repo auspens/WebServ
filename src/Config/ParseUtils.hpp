@@ -27,6 +27,7 @@ public:
 	static void skipWhitespace(std::ifstream &infile) throw(ConfigParseException);
 	static long parseLong(std::string nbr, long min, long max) throw(ConfigParseException);
 	static int parseInt(std::string nbr) throw(ConfigParseException);
+	static int parseSize(std::string str) throw(ConfigParseException);
 	static std::string parseValue(std::ifstream &infile) throw(ConfigParseException);
 	static bool isErrorCode(std::string const &str);
 

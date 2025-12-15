@@ -10,56 +10,59 @@ RequestParser::RequestParser(){
 }
 
 void RequestParser::reset() {
-    _state = START_LINE;
-    _request = HttpRequest();
-    _buffer.clear();
-    _contentLength = 0;
+	_state = START_LINE;
+	_request = HttpRequest();
+	_buffer.clear();
+	_contentLength = 0;
 	_chunkSize = 0;
 	_inChunk = false;
 }
+
 bool RequestParser::isDone() const {
-    return _state == DONE;
-}
-const HttpRequest RequestParser::getRequest() const {
-    return _request;
+	return _state == DONE;
 }
 
-void RequestParser::setMaxBody(size_t size){
+const HttpRequest RequestParser::getRequest() const {
+	return _request;
+}
+
+void RequestParser::setMaxBody(size_t size) {
 	_maxBody = size;
 }
 
-void RequestParser::initMaxBody(const Config &config){
-	_maxBody = config.getClientMaxBodySize();
+void RequestParser::setMaxHeader(unsigned int size) {
+	_maxHeader = size;
 }
 
 RequestParser::ParseResult RequestParser::parse(const char* data, size_t len) throw(SourceAndRequestException) {
-	if (data && (len + _buffer.size() > _maxBody) )
-		throw SourceAndRequestException("Request exceeds maximum allowed size", 413);
-    if(data && len > 0)
+	if(data && len > 0)
 		_buffer.append(data, len);
-    while (true) {
-        switch (_state) {
-            case START_LINE:
-                if (!parseStartLine(data, len))
+	while (true) {
+		switch (_state) {
+			case START_LINE:
+				if (!parseStartLine(data, len))
 					return _buffer.empty() && len == 0 ? EMPTY : INCOMPLETE;
-                _parseUrl();
-                _state = HEADERS;
-            case HEADERS:
+				_parseUrl();
+				_state = HEADERS;
+				// fall through
+			case HEADERS:
 				if (_request.headers.find("Host") != _request.headers.end())
 					_state = HOST_RECEIVED;
+				// fall through
 			case HOST_RECEIVED:
-                if (!parseHeaders(data, len)) return INCOMPLETE;
-                _state = BODY;
-            case BODY:
-                if (!parseBody(data, len)) return INCOMPLETE;
-                _state = DONE;
-                return COMPLETE;
-            case DONE:
-                return COMPLETE;
+				if (!parseHeaders(data, len)) return INCOMPLETE;
+				_state = BODY;
+				// fall through
+			case BODY:
+				if (!parseBody(data, len)) return INCOMPLETE;
+				_state = DONE;
+				return COMPLETE;
+			case DONE:
+				return COMPLETE;
 			case ERROR:
 				throw SourceAndRequestException("Bad request", 400); // Nicer if parser doesn't throw errors but saves error and returns state BAD
-        }
-    }
+		}
+	}
 }
 
 bool RequestParser::parseStartLine(const char *data, size_t len) throw(SourceAndRequestException) {
@@ -85,6 +88,11 @@ bool RequestParser::parseStartLine(const char *data, size_t len) throw(SourceAnd
 }
 
 bool RequestParser::parseHeaders(const char *data, size_t len) throw(SourceAndRequestException) {
+	if (len > _maxHeader - _headerSize)
+		throw SourceAndRequestException("Request header too large", 413);
+	else
+		_headerSize += len;
+
 	size_t pos;
 	while ((pos = _buffer.find("\r\n")) != std::string::npos) {
 		 std::string line = _buffer.substr(0, pos);
@@ -108,6 +116,12 @@ bool RequestParser::parseHeaders(const char *data, size_t len) throw(SourceAndRe
 
 bool RequestParser::parseBody(const char *data, size_t len) throw(SourceAndRequestException) {
     if (_request.method != "POST") return true;
+
+	if (len > _maxBody - _bodySize)
+		throw SourceAndRequestException("Request body too large", 413);
+	else
+		_headerSize += len;
+
 	std::map<std::string, std::string>::iterator it = _request.headers.find("Transfer-Encoding");
 	if (it != _request.headers.end() && it->second == "chunked") {
 		if (!_handleChunkedInput())
@@ -121,7 +135,7 @@ bool RequestParser::parseBody(const char *data, size_t len) throw(SourceAndReque
 		}
 		_contentLength = std::atoi(it->second.c_str());
 		if (_contentLength > _maxBody)
-			throw SourceAndRequestException("Body too big", 413);
+			throw SourceAndRequestException("Request body too large", 413);
 		if (_buffer.size() < _contentLength) return checkForError(data, len, false);
 		_request.body = _buffer.substr(0, _contentLength);
 		_buffer.erase(0, _contentLength);
