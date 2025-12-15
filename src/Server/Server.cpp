@@ -263,6 +263,7 @@ void Server::_writeToSocket(EventInfo &eventInfo) {
 }
 
 void Server::_finishRequest(Connection *conn) {
+	Logger::debug() << "Done serving request for socket " << conn->getSocketFd() << std::endl;
 	if (conn->getRequest().isNotKeepAlive() || (
 		conn->getSource()
 		&& conn->getSource()->getStatusCode() >= 400

@@ -146,7 +146,7 @@ void Connection::writeToSocket() throw(SocketException) {
 		if (bytes_sent == -1)
 			throw SocketException(std::string("Error sending to socket: ") + strerror(errno));
 
-		Logger::debug() << "Sent " << bytes_sent << " bytes:" << std::endl;
+		Logger::debug() << "Sent " << bytes_sent << " bytes" << std::endl;
 		_source->bytesSent(bytes_sent);
 	}
 

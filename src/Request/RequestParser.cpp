@@ -1,12 +1,6 @@
 #include "RequestParser.hpp"
-RequestParser::RequestParser(){
-	_state = START_LINE;
-    _request = HttpRequest();
-    _buffer.clear();
-    _contentLength = 0;
-	_chunkSize = 0;
-	_inChunk = false;
-	_maxBody = 0;
+RequestParser::RequestParser() {
+	reset();
 }
 
 void RequestParser::reset() {
@@ -16,6 +10,7 @@ void RequestParser::reset() {
 	_contentLength = 0;
 	_chunkSize = 0;
 	_inChunk = false;
+	_maxBody = 0;
 }
 
 bool RequestParser::isDone() const {
@@ -115,9 +110,9 @@ bool RequestParser::parseHeaders(const char *data, size_t len) throw(SourceAndRe
 }
 
 bool RequestParser::parseBody(const char *data, size_t len) throw(SourceAndRequestException) {
-    if (_request.method != "POST") return true;
+	if (_request.method != "POST") return true;
 
-	if (len > _maxBody - _bodySize)
+	if (_maxBody && len > _maxBody - _bodySize)
 		throw SourceAndRequestException("Request body too large", 413);
 	else
 		_headerSize += len;
@@ -133,14 +128,14 @@ bool RequestParser::parseBody(const char *data, size_t len) throw(SourceAndReque
 		if (it == _request.headers.end()) {
 			throw SourceAndRequestException("No Content Length header", 411);
 		}
-		_contentLength = std::atoi(it->second.c_str());
-		if (_contentLength > _maxBody)
+		if (!_contentLength) _contentLength = std::atoi(it->second.c_str());
+		if (_maxBody && _contentLength > _maxBody)
 			throw SourceAndRequestException("Request body too large", 413);
 		if (_buffer.size() < _contentLength) return checkForError(data, len, false);
 		_request.body = _buffer.substr(0, _contentLength);
 		_buffer.erase(0, _contentLength);
 	}
-    return true;
+	return true;
 }
 
 bool RequestParser::_handleChunkedInput(){

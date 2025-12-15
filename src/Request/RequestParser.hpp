@@ -35,7 +35,6 @@ class RequestParser {
 		void setMaxHeader(unsigned int size);
 		bool checkForError(const char *data, size_t len, bool errorFound);
 		ParseResult continueParsing();
-		void initMaxBody(const Config &config);
 		ParseState getParseState();
 
 		RequestParser(const RequestParser &other);
@@ -55,10 +54,10 @@ class RequestParser {
 		size_t			_maxBody;
 		size_t			_bodySize;
 
-        bool parseStartLine(const char *data, size_t len) throw(SourceAndRequestException);
-        bool parseHeaders(const char *data, size_t len) throw(SourceAndRequestException);
-        bool parseBody(const char *data, size_t len) throw(SourceAndRequestException);
-        void _parseUrl();
+		bool parseStartLine(const char *data, size_t len) throw(SourceAndRequestException);
+		bool parseHeaders(const char *data, size_t len) throw(SourceAndRequestException);
+		bool parseBody(const char *data, size_t len) throw(SourceAndRequestException);
+		void _parseUrl();
 
 		bool _handleChunkedInput();
 		void _parseChunkSize(const std::string& hexStr);

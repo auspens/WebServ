@@ -40,6 +40,7 @@ void UploadSource::init() throw(SourceAndRequestException) {
 	if (!dir)
 		throw SourceAndRequestException("Upload folder doesn't exist", 403);
 	closedir(dir);
+
 	_isWriting = false;
 	_doneWriting = false;
 	_doneReading = true;
@@ -47,70 +48,79 @@ void UploadSource::init() throw(SourceAndRequestException) {
 	_uploadOffset = 0;
 	_writeSize = Config::getClientMaxBodySize(_serverConfig, _location);
 
-	try
-	{
+	try {
 		header = _request.headers.at("Content-Type");
-	}
-	catch (std::out_of_range &e)
-	{
+	} catch (std::out_of_range &e) {
 		throw SourceAndRequestException("No Content-Type header found", 400);
 	}
 
-	boundary = _findBoundary(header);
+	boundary = _parseBoundaryDelimiter(header);
 	_getUploadFiles(boundary, _request);
 }
 
-void UploadSource::_getUploadFiles(std::string boundary, HttpRequest &req)
+std::string UploadSource::_extractFilename(const std::string &headers)
 {
-	std::string line;
-	std::size_t pos = 0;
-	while ((pos = req.body.find(boundary, pos)) != std::string::npos)
-	{
-		pos += boundary.length();
-		if (req.body.substr(pos, 2) == "--")
-			break;
-		if (req.body.substr(pos, 2) == "\r\n")
-			pos += 2;
-		std::size_t header_end = req.body.find("\r\n\r\n", pos);
-		if (header_end == std::string::npos)
-			throw SourceAndRequestException("couldn't parse the multipart form body", 400);
-		std::string headers = req.body.substr(pos, header_end - pos);
-		pos = header_end + 4;
-		fileToUpload fileInfo;
-		std::size_t cd_pos = headers.find("Content-Disposition:");
-		if (cd_pos != std::string::npos)
-		{
-			std::size_t fn_pos = headers.find("filename=\"", cd_pos);
-			if (fn_pos != std::string::npos)
-			{
-				fn_pos += 10;
-				std::size_t fn_end = headers.find("\"", fn_pos);
-				if (fn_end == std::string::npos || fn_end == fn_pos)
-					throw SourceAndRequestException("Malformed filename in Content-Disposition", 400);
-				fileInfo.name = _getFileName(headers.substr(fn_pos, fn_end - fn_pos));
-			}
-			else
-			{
-				std::size_t skip = req.body.find(boundary, pos);
-				if (skip == std::string::npos)
-					throw SourceAndRequestException("Couldn't parse upload files", 400);
-				pos = skip;
-				continue;
-			}
-		}
-		else
-			throw SourceAndRequestException("No Content-Disposition header for multipart form", 400);
-		std::size_t next_boundary = req.body.find(boundary, pos);
-		if (next_boundary == std::string::npos)
-			throw SourceAndRequestException("Couldn't parse the multipart form body", 400);
-		fileInfo.body = req.body.substr(pos, next_boundary - pos - 2);
-		_uploads.push_back(fileInfo);
-		pos = next_boundary;
-	}
+	std::size_t cd_pos = headers.find("Content-Disposition:");
+	if (cd_pos == std::string::npos)
+		throw SourceAndRequestException("No Content-Disposition header for multipart form", 400);
+
+	std::size_t fn_pos = headers.find("filename=\"", cd_pos);
+	if (fn_pos == std::string::npos)
+		return "";
+
+	fn_pos += 10;
+	std::size_t fn_end = headers.find("\"", fn_pos);
+
+	if (fn_end == std::string::npos || fn_end == fn_pos)
+		throw SourceAndRequestException("Malformed filename in Content-Disposition", 400);
+
+	return headers.substr(fn_pos, fn_end - fn_pos);
 }
 
-std::string UploadSource::_getFileName(std::string token)
-{
+std::string UploadSource::_extractFileBody(
+	const std::string &body,
+	const std::string &boundary,
+	std::size_t pos
+) {
+	std::size_t next_boundary = body.find(boundary, pos);
+	if (next_boundary == std::string::npos)
+		throw SourceAndRequestException("Couldn't parse the multipart form body", 400);
+
+	return body.substr(pos, next_boundary - pos - 2);
+}
+
+std::size_t	UploadSource::_skipToNextBoundary(
+	const std::string &body,
+	const std::string &boundary,
+	std::size_t pos
+) {
+	std::size_t skip = body.find(boundary, pos);
+	if (skip == std::string::npos)
+		throw SourceAndRequestException("Couldn't parse upload files", 400);
+	return skip;
+}
+
+std::string UploadSource::_parseBoundaryDelimiter(std::string header) {
+	size_t start = header.find("boundary=");
+	if (start == std::string::npos)
+		throw SourceAndRequestException("No boundary in multipart form", 400);
+
+	start += 9;
+
+	size_t end;
+	if (header.at(start) == '"') {
+		start++;
+		end = header.find("\"", start);
+		if (end == std::string::npos)
+			throw SourceAndRequestException("Error parsing boundary in multipart form", 400);
+	} else {
+		end = header.find(';', start);
+	}
+
+	return header.substr(start, end - start);
+}
+
+std::string UploadSource::_generateFilePath(std::string token) {
 	std::size_t pos;
 
 	WebServUtils::removeFromString(token, "..");
@@ -122,32 +132,42 @@ std::string UploadSource::_getFileName(std::string token)
 		pos = token.length();
 
 	std::ostringstream name;
-	name << _target << "/" << token.substr(0, pos) << "_" << std::time(NULL) << token.substr(pos);
-
+	name << _target << "/" << token.substr(0, pos)
+			<< "_" << std::time(NULL) << token.substr(pos);
 	return name.str();
 }
 
-std::string UploadSource::_findBoundary(std::string header)
+void UploadSource::_getUploadFiles(std::string boundary, HttpRequest &req)
 {
-	size_t start;
-	size_t end;
+	std::size_t pos = 0;
+	while ((pos = req.body.find(boundary, pos)) != std::string::npos) {
+		pos += boundary.length();
 
-	if ((start = header.find("boundary=")) != std::string::npos)
-		start += 9;
-	else
-		throw SourceAndRequestException("No boundary in multipart form", 400);
+		if (req.body.substr(pos, 2) == "--")
+			break;
+		if (req.body.substr(pos, 2) == "\r\n")
+			pos += 2;
 
-	if (header.at(start) == '"')
-	{
-		start++;
-		end = header.find("\"", start);
-		if (end == std::string::npos)
-			throw SourceAndRequestException("Error parsing boundary in multipart form", 400);
+		std::size_t header_end = req.body.find("\r\n\r\n", pos);
+		if (header_end == std::string::npos)
+			throw SourceAndRequestException("couldn't parse the multipart form body", 400);
+
+		std::string headers = req.body.substr(pos, header_end - pos);
+		pos = header_end + 4;
+
+		std::string filename = _extractFilename(headers);
+		if (filename.empty()) {
+			pos = _skipToNextBoundary(req.body, boundary, pos);
+			continue;
+		}
+
+		fileToUpload fileInfo;
+		fileInfo.name = _generateFilePath(filename);
+		fileInfo.body = _extractFileBody(req.body, boundary, pos);
+
+		_uploads.push_back(fileInfo);
+		pos = req.body.find(boundary, pos);
 	}
-	else
-		end = header.find(';', start);
-
-	return header.substr(start, end);
 }
 
 void UploadSource::writeSource() throw(SourceAndRequestException) {
