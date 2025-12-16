@@ -214,7 +214,7 @@ void UploadSource::_createHTTPResponse()
 	header += "Content-Length: " + WebServUtils::num_to_str(response_body.size()) + "\r\n";
 	header += "Content-Type: text/html\r\n";
 	if (_request.isNotKeepAlive())
-		header += "Connection: Keep-Alive\r\n";
+		header += "Connection: keep-alive\r\n";
 	header += "\r\n";
 	header += response_body;
 

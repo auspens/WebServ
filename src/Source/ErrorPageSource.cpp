@@ -82,7 +82,9 @@ void ErrorPageSource::setHeader(){
 
 	header += std::string("HTTP/1.1 ") + statusCodes[_code].code + " " + statusCodes[_code].message + "\r\n";
 	header += "Content-Type: " + _mime + "\r\n";
-	if (_request.isNotKeepAlive())
+	if (_request.isNotKeepAlive() || (_code >= 400 && _code < 500))
+		header += "Connection: close\r\n";
+	else
 		header += "Connection: Keep-Alive\r\n";
 	header += "Content-Length: " + WebServUtils::num_to_str(_size) + "\r\n\r\n";
 	Logger::debug()<< "At ErrorPage setHeader" << std::endl;
