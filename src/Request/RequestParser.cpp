@@ -33,6 +33,8 @@ void RequestParser::initMaxBody(const Config &config){
 }
 
 RequestParser::ParseResult RequestParser::parse(const char* data, size_t len) throw(SourceAndRequestException) {
+	bool headerParseResult;
+
 	if (data && (len + _buffer.size() > _maxBody) )
 		throw SourceAndRequestException("Request exceeds maximum allowed size", 413);
     if(data && len > 0)
@@ -44,12 +46,19 @@ RequestParser::ParseResult RequestParser::parse(const char* data, size_t len) th
 					return _buffer.empty() && len == 0 ? EMPTY : INCOMPLETE;
                 _parseUrl();
                 _state = HEADERS;
+				/* fall through */
             case HEADERS:
-				if (_request.headers.find("Host") != _request.headers.end())
-					_state = HOST_RECEIVED;
 			case HOST_RECEIVED:
-                if (!parseHeaders(data, len)) return INCOMPLETE;
+				headerParseResult = parseHeaders(data, len);
+
+				if (_state != HOST_RECEIVED && _request.headers.find("Host") != _request.headers.end()) {
+					_state = HOST_RECEIVED;
+					_parseHost();
+				}
+
+				if (!headerParseResult) return INCOMPLETE;
                 _state = BODY;
+				/* fall through */
             case BODY:
                 if (!parseBody(data, len)) return INCOMPLETE;
                 _state = DONE;
@@ -214,11 +223,20 @@ void RequestParser::_parseUrl() {
 		hostEnd = url.length();
 
 	pathEnd = url.find_first_of("?#", hostEnd);
-	_request.hostname = url.substr(hostStart, hostEnd - hostStart);
 	_request.path = WebServUtils::urlDecode(url.substr(hostEnd, pathEnd - hostEnd));
 
 	if (_request.path == "")
 		_request.path = "/";
+}
+
+void RequestParser::_parseHost() {
+	std::string	host = _request.headers["Host"];
+	size_t		hostEnd = host.find_first_of(':');
+
+	if (hostEnd == std::string::npos)
+		hostEnd = host.length();
+
+	_request.hostname = host.substr(0, hostEnd);
 }
 
 RequestParser::ParseResult RequestParser::continueParsing() {

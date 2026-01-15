@@ -6,7 +6,7 @@
 /*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 13:53:34 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/17 17:14:20 by wpepping         ###   ########.fr       */
+/*   Updated: 2026/01/15 15:10:20 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ class Server {
 		void			_handleSourceEvent(u_int32_t events, EventInfo *eventInfo) throw(IsChildProcessException);
 		void			_handleSocketEvent(u_int32_t events, EventInfo *eventInfo);
 		void			_handleChildProcessEvent();
-		void			_setupSource(Connection *conn) throw(IsChildProcessException, SourceAndRequestException);
+		void			_finishReadingRequest(Connection *conn) throw(IsChildProcessException, SourceAndRequestException);
 		void			_readFromSocket(EventInfo &eventInfo) throw(IsChildProcessException);
 		void			_writeToSocket(EventInfo &eventInfo);
 		void			_readFromSource(EventInfo &eventInfo);

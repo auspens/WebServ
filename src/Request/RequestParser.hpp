@@ -21,7 +21,6 @@ class RequestParser {
         enum ParseResult {
             INCOMPLETE,
             COMPLETE,
-			URL_READY,
             BAD,
 			EMPTY
         };
@@ -55,6 +54,7 @@ class RequestParser {
         bool parseHeaders(const char *data, size_t len) throw(SourceAndRequestException);
         bool parseBody(const char *data, size_t len) throw(SourceAndRequestException);
         void _parseUrl();
+		void _parseHost();
 
 		bool _handleChunkedInput();
 		void _parseChunkSize(const std::string& hexStr);
