@@ -31,9 +31,9 @@ class RequestParser {
 		size_t getMaxBody()const;
         void reset();
 		void setMaxBody(size_t size);
+		void setMaxHeader(unsigned int size);
 		bool checkForError(const char *data, size_t len, bool errorFound);
 		ParseResult continueParsing();
-		void initMaxBody(const Config &config);
 		ParseState getParseState();
 
 		RequestParser(const RequestParser &other);
@@ -41,14 +41,17 @@ class RequestParser {
 		~RequestParser();
 
     private:
-        ParseState _state;
-		size_t 		_contentLength;
-		size_t		_chunkSize;
-		size_t		_chunkPartRead;
-		bool		_inChunk;
-        HttpRequest _request;
-        std::string _buffer;
-		size_t 		_maxBody;
+		ParseState		_state;
+		size_t			_contentLength;
+		size_t			_chunkSize;
+		size_t			_chunkPartRead;
+		bool			_inChunk;
+		HttpRequest		_request;
+		std::string		_buffer;
+		unsigned int	_maxHeader;
+		size_t			_headerSize;
+		size_t			_maxBody;
+		size_t			_bodySize;
 
         bool parseStartLine(const char *data, size_t len) throw(SourceAndRequestException);
         bool parseHeaders(const char *data, size_t len) throw(SourceAndRequestException);

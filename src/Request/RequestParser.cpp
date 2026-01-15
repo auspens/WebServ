@@ -1,35 +1,33 @@
 #include "RequestParser.hpp"
-RequestParser::RequestParser(){
-	_state = START_LINE;
-    _request = HttpRequest();
-    _buffer.clear();
-    _contentLength = 0;
-	_chunkSize = 0;
-	_inChunk = false;
-	_maxBody = 0;
+RequestParser::RequestParser() {
+	reset();
 }
 
 void RequestParser::reset() {
-    _state = START_LINE;
-    _request = HttpRequest();
-    _buffer.clear();
-    _contentLength = 0;
+	_state = START_LINE;
+	_request = HttpRequest();
+	_buffer.clear();
+	_contentLength = 0;
 	_chunkSize = 0;
 	_inChunk = false;
-}
-bool RequestParser::isDone() const {
-    return _state == DONE;
-}
-const HttpRequest RequestParser::getRequest() const {
-    return _request;
+	_maxHeader = DEFAULT_CLIENT_MAX_HEADER_SIZE;
+	_maxBody = DEFAULT_CLIENT_MAX_BODY_SIZE;
 }
 
-void RequestParser::setMaxBody(size_t size){
+bool RequestParser::isDone() const {
+	return _state == DONE;
+}
+
+const HttpRequest RequestParser::getRequest() const {
+	return _request;
+}
+
+void RequestParser::setMaxBody(size_t size) {
 	_maxBody = size;
 }
 
-void RequestParser::initMaxBody(const Config &config){
-	_maxBody = config.getClientMaxBodySize();
+void RequestParser::setMaxHeader(unsigned int size) {
+	_maxHeader = size;
 }
 
 RequestParser::ParseResult RequestParser::parse(const char* data, size_t len) throw(SourceAndRequestException) {
@@ -39,10 +37,10 @@ RequestParser::ParseResult RequestParser::parse(const char* data, size_t len) th
 		throw SourceAndRequestException("Request exceeds maximum allowed size", 413);
     if(data && len > 0)
 		_buffer.append(data, len);
-    while (true) {
-        switch (_state) {
-            case START_LINE:
-                if (!parseStartLine(data, len))
+	while (true) {
+		switch (_state) {
+			case START_LINE:
+				if (!parseStartLine(data, len))
 					return _buffer.empty() && len == 0 ? EMPTY : INCOMPLETE;
                 _parseUrl();
                 _state = HEADERS;
@@ -67,8 +65,8 @@ RequestParser::ParseResult RequestParser::parse(const char* data, size_t len) th
                 return COMPLETE;
 			case ERROR:
 				throw SourceAndRequestException("Bad request", 400); // Nicer if parser doesn't throw errors but saves error and returns state BAD
-        }
-    }
+		}
+	}
 }
 
 bool RequestParser::parseStartLine(const char *data, size_t len) throw(SourceAndRequestException) {
@@ -94,6 +92,11 @@ bool RequestParser::parseStartLine(const char *data, size_t len) throw(SourceAnd
 }
 
 bool RequestParser::parseHeaders(const char *data, size_t len) throw(SourceAndRequestException) {
+	if (len > _maxHeader - _headerSize)
+		throw SourceAndRequestException("Request header too large", 413);
+	else
+		_headerSize += len;
+
 	size_t pos;
 	while ((pos = _buffer.find("\r\n")) != std::string::npos) {
 		 std::string line = _buffer.substr(0, pos);
@@ -116,7 +119,13 @@ bool RequestParser::parseHeaders(const char *data, size_t len) throw(SourceAndRe
 }
 
 bool RequestParser::parseBody(const char *data, size_t len) throw(SourceAndRequestException) {
-    if (_request.method != "POST") return true;
+	if (_request.method != "POST") return true;
+
+	if (_maxBody && len > _maxBody - _bodySize)
+		throw SourceAndRequestException("Request body too large", 413);
+	else
+		_headerSize += len;
+
 	std::map<std::string, std::string>::iterator it = _request.headers.find("Transfer-Encoding");
 	if (it != _request.headers.end() && it->second == "chunked") {
 		if (!_handleChunkedInput())
@@ -128,14 +137,14 @@ bool RequestParser::parseBody(const char *data, size_t len) throw(SourceAndReque
 		if (it == _request.headers.end()) {
 			throw SourceAndRequestException("No Content Length header", 411);
 		}
-		_contentLength = std::atoi(it->second.c_str());
-		if (_contentLength > _maxBody)
-			throw SourceAndRequestException("Body too big", 413);
+		if (!_contentLength) _contentLength = std::atoi(it->second.c_str());
+		if (_maxBody && _contentLength > _maxBody)
+			throw SourceAndRequestException("Request body too large", 413);
 		if (_buffer.size() < _contentLength) return checkForError(data, len, false);
 		_request.body = _buffer.substr(0, _contentLength);
 		_buffer.erase(0, _contentLength);
 	}
-    return true;
+	return true;
 }
 
 bool RequestParser::_handleChunkedInput(){

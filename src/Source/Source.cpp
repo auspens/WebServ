@@ -119,7 +119,9 @@ void Source::setHeader() { //default are Content-Type and Content-Length headers
 	header += "HTTP/1.1 200 OK\r\n";
 	header += "Content-Type: " + _mime + "\r\n";
 	if (_request.isNotKeepAlive())
-		header += "Connection: Keep-Alive\r\n";
+		header += "Connection: close\r\n";
+	else
+		header += "Connection: keep-alive\r\n";
 	header += "Content-Length: " + WebServUtils::num_to_str(_size) + "\r\n\r\n";
 	Logger::debug()<< "Preparing header in Source" << std::endl;
 	Logger::debug()<< "Header: " << std::endl << header << "header length: "<< header.length()<<std::endl;

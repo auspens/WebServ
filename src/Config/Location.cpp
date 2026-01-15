@@ -126,7 +126,7 @@ size_t Location::getClientMaxBodySize() const {
 		return _configSettings.getClientMaxBodySize();
 	if (_serverConfig)
 		return _serverConfig->getClientMaxBodySize();
-	return DEFAULT_client_max_request_size;
+	return DEFAULT_CLIENT_MAX_BODY_SIZE;
 }
 
 const std::map<int, std::string>& Location::getErrorPages() const {

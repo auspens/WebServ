@@ -263,6 +263,7 @@ void Server::_writeToSocket(EventInfo &eventInfo) {
 }
 
 void Server::_finishRequest(Connection *conn) {
+	Logger::debug() << "Done serving request for socket " << conn->getSocketFd() << std::endl;
 	if (conn->getRequest().isNotKeepAlive() || (
 		conn->getSource()
 		&& conn->getSource()->getStatusCode() >= 400
@@ -283,7 +284,7 @@ void Server::_readFromSource(EventInfo &eventInfo) {
 		return;
 	try {
 		conn->getSource()->readSource();
-	} catch (SourceAndRequestException &e) { // May need some work. Clean up epoll?
+	} catch (SourceAndRequestException &e) {
 		Logger::warning() << "Error while reading from source" << std::endl;
 		_updateEvents(EPOLL_CTL_DEL, EPOLLIN, &eventInfo, conn->getSourceFd());
 		_handleSourceError(conn, e.errorCode());

@@ -107,7 +107,8 @@ void Connection::readFromSocket(size_t bufferSize, const Config *config)
 		throw SocketException(std::string("Error reading from socket") + strerror(errno));
 
 	if (_parser.getParseState() == RequestParser::START_LINE)
-		_parser.initMaxBody(*config);
+		_parser.setMaxHeader(config->getClientMaxHeaderSize());
+
 	RequestParser::ParseResult parseResult = _parser.parse(_socketReadBuffer.data(), valread);
 	if (!_serverConfig) {
 		RequestParser::ParseState checkStates[] = { RequestParser::HOST_RECEIVED, RequestParser::BODY, RequestParser::DONE };
@@ -124,7 +125,6 @@ void Connection::readFromSocket(size_t bufferSize, const Config *config)
 		throw(EmptyRequestException());
 	else if (parseResult == RequestParser::COMPLETE) {
 		_request = _parser.getRequest();
-
 		Logger::debug() << "Headers:" << std::endl;
 		for (std::map<std::string, std::string>::iterator it = _request.headers.begin(); it != _request.headers.end(); ++it)
 			Logger::debug() << it->first << " : " << it->second << std::endl;
@@ -147,7 +147,7 @@ void Connection::writeToSocket() throw(SocketException) {
 		if (bytes_sent == -1)
 			throw SocketException(std::string("Error sending to socket: ") + strerror(errno));
 
-		Logger::debug() << "Sent " << bytes_sent << " bytes:" << std::endl;
+		Logger::debug() << "Sent " << bytes_sent << " bytes" << std::endl;
 		_source->bytesSent(bytes_sent);
 	}
 

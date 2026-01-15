@@ -18,11 +18,10 @@ StaticFileSource::StaticFileSource(
 	HttpRequest &req,
 	std::string target
 )
-	: Source(serverConfig, location, req)
-	, _generated(false) {
-	Logger::debug() << "Creating Static File Source for " << target << std::endl;
-	_location = location;
-	_target = target;
+	: Source(serverConfig, location, req) , _generated(false) {
+		Logger::debug() << "Creating Static File Source" << (target.size() ? " for " : "") << target << std::endl;
+		_location = location;
+		_target = target;
 }
 
 void StaticFileSource::init() throw(SourceAndRequestException) {

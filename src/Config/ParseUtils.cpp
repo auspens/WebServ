@@ -83,6 +83,23 @@ long ParseUtils::parseLong(std::string nbr, long min, long max) throw(ConfigPars
 	return l;
 }
 
+int ParseUtils::parseSize(std::string str) throw(ConfigParseException) {
+	int		result = 1;
+	char	lastChar = str[str.length() - 1];
+
+	if (lastChar == 'K')
+		result *= 1024;
+	if (lastChar == 'M')
+		result *= 1024 * 1024;
+	if (lastChar == 'G') {
+		result *= 1024 * 1024 * 1024;
+		str = str.substr(0, str.length() - 1);
+	}
+	result *= ParseUtils::parseInt(str);
+
+	return result;
+}
+
 std::string ParseUtils::parseValue(std::ifstream &infile) throw(ConfigParseException) {
 	int c;
 	std::string result = "";
