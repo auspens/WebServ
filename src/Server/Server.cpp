@@ -202,7 +202,7 @@ void Server::_handleChildProcessEvent() {
 	}
 }
 
-void Server::_setupSource(Connection *conn) throw(IsChildProcessException, SourceAndRequestException) {
+void Server::_finishReadingRequest(Connection *conn) throw(IsChildProcessException, SourceAndRequestException) {
 	//Logger::detail() <<"Request body: "<< conn->getRequestBody() << std::endl << std::endl;
 	conn->setupSource(_shutDownFlag);
 
@@ -230,7 +230,7 @@ void Server::_readFromSocket(EventInfo &eventInfo) throw(IsChildProcessException
 	try {
 		conn->readFromSocket(_config->getBufferSize(), _config);
 		if (conn->requestReady()) // finished reading request, create the source and the response
-			_setupSource(conn);
+			_finishReadingRequest(conn);
 	} catch (Connection::SocketException &e) {
 		Logger::info() << "Error reading from socket, closing connection." << std::endl;
 		_removeConnection(conn);

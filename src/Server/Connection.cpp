@@ -114,8 +114,9 @@ void Connection::readFromSocket(size_t bufferSize, const Config *config)
 	if (!_serverConfig) {
 		RequestParser::ParseState checkStates[] = { RequestParser::HOST_RECEIVED, RequestParser::BODY, RequestParser::DONE };
 		if (WebServUtils::contains(_parser.getParseState(), checkStates, 3)) {
-			Logger::debug() << "Request path in connection: " << _parser.getRequest().path << std::endl;
-			_serverConfig = _findServerConfig(_serverPort,_request.hostname, *config);
+			Logger::debug() << "Host: " << _parser.getRequest().hostname << std::endl;
+			Logger::debug() << "Path: " << _parser.getRequest().path << std::endl;
+			_serverConfig = _findServerConfig(_serverPort, _parser.getRequest().hostname, *config);
 			_location = _findLocation(_parser.getRequest().path, *_serverConfig);
 			_parser.setMaxBody(Config::getClientMaxBodySize(*_serverConfig, _location));
 		}
@@ -199,7 +200,6 @@ const ServerConfig *Connection::_findServerConfig(
 			if (serverConfig->getServerNames().size() == 0)
 				return serverConfig;
 
-			Logger::info() << "host: " << host << std::endl;
 			for (size_t i = 0; i < serverConfig->getServerNames().size(); i++) {
 				if (_matchServerName(host, serverConfig->getServerNames()[i]))
 					return serverConfig;
@@ -213,6 +213,8 @@ const Location *Connection::_findLocation (
 	const std::string &target,
 	const ServerConfig &serverConfig
 ) {
+	Logger::debug() << "Finding location for: " << target << std::endl;
+
 	const std::vector<Location *> locations = serverConfig.getLocations();
 	std::vector<Location *>::const_iterator it;
 	for (it = locations.begin(); it != locations.end(); ++it) {

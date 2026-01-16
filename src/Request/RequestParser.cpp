@@ -10,7 +10,8 @@ void RequestParser::reset() {
 	_contentLength = 0;
 	_chunkSize = 0;
 	_inChunk = false;
-	_maxBody = 0;
+	_maxHeader = DEFAULT_CLIENT_MAX_HEADER_SIZE;
+	_maxBody = DEFAULT_CLIENT_MAX_BODY_SIZE;
 	_headerSize = 0;
 	_bodySize = 0;
 }
@@ -32,30 +33,38 @@ void RequestParser::setMaxHeader(unsigned int size) {
 }
 
 RequestParser::ParseResult RequestParser::parse(const char* data, size_t len) throw(SourceAndRequestException) {
-	if(data && len > 0)
+	bool headerParseResult;
+
+	if (data && (len + _buffer.size() > _maxBody) )
+		throw SourceAndRequestException("Request exceeds maximum allowed size", 413);
+    if(data && len > 0)
 		_buffer.append(data, len);
 	while (true) {
 		switch (_state) {
 			case START_LINE:
 				if (!parseStartLine(data, len))
 					return _buffer.empty() && len == 0 ? EMPTY : INCOMPLETE;
-				_parseUrl();
-				_state = HEADERS;
-				// fall through
-			case HEADERS:
-				if (_request.headers.find("Host") != _request.headers.end())
-					_state = HOST_RECEIVED;
-				// fall through
+                _parseUrl();
+                _state = HEADERS;
+				/* fall through */
+            case HEADERS:
 			case HOST_RECEIVED:
-				if (!parseHeaders(data, len)) return INCOMPLETE;
-				_state = BODY;
-				// fall through
-			case BODY:
-				if (!parseBody(data, len)) return INCOMPLETE;
-				_state = DONE;
-				return COMPLETE;
-			case DONE:
-				return COMPLETE;
+				headerParseResult = parseHeaders(data, len);
+
+				if (_state != HOST_RECEIVED && _request.headers.find("Host") != _request.headers.end()) {
+					_state = HOST_RECEIVED;
+					_parseHost();
+				}
+
+				if (!headerParseResult) return INCOMPLETE;
+                _state = BODY;
+				/* fall through */
+            case BODY:
+                if (!parseBody(data, len)) return INCOMPLETE;
+                _state = DONE;
+                return COMPLETE;
+            case DONE:
+                return COMPLETE;
 			case ERROR:
 				throw SourceAndRequestException("Bad request", 400); // Nicer if parser doesn't throw errors but saves error and returns state BAD
 		}
@@ -228,11 +237,20 @@ void RequestParser::_parseUrl() {
 		hostEnd = url.length();
 
 	pathEnd = url.find_first_of("?#", hostEnd);
-	_request.hostname = url.substr(hostStart, hostEnd - hostStart);
 	_request.path = WebServUtils::urlDecode(url.substr(hostEnd, pathEnd - hostEnd));
 
 	if (_request.path == "")
 		_request.path = "/";
+}
+
+void RequestParser::_parseHost() {
+	std::string	host = _request.headers["Host"];
+	size_t		hostEnd = host.find_first_of(':');
+
+	if (hostEnd == std::string::npos)
+		hostEnd = host.length();
+
+	_request.hostname = host.substr(0, hostEnd);
 }
 
 RequestParser::ParseResult RequestParser::continueParsing() {

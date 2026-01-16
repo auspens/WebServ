@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RedirectSource.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: auspensk <auspensk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wpepping <wpepping@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/06 16:39:22 by auspensk          #+#    #+#             */
-/*   Updated: 2025/07/16 14:56:49 by auspensk         ###   ########.fr       */
+/*   Updated: 2026/01/15 15:46:53 by wpepping         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ void RedirectSource::setHeader(){
 	header += std::string(PROTOCOL) + " " + WebServUtils::num_to_str(_code) + " " + StatusCodesStorage::getStatusCodes().find(_code)->second.message + "\r\n";
 	header += "Location: " + getRedirectLocation() + "\r\n";
 	header += "Content-Length: 0\r\n\r\n";
-	Logger::debug()<< "At setHeader" << std::endl;
+	Logger::debug()<< "Preparing header in RedirectSource" << std::endl;
 	Logger::debug() << "Body: " << std::string(_body.begin(), _body.end())<< " bytesTosend: "<< _bytesToSend<<std::endl;
 	Logger::debug()<< "Header: " << header << "header length: "<< header.length()<<std::endl;
 	_body.insert(_body.begin(), header.begin(), header.end());

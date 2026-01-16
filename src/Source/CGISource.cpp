@@ -74,7 +74,7 @@ void CGISource::setHeader() {
 	if (_request.isNotKeepAlive())
 		header += "Connection: keep-alive\r\n";
 	header += "Content-Length: " + WebServUtils::num_to_str(_getContentLength()) + "\r\n";
-	Logger::debug()<< "At setHeader" << std::endl;
+	Logger::debug()<< "Preparing header in CGISource" << std::endl;
 	Logger::debug()<< "Header: " << std::endl << header << "header length: "<< header.length() << std::endl;
 	_body.insert(_body.begin(), header.begin(), header.end());
 	_bytesToSend += header.length();
