@@ -103,6 +103,7 @@ void Connection::readFromSocket(size_t bufferSize, const Config *config)
 	throw(SourceAndRequestException, EmptyRequestException, SocketException) {
 
 	int valread = read(_socket.getFd(), _socketReadBuffer.data(), bufferSize);
+	if (_discard) return;
 	if (valread == -1)
 		throw SocketException(std::string("Error reading from socket") + strerror(errno));
 
@@ -246,6 +247,11 @@ bool Connection::_matchServerName(std::string host, std::string serverName) cons
 
 void Connection::invalidate() {
 	_invalidated = true;
+}
+
+void Connection::discard() {
+	_discard = true;
+	_parser.discard();
 }
 
 bool Connection::isInvalidated() const {

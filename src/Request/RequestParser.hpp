@@ -9,33 +9,37 @@
 #include <sstream>
 
 class RequestParser {
-    public:
-        enum ParseState {
-            START_LINE,
-            HEADERS,
+	public:
+		enum ParseState {
+			START_LINE,
+			HEADERS,
 			HOST_RECEIVED,
-            BODY,
-            DONE,
-            ERROR
-        };
-        enum ParseResult {
-            INCOMPLETE,
-            COMPLETE,
+			BODY,
+			DONE,
+			ERROR
+		};
+
+		enum ParseResult {
+			INCOMPLETE,
+			COMPLETE,
 			URL_READY,
-            BAD,
+			BAD,
 			EMPTY
-        };
-        RequestParser();
-        ParseResult parse(const char* data, size_t len) throw(SourceAndRequestException);
-        bool isDone() const;
-        const HttpRequest getRequest() const;
-		size_t getMaxBody()const;
-        void reset();
-		void setMaxBody(size_t size);
-		void setMaxHeader(unsigned int size);
-		bool checkForError(const char *data, size_t len, bool errorFound);
-		ParseResult continueParsing();
-		ParseState getParseState();
+		};
+
+		RequestParser();
+
+		ParseResult			parse(const char* data, size_t len) throw(SourceAndRequestException);
+		bool				isDone() const;
+		const HttpRequest 	getRequest() const;
+		void 				reset();
+		void 				setMaxBody(size_t size);
+		void 				setMaxHeader(unsigned int size);
+		bool				checkForError(const char *data, size_t len, bool errorFound);
+		ParseResult			continueParsing();
+		ParseState			getParseState();
+		size_t				getBodySize() const;
+		void				discard();
 
 		RequestParser(const RequestParser &other);
 		RequestParser &operator=(const RequestParser &other);
@@ -53,6 +57,7 @@ class RequestParser {
 		size_t			_headerSize;
 		size_t			_maxBody;
 		size_t			_bodySize;
+		bool			_discard;
 
 		bool parseStartLine(const char *data, size_t len) throw(SourceAndRequestException);
 		bool parseHeaders(const char *data, size_t len) throw(SourceAndRequestException);

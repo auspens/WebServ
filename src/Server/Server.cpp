@@ -241,7 +241,12 @@ void Server::_readFromSocket(EventInfo &eventInfo) throw(IsChildProcessException
 			Logger::debug() << "Add source to epoll. fd: " << conn->getSource()->getFd() << std::endl;
 			_updateEvents(EPOLL_CTL_ADD, EPOLLIN, conn->getSourceEventInfo(), conn->getSource()->getFd());
 		}
-		_updateEvents(EPOLL_CTL_MOD, EPOLLOUT, &eventInfo, conn->getSocketFd());
+		if (e.errorCode() == 413) {
+			conn->discard();
+			_updateEvents(EPOLL_CTL_ADD, EPOLLOUT, &eventInfo, conn->getSocketFd());
+		}
+		else
+			_updateEvents(EPOLL_CTL_MOD, EPOLLOUT, &eventInfo, conn->getSocketFd());
 	} catch (Connection::EmptyRequestException &e) {
 		_removeConnection(conn);
 	}
@@ -306,7 +311,7 @@ void Server::_writeToSource(EventInfo &eventInfo) {
 	} catch (SourceAndRequestException &e) {
 		Logger::warning() << "Error while writing to source" << std::endl;
 		_updateEvents(EPOLL_CTL_DEL, EPOLLOUT, &eventInfo, conn->getSourceFd());
-		_handleSourceError(conn, e.errorCode());
+		_removeConnection(conn);
 	}
 
 	if (conn->doneWritingSource()) {

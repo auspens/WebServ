@@ -11,6 +11,8 @@ void RequestParser::reset() {
 	_chunkSize = 0;
 	_inChunk = false;
 	_maxBody = 0;
+	_headerSize = 0;
+	_bodySize = 0;
 }
 
 bool RequestParser::isDone() const {
@@ -112,10 +114,13 @@ bool RequestParser::parseHeaders(const char *data, size_t len) throw(SourceAndRe
 bool RequestParser::parseBody(const char *data, size_t len) throw(SourceAndRequestException) {
 	if (_request.method != "POST") return true;
 
-	if (_maxBody && len > _maxBody - _bodySize)
+	bool tooLarge = _maxBody && len > _maxBody - _bodySize;
+	_bodySize += len;
+
+	if (_discard)
+		return tooLarge;
+	if (tooLarge)
 		throw SourceAndRequestException("Request body too large", 413);
-	else
-		_headerSize += len;
 
 	std::map<std::string, std::string>::iterator it = _request.headers.find("Transfer-Encoding");
 	if (it != _request.headers.end() && it->second == "chunked") {
@@ -245,8 +250,8 @@ RequestParser::ParseState RequestParser::getParseState(){
 	return _state;
 }
 
-size_t RequestParser::getMaxBody()const{
-	return _maxBody;
+void RequestParser::discard() {
+	_discard = true;
 }
 
 RequestParser::RequestParser(const RequestParser &other){

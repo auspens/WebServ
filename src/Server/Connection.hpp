@@ -60,6 +60,7 @@ class Connection{
 		bool				checkSocketTimeout(int timeout) const;
 
 		void				invalidate();
+		void				discard();
 		bool				requestReady() const;
 		bool				doneReadingSource() const;
 		bool				doneWritingSource() const;
@@ -101,6 +102,7 @@ class Connection{
 		const Location		*_location;
 		int					_serverPort;
 		bool				_invalidated;
+		bool				_discard;
 		time_t				_lastActiveTime;
 		EventInfo			*_sourceEventInfo;
 		EventInfo			*_socketEventInfo;
